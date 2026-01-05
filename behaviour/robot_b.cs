@@ -58,13 +58,13 @@ public class robot_b : MonoBehaviour
         }
 
 
-        if(touchSword && item_pick.canAttack && wasAttackedBySword==false)
+        if(touchSword)// && item_pick.canAttack && wasAttackedBySword==false)
         {
             wasAttackedBySword=true;
 
-            if(item_pick.whichSword==1)
+            //if(item_pick.whichSword==1)
                 my_hp-=5;
-            else if(item_pick.whichSword==2)
+            //else if(item_pick.whichSword==2)
                 my_hp-=3;
             
             StartCoroutine(Get_damage());
@@ -72,11 +72,11 @@ public class robot_b : MonoBehaviour
         }
 
 
-        if(item_pick.canAttack==false)
+        //if(item_pick.canAttack==false)
             wasAttackedBySword=false;
 
 
-        if(item_pick.shot && go==false)
+        //if(item_pick.shot && go==false)
             go=true;
 
 
@@ -215,9 +215,9 @@ public class robot_b : MonoBehaviour
 
     private IEnumerator Shot() 
     {
-        item_pick.shot=true;
+        //item_pick.shot=true;
         yield return new WaitForSeconds(0.1f);
-        item_pick.shot=false;
+        //item_pick.shot=false;
     }
 
 

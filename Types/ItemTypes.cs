@@ -7,11 +7,13 @@ public enum WeaponTypes
     Pistol,
     LaserSniper,
     Lightsaber,
-    Knife
+    Knife,
+    None
 }
 
 public enum SupportItems
 {
     FirstAid,
-    Shield
+    Shield,
+    None
 }

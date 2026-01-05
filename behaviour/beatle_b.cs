@@ -38,13 +38,13 @@ public class beatle_b : MonoBehaviour
 
     void Update()
     {
-        if(touchSword && item_pick.canAttack && wasAttackedBySword==false)
+        if(touchSword)// && item_pick.canAttack && wasAttackedBySword==false)
         {
             wasAttackedBySword=true;
 
-            if(item_pick.whichSword==1)
+            //if(item_pick.whichSword==1)
                 my_hp-=5;
-            else if(item_pick.whichSword==2)
+            //else if(item_pick.whichSword==2)
                 my_hp-=3;
             
             StartCoroutine(Get_damage());
@@ -52,7 +52,7 @@ public class beatle_b : MonoBehaviour
         }
 
 
-        if(item_pick.canAttack==false)
+        //if(item_pick.canAttack==false)
             wasAttackedBySword=false;
 
         
