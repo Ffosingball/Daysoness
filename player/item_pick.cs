@@ -602,12 +602,12 @@ public class item_pick : MonoBehaviour
         float currentRotation = sword_hand.transform.eulerAngles.z;
         currentRotation=currentRotation-45;
         
-        if(Movement.flipSword)
-        {
-            currentRotation=currentRotation-180;
-        }
+        //if(Movement.flipSword)
+        //{
+            //currentRotation=currentRotation-180;
+        //}
 
-        Movement.flipSword=false;
+        //Movement.flipSword=false;
         sword_hand.rotation=Quaternion.Euler(0,0,currentRotation);
 
         for(int i=0;i<15;i++)
@@ -639,12 +639,12 @@ public class item_pick : MonoBehaviour
         float currentRotation = sword_hand.transform.eulerAngles.z;
         currentRotation=currentRotation-90;
 
-        if(Movement.flipSword)
+        //if(Movement.flipSword)
         {
             currentRotation=currentRotation-180;
         }
 
-        Movement.flipSword=false;
+        //Movement.flipSword=false;
         sword_hand.rotation=Quaternion.Euler(0,0,currentRotation);
 
         for(int i=0;i<15;i++)
@@ -716,7 +716,7 @@ public class item_pick : MonoBehaviour
         {
             if(whichWeapon==1 && AK_47.bullets>0)
             {
-                Movement.flipSword=false;
+                //Movement.flipSword=false;
                 start_fire=StartCoroutine(AK_fire());
             }
             else if(whichWeapon==2 && pistol.bullets>0 && time<=0)
@@ -734,7 +734,7 @@ public class item_pick : MonoBehaviour
                 tempBullet.SetActive(true);
                 statistica.firedBullets++;
 
-                Movement.flipSword=false;
+                //Movement.flipSword=false;
                 StartCoroutine(Shot());
 
                 pistol.bullets--;
@@ -755,7 +755,7 @@ public class item_pick : MonoBehaviour
                 tempBullet.SetActive(true);
                 statistica.firedBullets++;
 
-                Movement.flipSword=false;
+                //Movement.flipSword=false;
                 StartCoroutine(Shot());
 
                 anihilator.bullets--;
@@ -763,7 +763,7 @@ public class item_pick : MonoBehaviour
             }
             else if(whichWeapon==4 && lazer.bullets>0)
             {
-                Movement.flipSword=false;
+                //Movement.flipSword=false;
                 start_fire=StartCoroutine(lazer_fire());
             }
             else if(whichWeapon==5 && canAttack==false)
@@ -776,7 +776,7 @@ public class item_pick : MonoBehaviour
             }
             else
             {
-                Movement.flipSword=false;
+                //Movement.flipSword=false;
                 StartCoroutine(Change_bullets());
             }
 

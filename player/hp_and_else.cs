@@ -89,7 +89,7 @@ public class hp_and_else : MonoBehaviour
 
     private void DeadScreen()
     {
-        Movement.timeMove=0f;
+        //Movement.timeMove=0f;
         Time.timeScale = 0f;
         mousePicture.change_coursor_menu();
         deadScreen.SetActive(true);

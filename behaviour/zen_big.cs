@@ -74,14 +74,14 @@ public class zen_big : MonoBehaviour
 
         if (distanceToPlayer >= detectionRadius)
         {
-            Movement.timeMove=0;
+            //Movement.timeMove=0;
         }
 
-        if (my_hp>0 && distanceToPlayer <= detectionRadius && Movement.moving==false && hp_and_else.dead==false)
+        /*if (my_hp>0 && distanceToPlayer <= detectionRadius && Movement.moving==false && hp_and_else.dead==false)
         {
             if(reduce_hp==null)
                 reduce_hp=StartCoroutine(Bite());
-        }
+        }*/
     }
 
 
@@ -166,7 +166,7 @@ public class zen_big : MonoBehaviour
 
     private IEnumerator After_death() 
     {
-        Movement.timeMove=0;
+        //Movement.timeMove=0;
 
         spriteRenderer.sprite = dead;
 
@@ -189,7 +189,7 @@ public class zen_big : MonoBehaviour
     private IEnumerator Bite() 
     {
         //Debug.Log("Начала кусать");
-        Movement.timeMove=hold_player;
+        //Movement.timeMove=hold_player;
 
         Vector3 pos = player.position;
         pos.y-=0.23f;
