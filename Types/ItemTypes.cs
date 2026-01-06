@@ -17,3 +17,10 @@ public enum SupportItems
     Shield,
     None
 }
+
+public enum PoisonTypes
+{
+    Beetle,
+    Fire,
+    None
+}

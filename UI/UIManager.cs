@@ -22,7 +22,7 @@ public class UIManager : MonoBehaviour
 
     private void Update()
     {
-        
+        //UPDATE WEAPON STATS
     }
 
 
@@ -98,6 +98,20 @@ public class UIManager : MonoBehaviour
 
 
     public void Continue()
+    {
+        
+    }
+
+
+
+    public void Died()
+    {
+        //Dont forget to cancel weapon recharging and cancel recharge animations
+    }
+
+
+
+    public void Respawned()
     {
         
     }
