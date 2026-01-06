@@ -15,8 +15,11 @@ public class ItemManager : MonoBehaviour
     [SerializeField] private GameObject Pistol;
     [SerializeField] private GameObject Lightsaber;
     [SerializeField] private GameObject Knife;
-    //[SerializeField] private UIManager uiManager;
+    [SerializeField] private UIManager uiManager;
+    [SerializeField] private PlayerComponent playerComponent;
+
     private GameObject currentSelectedWeapon;
+    private int numOfFirstAids=0;
     //[SerializeField] private  Transform sword_hand;
 
 
@@ -113,8 +116,23 @@ public class ItemManager : MonoBehaviour
 
     private bool PickUpSupportItem(SupportItems type)
     {
-        //DO IT LATER
-        return true;
+        switch(type)
+        {
+            case SupportItems.Shield:
+                if(playerComponent.getCurrentShieldLevel()<playerComponent.getMaxShieldLevel())
+                {
+                    playerComponent.increaseCurrentShieldLevel();
+                    uiManager.ChangeShieldBar(playerComponent.getCurrentShieldLevel());
+                    return true;
+                }
+                break;
+            case SupportItems.FirstAid:
+                numOfFirstAids++;
+                uiManager.SetNumOfFirstAids(numOfFirstAids);
+                break;
+        }
+
+        return false;
     }
 
 
@@ -146,6 +164,34 @@ public class ItemManager : MonoBehaviour
             if(dealWithWeapons(weaponType))
                 Destroy(collision.gameObject);
         }
+    }
+
+
+
+    public void SwitchWeaponForward()
+    {
+        
+    }
+
+
+
+    public void SwitchWeaponBackward()
+    {
+        
+    }
+
+
+
+    public void RechargeWeapon()
+    {
+        
+    }
+
+
+
+    public void UseFirstAid()
+    {
+        
     }
 
 

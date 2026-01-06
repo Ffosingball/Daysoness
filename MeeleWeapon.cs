@@ -19,13 +19,6 @@ public class MeeleWeapon : MonoBehaviour
 
 
 
-    private void Start()
-    {
-        
-    }
-
-
-
     public void StartSwing()
     {
         

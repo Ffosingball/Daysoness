@@ -38,7 +38,7 @@ public class robot_b : MonoBehaviour
 
     void Update()
     {
-        if(hp_and_else.dead)
+        if(true)//hp_and_else.dead)
         {
             if (reduce_hp != null)
             {
@@ -312,7 +312,7 @@ public class robot_b : MonoBehaviour
 
     private IEnumerator Bite() 
     {
-        while(hp_and_else.real_hp>0 || my_hp>0)
+        /*while(hp_and_else.real_hp>0 || my_hp>0)
         {
             yield return new WaitForSeconds(0.1f);
 
@@ -336,7 +336,8 @@ public class robot_b : MonoBehaviour
             yield return new WaitForSeconds(0.2f);
             spriteRenderer.sprite = alive;
             yield return new WaitForSeconds(0.2f);
-        }
+        }*/
+        yield return new WaitForSeconds(0.2f);
     }
 
 

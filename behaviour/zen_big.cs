@@ -38,7 +38,7 @@ public class zen_big : MonoBehaviour
 
     void Update()
     {
-        if(hp_and_else.dead)
+        if(true)//hp_and_else.dead)
         {
             if (reduce_hp != null)
             {
@@ -214,7 +214,7 @@ public class zen_big : MonoBehaviour
 
         //Debug.Log("кусаю");
 
-        hp_and_else.shield-=(int)damage;
+        /*hp_and_else.shield-=(int)damage;
         if(hp_and_else.shield>=75)
             hp_and_else.real_hp-=0;
         else if(hp_and_else.shield>=50)
@@ -227,7 +227,7 @@ public class zen_big : MonoBehaviour
             hp_and_else.real_hp-=damage;
 
         hp_and_else.real_hp=hp_and_else.real_hp<0?0:hp_and_else.real_hp;
-        hp_and_else.shield=hp_and_else.shield<0?0:hp_and_else.shield;
+        hp_and_else.shield=hp_and_else.shield<0?0:hp_and_else.shield;*/
 
         yield return new WaitForSeconds(0.1f);
         spriteRenderer.sprite = level3;

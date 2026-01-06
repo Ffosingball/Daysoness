@@ -27,12 +27,13 @@ public class Movement : MonoBehaviour
 
 
 
-    private void Update() 
+    private void FixedUpdate() 
     {
         //Character movement
         if(canMove)
         {
-            transform.Translate(new Vector3(movementDirection.x,movementDirection.y,0f)*speed*Time.deltaTime);
+            //transform.Translate(new Vector3(movementDirection.x,movementDirection.y,0f)*speed*Time.deltaTime);
+            playerRigid.linearVelocity = movementDirection * speed;
 
             if(movementDirection.x==0 && movementDirection.y==0)
                 characterMoves=false;

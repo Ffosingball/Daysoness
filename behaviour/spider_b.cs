@@ -40,7 +40,7 @@ public class spider_b : MonoBehaviour
 
     void Update()
     {
-        if(hp_and_else.dead)
+        if(true)//hp_and_else.dead)
         {
             if (reduce_hp != null)
             {
@@ -286,7 +286,7 @@ public class spider_b : MonoBehaviour
 
     private IEnumerator Bite() 
     {
-        while(hp_and_else.real_hp>0 || my_hp>0)
+        /*while(hp_and_else.real_hp>0 || my_hp>0)
         {
             //Debug.Log("Я наношу урон!");
             yield return new WaitForSeconds(0.2f);
@@ -312,7 +312,8 @@ public class spider_b : MonoBehaviour
             yield return new WaitForSeconds(0.1f);
             spriteRenderer.sprite = alive;
             yield return new WaitForSeconds(0.7f);
-        }
+        }*/
+        yield return new WaitForSeconds(0.2f);
     }
 
 

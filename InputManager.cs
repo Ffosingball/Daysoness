@@ -6,6 +6,8 @@ public class InputManager : MonoBehaviour
     [SerializeField] private Movement movement;
     [SerializeField] private InputAction fireAction;
     [SerializeField] private  ItemManager itemManager;
+    [SerializeField] private  UIManager uiManager;
+
 
     private void Start()
     {
@@ -13,10 +15,14 @@ public class InputManager : MonoBehaviour
         fireAction.canceled += OnFireReleased;
     }
 
+
+
     public void OnMove(InputValue value)
     {
         movement.setMovementDirection(value.Get<Vector2>());
     }
+
+
 
     public void OnFirePressed(InputAction.CallbackContext ctx)
     {
@@ -32,6 +38,8 @@ public class InputManager : MonoBehaviour
         }
     }
 
+
+
     public void OnFireReleased(InputAction.CallbackContext ctx)
     {
         GameObject currentWeapon = itemManager.getCurrentWeapon();
@@ -44,6 +52,44 @@ public class InputManager : MonoBehaviour
         {
             currentWeapon.GetComponent<MeeleWeapon>().StopSwing();
         }
+    }
+
+
+
+    public void OnSwitchForward(InputValue value)
+    {
+        itemManager.SwitchWeaponForward();
+    }
+
+
+
+    public void OnSwitchBackward(InputValue value)
+    {
+        itemManager.SwitchWeaponBackward();
+    }
+
+
+
+    public void OnRecharge(InputValue value)
+    {
+        itemManager.RechargeWeapon();
+    }
+
+
+
+    public void OnHeal(InputValue value)
+    {
+        itemManager.UseFirstAid();
+    }
+
+
+
+    public void OnPause_Resume(InputValue value)
+    {
+        if(Time.deltaTime==0f)
+            uiManager.Continue();
+        else
+            uiManager.Pause();
     }
 }
 

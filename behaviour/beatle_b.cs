@@ -57,10 +57,10 @@ public class beatle_b : MonoBehaviour
 
         
 
-        if(hp_and_else.dead && one_bite!=null)
-        {
-            StopCoroutine(one_bite);
-        }
+        //if(hp_and_else.dead && one_bite!=null)
+        //{
+            //StopCoroutine(one_bite);
+        //}
 
 
 
@@ -217,7 +217,7 @@ public class beatle_b : MonoBehaviour
 
     private IEnumerator Bite() 
     {
-        spriteRenderer.sprite = bited;
+        /*spriteRenderer.sprite = bited;
 
         hp_and_else.shield-=10;
         if(hp_and_else.shield>=75)
@@ -252,7 +252,8 @@ public class beatle_b : MonoBehaviour
             }
 
             hp_and_else.poisionLevel--;
-        }
+        }*/
+        yield return new WaitForSeconds(0.2f);
 
     }
 

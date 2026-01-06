@@ -43,13 +43,6 @@ public class FirearmWeapon : MonoBehaviour
 
 
 
-    private void Start()
-    {
-        
-    }
-
-
-
     public void StartFire()
     {
         
@@ -57,6 +50,12 @@ public class FirearmWeapon : MonoBehaviour
 
 
     public void StopFire()
+    {
+        
+    }
+
+
+    public void Recharge()
     {
         
     }
