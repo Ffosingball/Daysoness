@@ -189,7 +189,7 @@ public class ItemManager : MonoBehaviour
             case SupportItems.FirstAid:
                 numOfFirstAids++;
                 uiManager.SetNumOfFirstAids(numOfFirstAids);
-                break;
+                return true;
         }
 
         return false;
@@ -245,6 +245,7 @@ public class ItemManager : MonoBehaviour
     public void SwitchWeaponBackward()
     {
         weaponsList[weaponNumber].SetActive(false);
+        uiManager.CancelCatridgeReloadAnimation();
         weaponNumber--;
 
         if(weaponNumber<=0)

@@ -121,13 +121,18 @@ public class UIManager : MonoBehaviour
             timePassed+=0.02f;
             yield return 0.02f;
         }
+
+        weaponReloading=null;
     }
 
 
 
     public void CancelCatridgeReloadAnimation()
     {
-        StopCoroutine(weaponReloading);
+        if(weaponReloading!=null)
+            StopCoroutine(weaponReloading);
+
+        weaponReloading=null;
         weaponReloadImage.fillAmount=0f;
     }
 
@@ -150,13 +155,18 @@ public class UIManager : MonoBehaviour
             timePassed+=0.02f;
             yield return 0.02f;
         }
+
+        firstAidReloading=null;
     }
 
 
 
     public void CancelFirstAidAnimation()
     {
-        StopCoroutine(firstAidReloading);
+        if(firstAidReloading!=null)
+            StopCoroutine(firstAidReloading);
+        
+        firstAidReloading=null;
         firstAidReloadImage.fillAmount=0f;
     }
 

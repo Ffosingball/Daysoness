@@ -4,7 +4,7 @@ using UnityEngine.InputSystem;
 public class InputManager : MonoBehaviour
 {
     [SerializeField] private Movement movement;
-    private InputAction fireAction;
+    [SerializeField] private InputAction fireAction;
     [SerializeField] private  ItemManager itemManager;
     [SerializeField] private  UIManager uiManager;
 

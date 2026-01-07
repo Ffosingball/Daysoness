@@ -56,6 +56,8 @@ public class PlayerComponent : MonoBehaviour
 
     private void Start()
     {
+        transform = GetComponent<Transform>();
+
         activePoisons = new Coroutine[maxPoisonLevel];
         activePoisonsTypes = new PoisonTypes[maxPoisonLevel];
 
