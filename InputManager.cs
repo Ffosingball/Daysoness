@@ -79,7 +79,7 @@ public class InputManager : MonoBehaviour
 
     public void OnHeal(InputValue value)
     {
-        itemManager.UseFirstAid();
+        itemManager.StartUsingFirstAid();
     }
 
 

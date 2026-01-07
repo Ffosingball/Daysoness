@@ -9,7 +9,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject deadScreen;
 
     // 1 - pistol, 2 - AK-47, 3 - Laser Blaster, 4 - Laser sniper, 5 - Lightsaber, 6 - Knife
-    private int currentlySelectedWeapon=0;
+    //private int currentlySelectedWeapon=0;
 
 
     private void Start()
@@ -62,7 +62,7 @@ public class UIManager : MonoBehaviour
 
 
 
-    public void ChangeHPBar(int hpLeft)
+    public void ChangeHPBar(float hpLeft)
     {
         
     }
@@ -83,7 +83,21 @@ public class UIManager : MonoBehaviour
 
 
 
-    public void SetPoisonIcon(int poisonLevel)
+    public void SetPoisonIcon(PoisonTypes poisonType)
+    {
+        
+    }
+
+
+
+    public void RemovePoisonIcon(PoisonTypes poisonType)
+    {
+        
+    }
+
+
+
+    public void RemoveAllPoisonIcons()
     {
         
     }
@@ -100,6 +114,7 @@ public class UIManager : MonoBehaviour
     public void Continue()
     {
         
+
     }
 
 
@@ -119,6 +134,20 @@ public class UIManager : MonoBehaviour
 
 
     public void ExitToMainMenu()
+    {
+        
+    }
+
+
+
+    public void SetDeadScreen()
+    {
+        
+    }
+
+
+
+    public void RemoveDeadScreen()
     {
         
     }

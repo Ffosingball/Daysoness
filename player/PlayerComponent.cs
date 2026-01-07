@@ -6,20 +6,20 @@ using UnityEngine.UI;
 
 public class PlayerComponent : MonoBehaviour
 {
-    [SerializeField] private int maxHP=20;
+    [SerializeField] private float maxHP=20;
     [SerializeField] private int maxShieldLevel=4;
     [SerializeField] private int maxPoisonLevel=8;
-    [SerializeField] private int shieldDurability=20;
+    [SerializeField] private float shieldDurability=20;
     [SerializeField] private UIManager uiManager;
     [SerializeField] private Vector2 spawnpoint;
     [SerializeField] private ItemManager itemManager;
 
-    private int currentHP=0;
+    private float currentHP=0;
     private int currentShieldLevel=0;
-    private int currentShieldDurability=0;
+    private float currentShieldDurability=0;
     private bool dead=false;
     private Transform transform;
-    private bool poisoned=false;
+    //private bool poisoned=false;
     private int currentPoisonLevel = 0;
 
     private Coroutine[] activePoisons;
@@ -40,7 +40,17 @@ public class PlayerComponent : MonoBehaviour
 
     public void increaseCurrentShieldLevel()
     {
-        currentShieldLevel++;
+        if(currentShieldLevel==0)
+        {
+            currentShieldDurability=shieldDurability;
+            currentShieldLevel++;
+        }
+        else if(currentShieldLevel==maxShieldLevel)
+            currentShieldDurability=shieldDurability;
+        else
+            currentShieldLevel++;
+
+         uiManager.ChangeShieldBar(currentShieldLevel);
     }
 
 
@@ -58,8 +68,8 @@ public class PlayerComponent : MonoBehaviour
 
         uiManager.ChangeHPBar(currentHP);
         uiManager.ChangeShieldBar(currentShieldLevel);
-        uiManager.SetPoisonIcon(currentPoisonLevel);
-        itemManager.Recalculation();
+        uiManager.RemoveAllPoisonIcons();
+        //itemManager.Recalculation();
 
         transform.position = new Vector3(spawnpoint.x,spawnpoint.y,0);
 
@@ -89,7 +99,7 @@ public class PlayerComponent : MonoBehaviour
         
         uiManager.ChangeHPBar(currentHP);
         uiManager.ChangeShieldBar(currentShieldLevel);
-        uiManager.SetPoisonIcon(currentPoisonLevel);
+        uiManager.RemoveAllPoisonIcons();
         itemManager.Recalculation();
 
         transform.position = new Vector3(spawnpoint.x,spawnpoint.y,0);
@@ -118,7 +128,8 @@ public class PlayerComponent : MonoBehaviour
             {
                 activePoisonsTypes[i]=poisonType;
                 StopCoroutine(activePoisons[i]);
-                activePoisons[i] = StartCoroutine(poisonEffect(effectDuration, damagePeriod, dmgInPeriod,i));
+                activePoisons[i] = StartCoroutine(poisonEffect(effectDuration, damagePeriod, dmgInPeriod,i,poisonType));
+                uiManager.SetPoisonIcon(poisonType);
 
                 break;
             }
@@ -127,47 +138,99 @@ public class PlayerComponent : MonoBehaviour
 
 
 
-    private IEnumerator poisonEffect(float effectDuration, float damagePeriod, int dmgInPeriod, int indexInArray)
+    private IEnumerator poisonEffect(float effectDuration, float damagePeriod, int dmgInPeriod, int indexInArray, PoisonTypes poisonType)
     {
-        yield return 1f;
-        //COMPLETE CODE HERE
-        StopPoison(indexInArray);
+        float timePassed=0f;
+
+        while(timePassed<effectDuration)
+        {
+            TakeDamage(dmgInPeriod);
+            timePassed+=damagePeriod;
+
+            yield return damagePeriod; 
+        }
+
+        StopPoison(indexInArray, poisonType);
     }
 
 
 
-    private void StopPoison(int index)
+    private void StopPoison(int index, PoisonTypes poisonType)
     {
         StopCoroutine(activePoisons[index]);
         activePoisons[index]=null;
         activePoisonsTypes[index] = PoisonTypes.None;
+        uiManager.RemovePoisonIcon(poisonType);
     }
 
 
 
-    public void TakeDamage(int rawDMG)
+    public void TakeDamage(float rawDMG)
     {
-        
+        switch(currentShieldLevel)
+        {
+            case 0:
+                currentHP-=rawDMG;
+                break;
+            case 1:
+                currentHP-=rawDMG*0.9f;
+                TakeShieldDamage(rawDMG);
+                break;
+            case 2:
+                currentHP-=rawDMG*0.7f;
+                TakeShieldDamage(rawDMG);
+                break;
+            case 3:
+                currentHP-=rawDMG*0.4f;
+                TakeShieldDamage(rawDMG);
+                break;
+            case 4:
+                TakeShieldDamage(rawDMG);
+                break;
+        }
+
+        uiManager.ChangeHPBar(currentHP);
+        if(currentHP<=0)
+           Die();
     }
 
 
 
-    public void TakeShieldDamage(int rawDMG)
+    public void TakeShieldDamage(float rawDMG)
     {
-        
+        float removeDurability = rawDMG/2f;
+
+        currentShieldDurability-=removeDurability;
+        while(currentShieldDurability<0 && currentShieldLevel>0)
+        {
+            removeDurability=-1f*currentShieldDurability;
+            currentShieldDurability = shieldDurability;
+            currentShieldLevel--;
+            currentShieldDurability-=removeDurability;
+        }
+
+        uiManager.ChangeShieldBar(currentShieldLevel);
     }
 
 
 
-    public void DecreaseShieldLevel(int rawDMG)
+    public void DecreaseShieldLevel(int n)
     {
-        
+        currentShieldLevel-=n;
+        if(currentShieldLevel<=0)
+        {
+            currentShieldLevel=0;
+            currentShieldDurability=0;
+        }
+
+        uiManager.ChangeShieldBar(currentShieldLevel);
     }
 
 
 
     public void Die()
     {
-        
+        dead=true;
+        uiManager.SetDeadScreen();
     }
 }

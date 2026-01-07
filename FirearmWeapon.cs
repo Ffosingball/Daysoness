@@ -25,6 +25,14 @@ public class FirearmWeapon : MonoBehaviour
         return currentNumOfCatridges;
     }
 
+    public void setCurrentNumOfCatridges(int newNum)
+    {
+        if(newNum<0)
+            currentNumOfCatridges=0;
+        else
+            currentNumOfCatridges=newNum;
+    }
+
     public bool getHaveThisWeapon()
     {
         return haveThisWeapon;
@@ -46,6 +54,7 @@ public class FirearmWeapon : MonoBehaviour
     public void StartFire()
     {
         
+
     }
 
 

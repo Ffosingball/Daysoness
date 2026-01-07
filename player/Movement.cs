@@ -19,6 +19,12 @@ public class Movement : MonoBehaviour
     }
 
 
+    public bool getIfCharacterMoves()
+    {
+        return characterMoves;
+    }
+
+
 
     private void Start() 
     {

@@ -9,24 +9,58 @@ using TMPro.EditorUtilities;
 
 public class ItemManager : MonoBehaviour
 {
+    [SerializeField] private GameObject Hand;
     [SerializeField] private GameObject AK47;
     [SerializeField] private GameObject LaserBlaster;
     [SerializeField] private GameObject LaserSniper;
     [SerializeField] private GameObject Pistol;
     [SerializeField] private GameObject Lightsaber;
     [SerializeField] private GameObject Knife;
+    [SerializeField] private GameObject FirstAid;
     [SerializeField] private UIManager uiManager;
     [SerializeField] private PlayerComponent playerComponent;
+    [SerializeField] private float firstAidAnimationTime=2f;
+    [SerializeField] private int firstAidHealHP=10;
+    [SerializeField] private int afterDeathLooseMaxSupportItems=4;
+    [SerializeField] private int afterDeathLooseMaxCatridges=2;
 
-    private GameObject currentSelectedWeapon;
     private int numOfFirstAids=0;
     //[SerializeField] private  Transform sword_hand;
+    private int weaponNumber=0;
+    private GameObject[] weaponsList;
+
+
+    public int getWeaponNumber()
+    {
+        return weaponNumber;
+    }
 
 
 
     public GameObject getCurrentWeapon()
     {
-        return currentSelectedWeapon;
+        return weaponsList[weaponNumber];
+    }
+
+
+    private void Start()
+    {
+        AK47.GetComponent<SpriteRenderer>().enabled=false;
+        Pistol.GetComponent<SpriteRenderer>().enabled=false;
+        LaserBlaster.GetComponent<SpriteRenderer>().enabled=false;
+        LaserSniper.GetComponent<SpriteRenderer>().enabled=false;
+        Lightsaber.GetComponent<SpriteRenderer>().enabled=false;
+        Knife.GetComponent<SpriteRenderer>().enabled=false;
+
+        weaponsList = new GameObject[7];
+        // 0 - nothing/hands, 1 - pistol, 2 - AK-47, 3 - Laser Blaster, 4 - Laser sniper, 5 - Lightsaber, 6 - Knife
+        weaponsList[0] = Hand;
+        weaponsList[1] = Pistol;
+        weaponsList[2] = AK47;
+        weaponsList[3] = LaserBlaster;
+        weaponsList[4] = LaserSniper;
+        weaponsList[5] = Lightsaber;
+        weaponsList[6] = Knife;
     }
 
 
@@ -35,26 +69,33 @@ public class ItemManager : MonoBehaviour
     {
         FirearmWeapon firearmWeapon=null;
         MeeleWeapon meeleWeapon=null;
+        SpriteRenderer weaponPicture=null;
 
         switch(type)
         {
             case WeaponTypes.AK47:
                 firearmWeapon = AK47.GetComponent<FirearmWeapon>();
+                weaponPicture = AK47.GetComponent<SpriteRenderer>();
                 break;
             case WeaponTypes.LaserBlaster:
                 firearmWeapon = LaserBlaster.GetComponent<FirearmWeapon>();
+                weaponPicture = LaserBlaster.GetComponent<SpriteRenderer>();
                 break;
             case WeaponTypes.LaserSniper:
                 firearmWeapon = LaserSniper.GetComponent<FirearmWeapon>();
+                weaponPicture = LaserSniper.GetComponent<SpriteRenderer>();
                 break;
             case WeaponTypes.Pistol:
                 firearmWeapon = Pistol.GetComponent<FirearmWeapon>();
+                weaponPicture = Pistol.GetComponent<SpriteRenderer>();
                 break;
             case WeaponTypes.Lightsaber:
                 meeleWeapon = Lightsaber.GetComponent<MeeleWeapon>();
+                weaponPicture = Lightsaber.GetComponent<SpriteRenderer>();
                 break;
             case WeaponTypes.Knife:
                 meeleWeapon = Knife.GetComponent<MeeleWeapon>();
+                weaponPicture = Knife.GetComponent<SpriteRenderer>();
                 break;
         }
 
@@ -63,6 +104,7 @@ public class ItemManager : MonoBehaviour
             if(!firearmWeapon.getHaveThisWeapon())
             {
                 firearmWeapon.setHaveThisWeapon(true);
+                weaponPicture.enabled=true;
                 return true;
             }
         }
@@ -72,6 +114,7 @@ public class ItemManager : MonoBehaviour
             if(!meeleWeapon.getHaveThisWeapon())
             {
                 meeleWeapon.setHaveThisWeapon(true);
+                weaponPicture.enabled=true;
                 return true;
             }
         }
@@ -170,34 +213,64 @@ public class ItemManager : MonoBehaviour
 
     public void SwitchWeaponForward()
     {
-        
+        weaponsList[weaponNumber].SetActive(false);
+        weaponNumber++;
+
+        if(weaponNumber>=weaponsList.Length)
+            weaponNumber=0;
+
+        weaponsList[weaponNumber].SetActive(true);
     }
 
 
 
     public void SwitchWeaponBackward()
     {
-        
+        weaponsList[weaponNumber].SetActive(false);
+        weaponNumber--;
+
+        if(weaponNumber<=0)
+            weaponNumber=weaponsList.Length-1;
+
+        weaponsList[weaponNumber].SetActive(true);
     }
 
 
 
     public void RechargeWeapon()
     {
-        
+        weaponsList[weaponNumber].GetComponent<FirearmWeapon>().Recharge();
     }
 
 
 
-    public void UseFirstAid()
+    public void StartUsingFirstAid()
     {
-        
+        if(numOfFirstAids>0)
+        {
+            FirstAid.SetActive(true);
+            uiManager.StartFirstAidAnimation(firstAidAnimationTime);
+        }
+    }
+
+
+
+    public void FinishUsingFirstAid()
+    {
+        FirstAid.SetActive(false);
+        numOfFirstAids--;
+        playerComponent.Heal(firstAidHealHP);
     }
 
 
 
     public void Recalculation()
     {
-        //LOOSE SOME CATRIDGES AND SUPPORT ITEMS WHEN CHARACTER DIES
+        numOfFirstAids-=UnityEngine.Random.Range(0,afterDeathLooseMaxSupportItems);
+
+        for(int i=0; i<weaponsList.Length; i++)
+        {
+            weaponsList[i].GetComponent<FirearmWeapon>().setCurrentNumOfCatridges(weaponsList[i].GetComponent<FirearmWeapon>().getCurrentNumOfCatridges()-UnityEngine.Random.Range(0,afterDeathLooseMaxCatridges));
+        }
     }
 }
