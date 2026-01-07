@@ -8,7 +8,8 @@ public class FirearmWeapon : MonoBehaviour
     [SerializeField] private int maxAmountOfCatridges;
     [SerializeField] private bool automatic;
     [SerializeField] private float firePeriod;
-    private int currentNumOfPatrons=0;
+    [SerializeField] private WeaponTypes type;
+    private int currentNumOfBullets=0;
     private int currentNumOfCatridges=0;
     [SerializeField] private float bulletSpeed;
     private bool haveThisWeapon=false;
@@ -20,9 +21,19 @@ public class FirearmWeapon : MonoBehaviour
         return maxAmountOfCatridges;
     }
 
+    public WeaponTypes getWeaponType()
+    {
+        return type;
+    }
+
     public int getCurrentNumOfCatridges()
     {
         return currentNumOfCatridges;
+    }
+
+    public int getCurrentNumOfBullets()
+    {
+        return currentNumOfBullets;
     }
 
     public void setCurrentNumOfCatridges(int newNum)
@@ -70,9 +81,15 @@ public class FirearmWeapon : MonoBehaviour
     }
 
 
+    public void CancelRecharge()
+    {
+        
+    }
+
+
     private IEnumerator FireBullets()
     {
-        while (currentNumOfPatrons>0)
+        while (currentNumOfBullets>0)
         {
             Vector3 bulletStart = transform.position;
             //GameObject tempBullet = Instantiate(bullet_lazer, bulletStart, Quaternion.Euler(0f,0f,0f));

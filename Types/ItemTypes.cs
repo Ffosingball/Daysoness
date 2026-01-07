@@ -8,6 +8,7 @@ public enum WeaponTypes
     LaserSniper,
     Lightsaber,
     Knife,
+    Hands,
     None
 }
 

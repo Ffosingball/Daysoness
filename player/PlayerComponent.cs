@@ -66,14 +66,14 @@ public class PlayerComponent : MonoBehaviour
 
         currentHP = maxHP;
 
-        uiManager.ChangeHPBar(currentHP);
+        uiManager.ChangeHPBar(currentHP, maxHP);
         uiManager.ChangeShieldBar(currentShieldLevel);
         uiManager.RemoveAllPoisonIcons();
         //itemManager.Recalculation();
 
         transform.position = new Vector3(spawnpoint.x,spawnpoint.y,0);
 
-        uiManager.Respawned();
+        uiManager.RemoveDeadScreen();
     }
 
 
@@ -97,14 +97,14 @@ public class PlayerComponent : MonoBehaviour
             }
         }
         
-        uiManager.ChangeHPBar(currentHP);
+        uiManager.ChangeHPBar(currentHP, maxHP);
         uiManager.ChangeShieldBar(currentShieldLevel);
         uiManager.RemoveAllPoisonIcons();
         itemManager.Recalculation();
 
         transform.position = new Vector3(spawnpoint.x,spawnpoint.y,0);
 
-        uiManager.Respawned();
+        uiManager.RemoveDeadScreen();
     }
 
 
@@ -115,7 +115,7 @@ public class PlayerComponent : MonoBehaviour
         if(currentHP>maxHP)
             currentHP=maxHP;
 
-        uiManager.ChangeHPBar(currentHP);
+        uiManager.ChangeHPBar(currentHP, maxHP);
     }
 
 
@@ -189,7 +189,7 @@ public class PlayerComponent : MonoBehaviour
                 break;
         }
 
-        uiManager.ChangeHPBar(currentHP);
+        uiManager.ChangeHPBar(currentHP, maxHP);
         if(currentHP<=0)
            Die();
     }
@@ -232,5 +232,7 @@ public class PlayerComponent : MonoBehaviour
     {
         dead=true;
         uiManager.SetDeadScreen();
+        itemManager.CancelRechargeWeapon();
+        itemManager.CancelUsingFirstAid();
     }
 }

@@ -23,11 +23,14 @@ public class ItemManager : MonoBehaviour
     [SerializeField] private int firstAidHealHP=10;
     [SerializeField] private int afterDeathLooseMaxSupportItems=4;
     [SerializeField] private int afterDeathLooseMaxCatridges=2;
+    [SerializeField] private Movement movement;
 
     private int numOfFirstAids=0;
     //[SerializeField] private  Transform sword_hand;
     private int weaponNumber=0;
     private GameObject[] weaponsList;
+    private bool usingFirstAid=false;
+    private float timePassed=0f;
 
 
     public int getWeaponNumber()
@@ -61,6 +64,20 @@ public class ItemManager : MonoBehaviour
         weaponsList[4] = LaserSniper;
         weaponsList[5] = Lightsaber;
         weaponsList[6] = Knife;
+    }
+
+
+    private void Update()
+    {
+        timePassed+=Time.deltaTime;
+
+        if(usingFirstAid && timePassed>firstAidAnimationTime)
+            FinishUsingFirstAid();
+        else if(usingFirstAid && movement.getIfCharacterMoves())
+        {
+            usingFirstAid=false;
+            uiManager.CancelFirstAidAnimation();
+        }
     }
 
 
@@ -214,6 +231,7 @@ public class ItemManager : MonoBehaviour
     public void SwitchWeaponForward()
     {
         weaponsList[weaponNumber].SetActive(false);
+        uiManager.CancelCatridgeReloadAnimation();
         weaponNumber++;
 
         if(weaponNumber>=weaponsList.Length)
@@ -239,7 +257,20 @@ public class ItemManager : MonoBehaviour
 
     public void RechargeWeapon()
     {
-        weaponsList[weaponNumber].GetComponent<FirearmWeapon>().Recharge();
+        if(weaponsList[weaponNumber].TryGetComponent<FirearmWeapon>(out FirearmWeapon fWeapon))
+        {
+            fWeapon.Recharge();
+        }
+    }
+
+
+
+    public void CancelRechargeWeapon()
+    {
+        if(weaponsList[weaponNumber].TryGetComponent<FirearmWeapon>(out FirearmWeapon fWeapon))
+        {
+            fWeapon.CancelRecharge();
+        }
     }
 
 
@@ -250,6 +281,8 @@ public class ItemManager : MonoBehaviour
         {
             FirstAid.SetActive(true);
             uiManager.StartFirstAidAnimation(firstAidAnimationTime);
+            usingFirstAid = true;
+            timePassed=0f;
         }
     }
 
@@ -260,6 +293,16 @@ public class ItemManager : MonoBehaviour
         FirstAid.SetActive(false);
         numOfFirstAids--;
         playerComponent.Heal(firstAidHealHP);
+        usingFirstAid = false;
+    }
+
+
+
+    public void CancelUsingFirstAid()
+    {
+        FirstAid.SetActive(false);
+        usingFirstAid = false;
+        uiManager.CancelFirstAidAnimation();
     }
 
 

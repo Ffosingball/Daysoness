@@ -6,6 +6,12 @@ public class MeeleWeapon : MonoBehaviour
     [SerializeField] private float dmgPerSwing;
     [SerializeField] private float swingPeriod;
     private bool haveThisWeapon=false;
+    [SerializeField] private WeaponTypes type;
+
+    public WeaponTypes getWeaponType()
+    {
+        return type;
+    }
 
     public bool getHaveThisWeapon()
     {
