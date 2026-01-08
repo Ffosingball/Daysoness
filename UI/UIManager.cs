@@ -37,6 +37,7 @@ public class UIManager : MonoBehaviour
     {
         Cursor.SetCursor(targetCursor, Vector2.zero, CursorMode.ForceSoftware);
         gameScreen.SetActive(true);
+        RemoveAllPoisonIcons();
     }
 
 
@@ -119,7 +120,7 @@ public class UIManager : MonoBehaviour
         {
             weaponReloadImage.fillAmount=timePassed/time;
             timePassed+=0.02f;
-            yield return 0.02f;
+            yield return new WaitForSeconds(0.02f);
         }
 
         weaponReloading=null;
@@ -153,7 +154,7 @@ public class UIManager : MonoBehaviour
         {
             firstAidReloadImage.fillAmount=timePassed/time;
             timePassed+=0.02f;
-            yield return 0.02f;
+            yield return new WaitForSeconds(0.02f);
         }
 
         firstAidReloading=null;
@@ -226,6 +227,7 @@ public class UIManager : MonoBehaviour
 
     public void Pause()
     {
+        Cursor.SetCursor(menuCursor, Vector2.zero, CursorMode.ForceSoftware);
         Time.timeScale = 0f;
         pauseScreen.SetActive(true);
         gameScreen.SetActive(false);
@@ -235,6 +237,7 @@ public class UIManager : MonoBehaviour
 
     public void Continue()
     {
+        Cursor.SetCursor(targetCursor, Vector2.zero, CursorMode.ForceSoftware);
         Time.timeScale = 1f;
         pauseScreen.SetActive(false);
         gameScreen.SetActive(true);
@@ -269,6 +272,7 @@ public class UIManager : MonoBehaviour
 
     public void SetDeadScreen()
     {
+        Cursor.SetCursor(menuCursor, Vector2.zero, CursorMode.ForceSoftware);
         gameScreen.SetActive(false);
         deadScreen.SetActive(true);
     }
@@ -277,6 +281,7 @@ public class UIManager : MonoBehaviour
 
     public void RemoveDeadScreen()
     {
+        Cursor.SetCursor(targetCursor, Vector2.zero, CursorMode.ForceSoftware);
         gameScreen.SetActive(true);
         deadScreen.SetActive(false);
     }

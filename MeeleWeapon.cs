@@ -7,6 +7,9 @@ public class MeeleWeapon : MonoBehaviour
     [SerializeField] private float swingPeriod;
     private bool haveThisWeapon=false;
     [SerializeField] private WeaponTypes type;
+    [SerializeField] private GameObject meeleWeapon;
+    private Coroutine swinging;
+    private float initZRotation;
 
     public WeaponTypes getWeaponType()
     {
@@ -18,6 +21,11 @@ public class MeeleWeapon : MonoBehaviour
         return haveThisWeapon;
     }
 
+    public float getDMG()
+    {
+        return dmgPerSwing;
+    }
+
     public void setHaveThisWeapon(bool val)
     {
         haveThisWeapon=val;
@@ -27,49 +35,45 @@ public class MeeleWeapon : MonoBehaviour
 
     public void StartSwing()
     {
-        
+        swinging=StartCoroutine(SwingProcess());
     }
 
 
     public void StopSwing()
     {
-        
+        if(swinging!=null)
+        {
+            StopCoroutine(swinging);
+            swinging=null;
+        }
 
+        meeleWeapon.transform.rotation=Quaternion.Euler(0,0,initZRotation);
     }
 
 
     private IEnumerator SwingProcess()
     {
-        //canAttack=true;
-        //whichSword=1;
-
-        yield return new WaitForSeconds(0.1f);
-
-        //float currentRotation = sword_hand.transform.eulerAngles.z;
-        //currentRotation=currentRotation-45;
-        
-        //if(Movement.flipSword)
-        //{
-            //currentRotation=currentRotation-180;
-        //}
-
-        //Movement.flipSword=false;
-        //sword_hand.rotation=Quaternion.Euler(0,0,currentRotation);
-
-        for(int i=0;i<15;i++)
+        while(true)
         {
-            //currentRotation=currentRotation+6;
-            //sword_hand.rotation=Quaternion.Euler(0,0,currentRotation);
-            yield return new WaitForSeconds(0.013f);
+            initZRotation = meeleWeapon.transform.eulerAngles.z;
+            float currentRotation=initZRotation-45;
+            meeleWeapon.transform.rotation=Quaternion.Euler(0,0,currentRotation);
+
+            for(float i=0f;i<swingPeriod/2f;i+=swingPeriod/40f)
+            {
+                currentRotation=currentRotation+(90/20);
+                meeleWeapon.transform.rotation=Quaternion.Euler(0,0,currentRotation);
+                yield return new WaitForSeconds(swingPeriod/40f);
+            }
+
+            for(float i=0f;i<swingPeriod/2f;i+=swingPeriod/40f)
+            {
+                currentRotation=currentRotation-(90/20);
+                meeleWeapon.transform.rotation=Quaternion.Euler(0,0,currentRotation);
+                yield return new WaitForSeconds(swingPeriod/40f);
+            }
+
+            meeleWeapon.transform.rotation=Quaternion.Euler(0,0,initZRotation);
         }
-        statistica.swungSword++;
-
-        //currentRotation=currentRotation-45;
-        //sword_hand.rotation=Quaternion.Euler(0,0,currentRotation);
-
-        yield return new WaitForSeconds(0.2f);
-
-        //canAttack=false;
-        //whichSword=0;
     }
 }

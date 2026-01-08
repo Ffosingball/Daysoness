@@ -5,6 +5,7 @@ using UnityEngine;
 public class BulletBehaviour : MonoBehaviour
 {
     private float speed;
+    private float dmg;
     private float distancePassed=0f;
     [SerializeField] private float maxAllowedDistance = 30f;
 
@@ -12,6 +13,18 @@ public class BulletBehaviour : MonoBehaviour
     public void setSpeed(float _speed)
     {
         speed=_speed;
+    }
+
+
+    public void setDMG(float _dmg)
+    {
+        dmg=_dmg;
+    }
+
+
+    public float getDMG()
+    {
+        return dmg;
     }
 
 

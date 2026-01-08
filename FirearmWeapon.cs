@@ -8,12 +8,16 @@ public class FirearmWeapon : MonoBehaviour
     [SerializeField] private int maxAmountOfCatridges;
     [SerializeField] private bool automatic;
     [SerializeField] private float firePeriod;
+    [SerializeField] private float realoadTime;
+    //[SerializeField] private float bulletSpeed;
+    [SerializeField] private GameObject bullet;
     [SerializeField] private WeaponTypes type;
     private int currentNumOfBullets=0;
     private int currentNumOfCatridges=0;
     [SerializeField] private float bulletSpeed;
     private bool haveThisWeapon=false;
-    private Coroutine fireBullets;
+    private Coroutine fireBullets, rechargeWait;
+    [SerializeField] private UIManager uiManager;
 
 
     public int getMaxAmountOfCatridges()
@@ -64,55 +68,122 @@ public class FirearmWeapon : MonoBehaviour
 
     public void StartFire()
     {
-        
-
+        fireBullets = StartCoroutine(FireBullets());
     }
 
 
     public void StopFire()
     {
-        
+        if(fireBullets!=null)
+        {
+            StopCoroutine(fireBullets);
+            fireBullets=null;
+        }
     }
 
 
     public void Recharge()
     {
-        
+        rechargeWait = StartCoroutine(RealoadWait());
+        uiManager.StartCatridgeReloadAnimation(realoadTime);
     }
 
 
     public void CancelRecharge()
     {
-        
+        if(rechargeWait!=null)
+        {
+            StopCoroutine(rechargeWait);
+            uiManager.CancelCatridgeReloadAnimation();
+            rechargeWait=null;
+        }
+
+        if(fireBullets!=null)
+        {
+            StopCoroutine(fireBullets);
+            fireBullets=null;
+        }
+    }
+
+
+    private void CreateABullet()
+    {
+        Vector3 bulletStart = transform.position;
+        GameObject newBullet = Instantiate(bullet, bulletStart, Quaternion.Euler(0f,0f,0f));
+
+        Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector3 direction = mousePosition - newBullet.transform.position;
+        float angle = (Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg)-90;
+        angle=angle<-180?angle+360:angle;
+        newBullet.transform.rotation = Quaternion.Euler(new Vector3(0, 0, angle));
+                
+        BulletBehaviour bulletBehaviour = newBullet.GetComponent<BulletBehaviour>();
+        bulletBehaviour.setSpeed(bulletSpeed);
+        bulletBehaviour.setDMG(dmgPerPatron);
+        newBullet.SetActive(true);
+
+        currentNumOfBullets--;
     }
 
 
     private IEnumerator FireBullets()
     {
-        while (currentNumOfBullets>0)
+        if(automatic)
         {
-            Vector3 bulletStart = transform.position;
-            //GameObject tempBullet = Instantiate(bullet_lazer, bulletStart, Quaternion.Euler(0f,0f,0f));
+            while(currentNumOfBullets>0 || currentNumOfCatridges>0)
+            {
+                while (currentNumOfBullets>0)
+                {
+                    CreateABullet();
 
-            Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            //Vector3 direction = mousePosition - tempBullet.transform.position;
-            //float angle = (Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg)-90;
-            //angle=angle<-180?angle+360:angle;
+                    yield return new WaitForSeconds(firePeriod);
+                }
 
-            //Destroy(tempBullet);
-
-            bulletStart = transform.position;
-            //GameObject tempBullet2 = Instantiate(bullet_AK, bulletStart, Quaternion.Euler(0f,0f,0f));
-            //tempBullet2.transform.rotation = Quaternion.Euler(new Vector3(0, 0, angle));
-            //tempBullet2.SetActive(true);
-            statistica.firedBullets++;
-
-            //StartCoroutine(Shot());
-
-            //AK_47.bullets--;
-            //showWeapon();
-
-            yield return new WaitForSeconds(0.1f);
+                Recharge();
+                while(currentNumOfBullets<=0)
+                {
+                    yield return null;
+                }
+            }
         }
+        else
+        {
+            if(currentNumOfBullets>0)
+                CreateABullet();
+            else
+            {
+                Recharge();
+
+                while(currentNumOfBullets<=0)
+                {
+                    yield return null;
+                }
+
+                CreateABullet();
+            }
+        }
+
+        StopFire();
+    }
+
+
+
+    private IEnumerator RealoadWait()
+    {
+        if(currentNumOfCatridges>0)
+        {
+            float timePassed=0f;
+
+            while(timePassed<realoadTime)
+            {
+                timePassed+=Time.deltaTime;
+                yield return null;
+            }
+
+            currentNumOfCatridges--;
+            currentNumOfBullets = catridgeCapacity;
+        }
+        else
+            CancelRecharge();
     }
 }

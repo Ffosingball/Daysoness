@@ -149,7 +149,7 @@ public class PlayerComponent : MonoBehaviour
             TakeDamage(dmgInPeriod);
             timePassed+=damagePeriod;
 
-            yield return damagePeriod; 
+            yield return new WaitForSeconds(damagePeriod); 
         }
 
         StopPoison(indexInArray, poisonType);
