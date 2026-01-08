@@ -64,6 +64,8 @@ public class ItemManager : MonoBehaviour
         weaponsList[4] = LaserSniper;
         weaponsList[5] = Lightsaber;
         weaponsList[6] = Knife;
+
+        FirstAid.SetActive(false);
     }
 
 
@@ -76,6 +78,7 @@ public class ItemManager : MonoBehaviour
         else if(usingFirstAid && movement.getIfCharacterMoves())
         {
             usingFirstAid=false;
+            FirstAid.SetActive(false);
             uiManager.CancelFirstAidAnimation();
         }
     }
@@ -295,6 +298,7 @@ public class ItemManager : MonoBehaviour
         numOfFirstAids--;
         playerComponent.Heal(firstAidHealHP);
         usingFirstAid = false;
+        uiManager.SetNumOfFirstAids(numOfFirstAids);
     }
 
 

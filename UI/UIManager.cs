@@ -38,6 +38,9 @@ public class UIManager : MonoBehaviour
         Cursor.SetCursor(targetCursor, Vector2.zero, CursorMode.ForceSoftware);
         gameScreen.SetActive(true);
         RemoveAllPoisonIcons();
+
+        weaponReloadImage.fillAmount=0f;
+        firstAidReloadImage.fillAmount=0f;
     }
 
 
@@ -157,6 +160,7 @@ public class UIManager : MonoBehaviour
             yield return new WaitForSeconds(0.02f);
         }
 
+        firstAidReloadImage.fillAmount=0f;
         firstAidReloading=null;
     }
 

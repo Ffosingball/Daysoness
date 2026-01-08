@@ -4,22 +4,25 @@ using UnityEngine.InputSystem;
 public class InputManager : MonoBehaviour
 {
     [SerializeField] private Movement movement;
-    [SerializeField] private InputAction fireAction;
     [SerializeField] private  ItemManager itemManager;
     [SerializeField] private  UIManager uiManager;
 
 
-    private void Start()
+
+    public void OnMove(InputAction.CallbackContext ctx)
     {
-        fireAction.started += OnFirePressed;
-        fireAction.canceled += OnFireReleased;
+        movement.setMovementDirection(ctx.ReadValue<Vector2>());
     }
 
 
 
-    public void OnMove(InputValue value)
+    public void OnFire(InputAction.CallbackContext ctx)
     {
-        movement.setMovementDirection(value.Get<Vector2>());
+        if(ctx.started)
+            OnFirePressed(ctx);
+
+        if(ctx.canceled)
+            OnFireReleased(ctx);
     }
 
 
@@ -27,6 +30,7 @@ public class InputManager : MonoBehaviour
     public void OnFirePressed(InputAction.CallbackContext ctx)
     {
         GameObject currentWeapon = itemManager.getCurrentWeapon();
+        Debug.Log("LMB pressed");
 
         if(currentWeapon.TryGetComponent<FirearmWeapon>(out FirearmWeapon firearmWeapon))
         {
@@ -43,6 +47,7 @@ public class InputManager : MonoBehaviour
     public void OnFireReleased(InputAction.CallbackContext ctx)
     {
         GameObject currentWeapon = itemManager.getCurrentWeapon();
+        Debug.Log("LMB released");
 
         if(currentWeapon.TryGetComponent<FirearmWeapon>(out FirearmWeapon firearmWeapon))
         {
@@ -56,40 +61,47 @@ public class InputManager : MonoBehaviour
 
 
 
-    public void OnSwitchForward(InputValue value)
+    public void OnSwitchForward(InputAction.CallbackContext ctx)
     {
-        itemManager.SwitchWeaponForward();
+        if(ctx.started)
+            itemManager.SwitchWeaponForward();
     }
 
 
 
-    public void OnSwitchBackward(InputValue value)
+    public void OnSwitchBackward(InputAction.CallbackContext ctx)
     {
-        itemManager.SwitchWeaponBackward();
+        if(ctx.started)
+            itemManager.SwitchWeaponBackward();
     }
 
 
 
-    public void OnRecharge(InputValue value)
+    public void OnRecharge(InputAction.CallbackContext ctx)
     {
-        itemManager.RechargeWeapon();
+        if(ctx.started)
+            itemManager.RechargeWeapon();
     }
 
 
 
-    public void OnHeal(InputValue value)
+    public void OnHeal(InputAction.CallbackContext ctx)
     {
-        itemManager.StartUsingFirstAid();
+        if(ctx.started)
+            itemManager.StartUsingFirstAid();
     }
 
 
 
-    public void OnPause_Resume(InputValue value)
+    public void OnPause_Resume(InputAction.CallbackContext ctx)
     {
-        if(Time.deltaTime==0f)
-            uiManager.Continue();
-        else
-            uiManager.Pause();
+        if(ctx.started)
+        {
+            if(Time.deltaTime==0f)
+                uiManager.Continue();
+            else
+                uiManager.Pause();
+        }
     }
 }
 
