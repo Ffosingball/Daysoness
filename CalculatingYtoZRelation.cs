@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class CalculatingYtoZRelation : MonoBehaviour
 {
-    private Transform transform;
+    //private Transform transform;
 
     //Between camera and grid
     [SerializeField] private float zRange=100f;
@@ -25,7 +25,7 @@ public class CalculatingYtoZRelation : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        transform = GetComponent<Transform>();
+        //transform = GetComponent<Transform>();
 
         CalculateZToYRelation();
 

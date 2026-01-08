@@ -67,7 +67,7 @@ public class robot_b : MonoBehaviour
             //else if(item_pick.whichSword==2)
                 my_hp-=3;
             
-            StartCoroutine(Get_damage());
+            //StartCoroutine(Get_damage());
             stillAlive();
         }
 
@@ -137,7 +137,7 @@ public class robot_b : MonoBehaviour
 
                 if (go_circle==null)
                 {
-                    go_circle=StartCoroutine(Wait_till());
+                    //go_circle=StartCoroutine(Wait_till());
                 }
             }
         }
@@ -147,7 +147,7 @@ public class robot_b : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (my_hp>0)
+        /*if (my_hp>0)
         {
             switch (collision.gameObject.tag)
             {
@@ -184,7 +184,7 @@ public class robot_b : MonoBehaviour
                     go=true;
                     break;
             }
-        }
+        }*/
     }
 
 
@@ -204,7 +204,7 @@ public class robot_b : MonoBehaviour
             //Debug.Log("Коснулся!");
             canGo=false;
             if(reduce_hp==null)
-                reduce_hp=StartCoroutine(Bite());
+                //reduce_hp=StartCoroutine(Bite());
             StartCoroutine(Shot());
         }
 
@@ -246,7 +246,7 @@ public class robot_b : MonoBehaviour
             //Debug.Log("Я умер");
             statistica.RREWKilled++;
             spriteRenderer.sprite = dead;
-            StartCoroutine(After_death());
+            //StartCoroutine(After_death());
         }
         //Debug.Log("Ясно");
     }
@@ -290,77 +290,6 @@ public class robot_b : MonoBehaviour
         {
             StopCoroutine(checkAttack);
             checkAttack = null;
-        }
-    }
-
-
-
-    private IEnumerator After_death() 
-    {
-        //shadow2.SetActive(false);
-        yield return new WaitForSeconds(16f);
-        for (float i=1f; i>0; i-=0.04f)
-        {
-            spriteRenderer.color = new Color(1f, 1f, 1f, i);
-            yield return new WaitForSeconds(0.04f);
-        }
-
-        Destroy(gameObject);
-    }
-
-
-
-    private IEnumerator Bite() 
-    {
-        /*while(hp_and_else.real_hp>0 || my_hp>0)
-        {
-            yield return new WaitForSeconds(0.1f);
-
-            spriteRenderer.sprite = bited;
-
-            hp_and_else.shield-=2;
-            if(hp_and_else.shield>=75)
-                hp_and_else.real_hp-=0;
-            else if(hp_and_else.shield>=50)
-                hp_and_else.real_hp-=0.8f;
-            else if(hp_and_else.shield>=25)
-                hp_and_else.real_hp-=1.4f;
-            else if(hp_and_else.shield>0)
-                hp_and_else.real_hp-=1.8f;
-            else
-                hp_and_else.real_hp-=2f;
-
-            hp_and_else.real_hp=hp_and_else.real_hp<0?0:hp_and_else.real_hp;
-            hp_and_else.shield=hp_and_else.shield<0?0:hp_and_else.shield;
-
-            yield return new WaitForSeconds(0.2f);
-            spriteRenderer.sprite = alive;
-            yield return new WaitForSeconds(0.2f);
-        }*/
-        yield return new WaitForSeconds(0.2f);
-    }
-
-
-
-    private IEnumerator Get_damage() 
-    {
-        spriteRenderer.color = new Color(1f, 0.2f, 0.2f, 1f);
-        yield return new WaitForSeconds(0.15f);
-        spriteRenderer.color = new Color(1f, 1f, 1f, 1f);
-    }
-
-
-
-
-    private IEnumerator Wait_till() 
-    {
-        //wait=true;
-
-        while(true)
-        {
-            //Debug.Log("Я жду!");
-            spriteRenderer.flipX = false;
-            yield return new WaitForSeconds(1f);
         }
     }
 }

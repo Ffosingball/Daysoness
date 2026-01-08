@@ -121,64 +121,6 @@ public class beatle_b : MonoBehaviour
 
 
 
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (my_hp>0)
-        {
-            switch (collision.gameObject.tag)
-            {
-                case "AK_bullet":
-                    my_hp--;
-                    Destroy(collision.gameObject);
-                    StartCoroutine(Get_damage());
-                    stillAlive(true);
-                    break;
-                case "pistol_bullet":
-                    my_hp-=4;
-                    Destroy(collision.gameObject);
-                    StartCoroutine(Get_damage());
-                    stillAlive(true);
-                    break;
-                case "anihilator_bullet":
-                    my_hp-=5;
-                    Destroy(collision.gameObject);
-                    StartCoroutine(Get_damage());
-                    stillAlive(true);
-                    break;
-                case "lazer_bullet":
-                    my_hp-=2;
-                    Destroy(collision.gameObject);
-                    StartCoroutine(Get_damage());
-                    stillAlive(true);
-                    break;
-                case "swords":
-                    touchSword=true;
-                    break;
-            }
-        }
-    }
-
-
-
-    private void OnTriggerExit2D(Collider2D collision)
-    {
-        if(collision.gameObject.tag=="swords")
-            touchSword=false;
-    }
-
-
-
-    void OnCollisionEnter2D(Collision2D collision)
-    {
-        if (collision.gameObject.name=="Main_character")
-        {
-            canGo=false;
-            one_bite=StartCoroutine(Bite());
-        }
-    }
-
-
-
     private void stillAlive(bool doIt)
     {
         if (my_hp<1)
@@ -217,9 +159,9 @@ public class beatle_b : MonoBehaviour
 
     private IEnumerator Bite() 
     {
-        /*spriteRenderer.sprite = bited;
+        spriteRenderer.sprite = bited;
 
-        hp_and_else.shield-=10;
+        /*hp_and_else.shield-=10;
         if(hp_and_else.shield>=75)
             hp_and_else.real_hp-=0;
         else if(hp_and_else.shield>=50)
@@ -256,6 +198,7 @@ public class beatle_b : MonoBehaviour
         yield return new WaitForSeconds(0.2f);
 
     }
+
 
 
 

@@ -18,9 +18,9 @@ public class PlayerComponent : MonoBehaviour
     private int currentShieldLevel=0;
     private float currentShieldDurability=0;
     private bool dead=false;
-    private Transform transform;
+    //private Transform transform;
     //private bool poisoned=false;
-    private int currentPoisonLevel = 0;
+    //private int currentPoisonLevel = 0;
 
     private Coroutine[] activePoisons;
     private PoisonTypes[] activePoisonsTypes;
@@ -35,6 +35,12 @@ public class PlayerComponent : MonoBehaviour
     public int getMaxShieldLevel()
     {
         return maxShieldLevel;
+    }
+
+
+    public bool isDead()
+    {
+        return dead;
     }
 
 
@@ -56,7 +62,7 @@ public class PlayerComponent : MonoBehaviour
 
     private void Start()
     {
-        transform = GetComponent<Transform>();
+        //transform = GetComponent<Transform>();
 
         activePoisons = new Coroutine[maxPoisonLevel];
         activePoisonsTypes = new PoisonTypes[maxPoisonLevel];
@@ -84,7 +90,7 @@ public class PlayerComponent : MonoBehaviour
     {
         currentHP = maxHP;
         dead=false;
-        currentPoisonLevel=0;
+        //currentPoisonLevel=0;
 
         if(currentShieldLevel>0)
             currentShieldLevel--;

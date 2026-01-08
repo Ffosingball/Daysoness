@@ -49,11 +49,17 @@ public class ItemManager : MonoBehaviour
     private void Start()
     {
         AK47.GetComponent<SpriteRenderer>().enabled=false;
+        AK47.SetActive(false);
         Pistol.GetComponent<SpriteRenderer>().enabled=false;
+        Pistol.SetActive(false);
         LaserBlaster.GetComponent<SpriteRenderer>().enabled=false;
+        LaserBlaster.SetActive(false);
         LaserSniper.GetComponent<SpriteRenderer>().enabled=false;
+        LaserSniper.SetActive(false);
         Lightsaber.GetComponent<SpriteRenderer>().enabled=false;
+        Lightsaber.SetActive(false);
         Knife.GetComponent<SpriteRenderer>().enabled=false;
+        Knife.SetActive(false);
 
         weaponsList = new GameObject[7];
         // 0 - nothing/hands, 1 - pistol, 2 - AK-47, 3 - Laser Blaster, 4 - Laser sniper, 5 - Lightsaber, 6 - Knife

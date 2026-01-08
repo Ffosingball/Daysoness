@@ -3,13 +3,7 @@ using UnityEngine;
 public class CameraMovement : MonoBehaviour
 {
     public Transform ObjectToFollow;
-    private Transform transform;
-
-
-    private void Start()
-    {
-        transform = GetComponent<Transform>();
-    }
+    //private Transform transform;
 
 
     private void Update()
