@@ -55,9 +55,10 @@ public class CommonEnemyBehaviour : MonoBehaviour
     private float currentHP;
     private bool dead;
     private List<CurrentDamagingWeapon> attackingMeeleWeaponsInRange;
-    private SpriteRenderer spriteRenderer;
+    [SerializeField] private SpriteRenderer spriteRenderer;
     private Coroutine deadCountdown, attacking, pursuting, damageB;
     private Color spriteColor;
+    private float timePassedSinceLastAttack=0f;
 
 
     public bool IsDead()
@@ -97,7 +98,6 @@ public class CommonEnemyBehaviour : MonoBehaviour
         currentHP = maxHP;
         dead=false;
 
-        spriteRenderer = GetComponent<SpriteRenderer>();
         playerTransform = GameObject.FindGameObjectWithTag("player").transform;
         playerComponent = GameObject.FindGameObjectWithTag("player").GetComponent<PlayerComponent>();
     }
@@ -106,6 +106,8 @@ public class CommonEnemyBehaviour : MonoBehaviour
 
     private void Update()
     {
+        timePassedSinceLastAttack+=Time.deltaTime;
+
         foreach(CurrentDamagingWeapon weapon in attackingMeeleWeaponsInRange)
         {
             if(weapon.GetHit())
@@ -117,28 +119,17 @@ public class CommonEnemyBehaviour : MonoBehaviour
 
 
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void OnTriggerEnter2D(Collider2D collision)
     {
-        GameObject gameObject = collision.gameObject;
-        if(gameObject.TryGetComponent<BulletBehaviour>(out BulletBehaviour bulletBehaviour))
-        {
-            TakeDamage(bulletBehaviour.getDMG());
-            Destroy(gameObject);
-        }
-        else if(gameObject.tag=="swords")
+        if(gameObject.tag=="swords")
         {
             attackingMeeleWeaponsInRange.Add(new CurrentDamagingWeapon(gameObject));
-        }
-        else if (collision.gameObject.name=="Main_character")
-        {
-            StopPursuit();
-            StartAttack();
         }
     }
 
 
 
-    private void OnCollisionExit2D(Collision2D collision) 
+    private void OnTriggerExit2D(Collider2D collision) 
     {
         GameObject gameObject = collision.gameObject;
 
@@ -159,11 +150,6 @@ public class CommonEnemyBehaviour : MonoBehaviour
 
             attackingMeeleWeaponsInRange.RemoveAt(target);
         }
-        else if (collision.gameObject.name=="Main_character")
-        {
-            StopAttack();
-            StartPursuit();
-        }
     }
 
 
@@ -172,9 +158,13 @@ public class CommonEnemyBehaviour : MonoBehaviour
     {
         currentHP-=rawDMG;
         if(damageB!=null)
+        {
             StopCoroutine(damageB);
+            spriteRenderer.color = spriteColor;
+        }
         
-        damageB = StartCoroutine(DamageBlink());
+        if(!dead)
+            damageB = StartCoroutine(DamageBlink());
 
         if(currentHP<0)
             Die();
@@ -190,9 +180,12 @@ public class CommonEnemyBehaviour : MonoBehaviour
         float timePassed=0f;
         while(timePassed<damageBlinkPeriod)
         {
-            currentColor.b = Mathf.Clamp(0f,spriteColor.b,timePassed/damageBlinkPeriod);
-            currentColor.g = Mathf.Clamp(0f,spriteColor.g,timePassed/damageBlinkPeriod);
-            currentColor.r = Mathf.Clamp(1f,spriteColor.r,timePassed/damageBlinkPeriod);
+            //Debug.Log("B: "+currentColor.b);
+            currentColor.b = Mathf.Clamp(timePassed/damageBlinkPeriod,0f,spriteColor.b);
+            //Debug.Log("G: "+currentColor.g);
+            currentColor.g = Mathf.Clamp(timePassed/damageBlinkPeriod,0f,spriteColor.g);
+            //Debug.Log("R: "+currentColor.r);
+            currentColor.r = Mathf.Clamp(timePassed/damageBlinkPeriod,1f,spriteColor.r);
             spriteRenderer.color = currentColor;
             timePassed+=0.02f;
             yield return new WaitForSeconds(0.02f);
@@ -217,6 +210,8 @@ public class CommonEnemyBehaviour : MonoBehaviour
     {
         dead = true;
         spriteRenderer.sprite = deadBodySprite;
+        StopAttack();
+        StopPursuit();
         deadCountdown = StartCoroutine(countdown());
     }
 
@@ -302,12 +297,16 @@ public class CommonEnemyBehaviour : MonoBehaviour
     {
         while(true)
         {
+            while(timePassedSinceLastAttack<attackPeriod)
+            {
+                yield return null;
+            }
+
+            timePassedSinceLastAttack=0f;
             playerComponent.TakeDamage(attackDMG);
 
             if(playerComponent.isDead() || dead)
                 StopAttack();
-
-            yield return new WaitForSeconds(attackPeriod);
         }
     }
 }

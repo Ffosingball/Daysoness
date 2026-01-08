@@ -30,7 +30,7 @@ public class InputManager : MonoBehaviour
     public void OnFirePressed(InputAction.CallbackContext ctx)
     {
         GameObject currentWeapon = itemManager.getCurrentWeapon();
-        Debug.Log("LMB pressed");
+        //Debug.Log("LMB pressed");
 
         if(currentWeapon.TryGetComponent<FirearmWeapon>(out FirearmWeapon firearmWeapon))
         {
@@ -47,7 +47,7 @@ public class InputManager : MonoBehaviour
     public void OnFireReleased(InputAction.CallbackContext ctx)
     {
         GameObject currentWeapon = itemManager.getCurrentWeapon();
-        Debug.Log("LMB released");
+        //Debug.Log("LMB released");
 
         if(currentWeapon.TryGetComponent<FirearmWeapon>(out FirearmWeapon firearmWeapon))
         {

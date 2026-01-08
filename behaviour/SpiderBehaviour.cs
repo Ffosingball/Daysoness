@@ -10,7 +10,7 @@ public class SpiderBehaviour : MonoBehaviour
     [SerializeField] private LayerMask barrierLayer;
     private Vector2 nestCoord;
 
-    private SpriteRenderer spriteRenderer;
+    //private SpriteRenderer spriteRenderer;
     private Transform playerTransform;
     [SerializeField] private Transform rotationBox;
     [SerializeField] private CommonEnemyBehaviour commonEnemyBehaviour;
@@ -19,7 +19,7 @@ public class SpiderBehaviour : MonoBehaviour
 
     private void Start()
     {
-        spriteRenderer = GetComponent<SpriteRenderer>();
+        //spriteRenderer = GetComponent<SpriteRenderer>();
         playerTransform = GameObject.FindGameObjectWithTag("player").transform;
         nestCoord = transform.position;
     }
@@ -46,6 +46,14 @@ public class SpiderBehaviour : MonoBehaviour
                 }
             }
         }
+        else if(commonEnemyBehaviour.IsDead())
+        {
+            if(go_circle!=null)
+            {
+                StopCoroutine(go_circle);
+                go_circle=null;
+            }
+        }
     }
 
 
@@ -64,15 +72,6 @@ public class SpiderBehaviour : MonoBehaviour
             RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, detectionRadius, barrierLayer);
 
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-
-            if (angle<=90 && angle>=-90)
-            {
-                spriteRenderer.flipX = false;
-            }
-            else
-            {
-                spriteRenderer.flipX = true;
-            }
 
             if (hit.collider == null)
             {

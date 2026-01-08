@@ -126,6 +126,7 @@ public class UIManager : MonoBehaviour
             yield return new WaitForSeconds(0.02f);
         }
 
+        weaponReloadImage.fillAmount=0f;
         weaponReloading=null;
     }
 

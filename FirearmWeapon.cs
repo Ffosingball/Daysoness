@@ -9,15 +9,14 @@ public class FirearmWeapon : MonoBehaviour
     [SerializeField] private bool automatic;
     [SerializeField] private float firePeriod;
     [SerializeField] private float realoadTime;
-    //[SerializeField] private float bulletSpeed;
-    [SerializeField] private GameObject bullet;
     [SerializeField] private WeaponTypes type;
     private int currentNumOfBullets=0;
     private int currentNumOfCatridges=0;
-    [SerializeField] private float bulletSpeed;
     private bool haveThisWeapon=false;
     private Coroutine fireBullets, rechargeWait;
     [SerializeField] private UIManager uiManager;
+    [SerializeField] private float bulletRange = 300f;
+    //[SerializeField] private LayerMask barrierLayer;
 
 
     public int getMaxAmountOfCatridges()
@@ -84,8 +83,11 @@ public class FirearmWeapon : MonoBehaviour
 
     public void Recharge()
     {
-        rechargeWait = StartCoroutine(RealoadWait());
-        uiManager.StartCatridgeReloadAnimation(realoadTime);
+        if(rechargeWait==null)
+        {
+            rechargeWait = StartCoroutine(RealoadWait());
+            uiManager.StartCatridgeReloadAnimation(realoadTime);
+        }
     }
 
 
@@ -108,19 +110,20 @@ public class FirearmWeapon : MonoBehaviour
 
     private void CreateABullet()
     {
-        Vector3 bulletStart = transform.position;
-        GameObject newBullet = Instantiate(bullet, bulletStart, Quaternion.Euler(0f,0f,0f));
-
         Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        Vector3 direction = mousePosition - newBullet.transform.position;
-        float angle = (Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg)-90;
-        angle=angle<-180?angle+360:angle;
-        newBullet.transform.rotation = Quaternion.Euler(new Vector3(0, 0, angle));
-                
-        BulletBehaviour bulletBehaviour = newBullet.GetComponent<BulletBehaviour>();
-        bulletBehaviour.setSpeed(bulletSpeed);
-        bulletBehaviour.setDMG(dmgPerPatron);
-        newBullet.SetActive(true);
+        Vector3 direction = (mousePosition - transform.position).normalized;
+
+        //Debug.DrawRay(transform.position, direction * 100f, Color.red, 3f);
+        LayerMask hitMask = LayerMask.GetMask("Enemy", "Barrier");
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, bulletRange, hitMask);
+        if (hit.collider!=null)
+        {
+            Debug.Log("Hit " + hit.collider.name);
+            if(hit.collider.gameObject.TryGetComponent<CommonEnemyBehaviour>(out CommonEnemyBehaviour commonEnemyBehaviour))
+            {
+                commonEnemyBehaviour.TakeDamage(dmgPerPatron);
+            }
+        }
 
         currentNumOfBullets--;
     }
@@ -185,5 +188,7 @@ public class FirearmWeapon : MonoBehaviour
         }
         else
             CancelRecharge();
+
+        rechargeWait=null;
     }
 }

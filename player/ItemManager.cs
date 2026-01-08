@@ -321,10 +321,17 @@ public class ItemManager : MonoBehaviour
     public void Recalculation()
     {
         numOfFirstAids-=UnityEngine.Random.Range(0,afterDeathLooseMaxSupportItems);
+        if(numOfFirstAids<0)
+            numOfFirstAids=0;
 
         for(int i=0; i<weaponsList.Length; i++)
         {
-            weaponsList[i].GetComponent<FirearmWeapon>().setCurrentNumOfCatridges(weaponsList[i].GetComponent<FirearmWeapon>().getCurrentNumOfCatridges()-UnityEngine.Random.Range(0,afterDeathLooseMaxCatridges));
+            if(weaponsList[i].TryGetComponent<FirearmWeapon>(out FirearmWeapon firearmWeapon))
+            {
+                firearmWeapon.setCurrentNumOfCatridges(weaponsList[i].GetComponent<FirearmWeapon>().getCurrentNumOfCatridges()-UnityEngine.Random.Range(0,afterDeathLooseMaxCatridges));
+                if(firearmWeapon.getCurrentNumOfCatridges()<0)
+                    firearmWeapon.setCurrentNumOfCatridges(0);
+            }
         }
     }
 }
