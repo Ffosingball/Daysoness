@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using UnityEngine.InputSystem;
 
 public class FirearmWeapon : MonoBehaviour
 {
@@ -110,20 +111,34 @@ public class FirearmWeapon : MonoBehaviour
 
     private void CreateABullet()
     {
-        Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
         Vector3 direction = (mousePosition - transform.position).normalized;
 
-        //Debug.DrawRay(transform.position, direction * 100f, Color.red, 3f);
+        //Debug.DrawRay(transform.position, direction*200f, Color.red, 3f);
         LayerMask hitMask = LayerMask.GetMask("Enemy", "Barrier");
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, bulletRange, hitMask);
-        if (hit.collider!=null)
+        //RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, bulletRange, hitMask);
+
+        RaycastHit2D[] hits = Physics2D.RaycastAll(transform.position, direction, bulletRange, hitMask);
+
+        for (int i=0; i<hits.Length; i++)
+        {
+            if(hits[i].collider.gameObject.tag=="barrier")
+                break;
+            else if(hits[i].collider.gameObject.TryGetComponent<CommonEnemyBehaviour>(out CommonEnemyBehaviour commonEnemyBehaviour))
+            {
+                if(!commonEnemyBehaviour.IsDead())
+                    commonEnemyBehaviour.TakeDamage(dmgPerPatron);
+            }
+        }
+
+        /*if (hit.collider!=null)
         {
             Debug.Log("Hit " + hit.collider.name);
             if(hit.collider.gameObject.TryGetComponent<CommonEnemyBehaviour>(out CommonEnemyBehaviour commonEnemyBehaviour))
             {
                 commonEnemyBehaviour.TakeDamage(dmgPerPatron);
             }
-        }
+        }*/
 
         currentNumOfBullets--;
     }

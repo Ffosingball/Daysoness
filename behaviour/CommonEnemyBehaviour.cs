@@ -53,12 +53,15 @@ public class CommonEnemyBehaviour : MonoBehaviour
     //[SerializeField] private float firearmWeaponResistance=0f;
 
     private float currentHP;
-    private bool dead;
+    [SerializeField] private bool dead;
     private List<CurrentDamagingWeapon> attackingMeeleWeaponsInRange;
     [SerializeField] private SpriteRenderer spriteRenderer;
     private Coroutine deadCountdown, attacking, pursuting, damageB;
     private Color spriteColor;
     private float timePassedSinceLastAttack=0f;
+    private Rigidbody2D rigidbody2d;
+    private bool move=false;
+    private Vector2 movementDirection;
 
 
     public bool IsDead()
@@ -85,6 +88,26 @@ public class CommonEnemyBehaviour : MonoBehaviour
     }
 
 
+    public bool IsMoving()
+    {
+        //Debug.Log("Changed movement");
+        return move;
+    }
+
+
+    public void setIsMoving(bool _move)
+    {
+        //Debug.Log("Changed movement");
+        move = _move;
+    }
+
+
+    public void setMovementDirection(Vector2 _direction)
+    {
+        movementDirection = _direction;
+    }
+
+
     public float getDetectionRange()
     {
         return detectionRange;
@@ -97,7 +120,9 @@ public class CommonEnemyBehaviour : MonoBehaviour
         attackingMeeleWeaponsInRange = new List<CurrentDamagingWeapon>();
         currentHP = maxHP;
         dead=false;
+        move=false;
 
+        rigidbody2d = GetComponent<Rigidbody2D>();
         playerTransform = GameObject.FindGameObjectWithTag("player").transform;
         playerComponent = GameObject.FindGameObjectWithTag("player").GetComponent<PlayerComponent>();
     }
@@ -115,6 +140,16 @@ public class CommonEnemyBehaviour : MonoBehaviour
                 TakeDamage(weapon.GetDMG());
             }
         }
+    }
+
+
+
+    private void FixedUpdate()
+    {
+        if(move && !dead)
+            rigidbody2d.linearVelocity = movementDirection * speed;
+        else if(!dead)
+            rigidbody2d.linearVelocity = movementDirection * 0f;
     }
 
 
@@ -213,6 +248,7 @@ public class CommonEnemyBehaviour : MonoBehaviour
         StopAttack();
         StopPursuit();
         deadCountdown = StartCoroutine(countdown());
+        move=false;
     }
 
 
@@ -249,6 +285,7 @@ public class CommonEnemyBehaviour : MonoBehaviour
         {
             StopCoroutine(pursuting);
             pursuting=null;
+            move=false;
         }
     }
 
@@ -256,20 +293,19 @@ public class CommonEnemyBehaviour : MonoBehaviour
 
     private IEnumerator pursuitLoop()
     {
+        //Debug.Log("Started pursuit!");
+        move=true;
+        var wait = new WaitForFixedUpdate();
+
         while(true)
         {
-            Vector2 direction = (playerTransform.position - transform.position).normalized;
-            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-
-            transform.rotation = Quaternion.Euler(new Vector3(0, 0, angle));
-            rotationBox.rotation = Quaternion.Euler(new Vector3(0, 0, 0));
-            transform.Translate(new Vector3(1,0,0)*speed*Time.deltaTime);
+            movementDirection = (playerTransform.position - transform.position).normalized;
 
             float distanceToPlayer = Vector2.Distance(transform.position, playerTransform.position);
             if(distanceToPlayer>detectionRange)
                 StopPursuit();
             
-            yield return null;
+            yield return wait;
         }
     }
 

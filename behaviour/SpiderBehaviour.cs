@@ -8,7 +8,7 @@ public class SpiderBehaviour : MonoBehaviour
     private Coroutine go_circle=null;
     [SerializeField] private Sprite alive;
     [SerializeField] private LayerMask barrierLayer;
-    private Vector2 nestCoord;
+    [SerializeField] private Vector2 nestCoord;
 
     //private SpriteRenderer spriteRenderer;
     private Transform playerTransform;
@@ -39,9 +39,12 @@ public class SpiderBehaviour : MonoBehaviour
             else
             {
                 float distanceToNest = Vector2.Distance(transform.position, nestCoord);
+                //Debug.Log("Distance to nest: "+distanceToNest);
 
                 if (distanceToNest > 0.5f && go_circle==null)
                 {
+                    //Debug.Log("What the fuck!!!");
+                    //Debug.Log("Result: "+(distanceToNest > 0.5f));
                     go_circle=StartCoroutine(Movement_to_point());
                 }
             }
@@ -61,34 +64,22 @@ public class SpiderBehaviour : MonoBehaviour
 
     private IEnumerator Movement_to_point() 
     {
+        //Debug.Log("Moving somewhere");
         Vector3 zero=new Vector3(nestCoord.x,nestCoord.y,0);
         float distanceToCenter = Vector2.Distance(transform.position, zero);
+        var wait = new WaitForFixedUpdate();
+        commonEnemyBehaviour.setIsMoving(true);
 
-        while(distanceToCenter>=0.1f)
+        while(distanceToCenter>=0.5f)
         {
             Vector2 direction = (zero - transform.position).normalized;
 
-            float detectionRadius = 2f;
-            RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, detectionRadius, barrierLayer);
+            commonEnemyBehaviour.setMovementDirection(direction);
 
-            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-
-            if (hit.collider == null)
-            {
-                transform.rotation = Quaternion.Euler(new Vector3(0, 0, angle));
-                rotationBox.rotation = Quaternion.Euler(new Vector3(0, 0, 0));
-                transform.Translate(new Vector3(1,0,0)*commonEnemyBehaviour.getSpeed()*0.02f);
-            }
-            else
-            {
-                angle+=50;
-                transform.rotation = Quaternion.Euler(new Vector3(0, 0, angle));
-                rotationBox.rotation = Quaternion.Euler(new Vector3(0, 0, 0));
-                transform.Translate(new Vector3(1,0,0)*commonEnemyBehaviour.getSpeed()*0.02f);
-            }
-
-            yield return new WaitForSeconds(0.02f);
+            yield return wait;
             distanceToCenter = Vector2.Distance(transform.position, zero);
         }
+
+        commonEnemyBehaviour.setIsMoving(false);
     }
 }

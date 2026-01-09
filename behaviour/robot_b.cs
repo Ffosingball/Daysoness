@@ -260,7 +260,7 @@ public class robot_b : MonoBehaviour
         if(checkAttack==null)
         {
             //Debug.Log("Начал проверку!");
-            checkAttack=StartCoroutine(CheckIt());
+            //checkAttack=StartCoroutine(CheckIt());
         }
     }
 
