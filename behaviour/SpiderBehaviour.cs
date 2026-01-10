@@ -8,6 +8,7 @@ public class SpiderBehaviour : MonoBehaviour
 
     private Transform playerTransform;
     [SerializeField] private CommonEnemyBehaviour commonEnemyBehaviour;
+    [SerializeField] private float nestRange;
 
 
 
@@ -17,4 +18,21 @@ public class SpiderBehaviour : MonoBehaviour
         nestCoord = transform.position;
         commonEnemyBehaviour.setTargetDestination(nestCoord);
     }
+
+
+
+    private void Update()
+    {
+        float distanceToNest = Vector2.Distance(transform.position, nestCoord);
+        if(distanceToNest>nestRange)
+        {
+            float distancePlayerToNest = Vector2.Distance(playerTransform.position, nestCoord);
+            if(distancePlayerToNest<nestRange)
+                commonEnemyBehaviour.setFollowPlayer(true);
+            else
+                commonEnemyBehaviour.setFollowPlayer(false);
+        }
+        else
+            commonEnemyBehaviour.setFollowPlayer(true);
+    } 
 }

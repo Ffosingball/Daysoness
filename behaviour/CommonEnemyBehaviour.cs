@@ -74,6 +74,7 @@ public class CommonEnemyBehaviour : MonoBehaviour
     private float timePassed, timeStuck=0f, timeLeftUntilTeleport=0f;
     //private bool countUntilPlayerLost=false;
     private Vector3 previousPosition;
+    private bool followPlayer;
 
 
     public bool IsDead()
@@ -97,6 +98,12 @@ public class CommonEnemyBehaviour : MonoBehaviour
     public void setAtTargetDestination(bool _atTargetDestination)
     {
         atTargetDestination = _atTargetDestination;
+    }
+
+
+    public void setFollowPlayer(bool _followPlayer)
+    {
+        followPlayer = _followPlayer;
     }
 
 
@@ -195,37 +202,42 @@ public class CommonEnemyBehaviour : MonoBehaviour
 
         if(distanceToPlayer<=detectionRange && timeStuck<periodToLosePlayer)
         {
-            Vector2 direction = (playerTransform.position - transform.position).normalized;
-            LayerMask hitMask = LayerMask.GetMask("Player", "Barrier");
-            RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, detectionRange, hitMask);
-
-            bool playerInFront=false;
-            if(hit.collider!=null)
+            if(followPlayer)
             {
-                if(hit.collider.gameObject.tag=="player")
+                Vector2 direction = (playerTransform.position - transform.position).normalized;
+                LayerMask hitMask = LayerMask.GetMask("Player", "Barrier");
+                RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, detectionRange, hitMask);
+
+                bool playerInFront=false;
+                if(hit.collider!=null)
                 {
-                    //Debug.Log("I see player");
-                    movementDirection = direction;
-                    lastPlayerPosition = playerTransform.position;
-                    playerInFront=true;
-                    timeStuck=0f;
+                    if(hit.collider.gameObject.tag=="player")
+                    {
+                        //Debug.Log("I see player");
+                        movementDirection = direction;
+                        lastPlayerPosition = playerTransform.position;
+                        playerInFront=true;
+                        timeStuck=0f;
+                    }
+                }
+
+                if(!playerInFront)
+                {
+                    //Debug.Log("I do NOT see player");
+
+                    float distanceToRememberedPoint = Vector2.Distance(transform.position, lastPlayerPosition);
+
+                    if(distanceToRememberedPoint<targetDestinationRange)
+                        StopPursuit();
+                    else
+                    {
+                        Vector2 newDirection = (lastPlayerPosition - (Vector2)transform.position).normalized;
+                        movementDirection = newDirection;
+                    }
                 }
             }
-
-            if(!playerInFront)
-            {
-                //Debug.Log("I do NOT see player");
-
-                float distanceToRememberedPoint = Vector2.Distance(transform.position, lastPlayerPosition);
-
-                if(distanceToRememberedPoint<targetDestinationRange)
-                    StopPursuit();
-                else
-                {
-                    Vector2 newDirection = (lastPlayerPosition - (Vector2)transform.position).normalized;
-                    movementDirection = newDirection;
-                }
-            }
+            else
+                move=false;
         }
         else
             StopPursuit();
@@ -238,7 +250,7 @@ public class CommonEnemyBehaviour : MonoBehaviour
         //Debug.Log("Check player!");
         float distanceToPlayer = Vector2.Distance(transform.position, playerTransform.position);
 
-        if(distanceToPlayer<=detectionRange)
+        if(distanceToPlayer<=detectionRange && followPlayer)
         {
             //Debug.Log("Player in range!");
             Vector2 direction = (playerTransform.position - transform.position).normalized;
