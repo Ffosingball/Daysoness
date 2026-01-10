@@ -84,7 +84,7 @@ public class FirearmWeapon : MonoBehaviour
 
     public void Recharge()
     {
-        if(rechargeWait==null)
+        if(rechargeWait==null && haveThisWeapon)
         {
             rechargeWait = StartCoroutine(RealoadWait());
             uiManager.StartCatridgeReloadAnimation(realoadTime);
