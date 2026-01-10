@@ -128,14 +128,15 @@ public class PlayerComponent : MonoBehaviour
 
 
 
-    public void StartPoisonEffect(float effectDuration, float damagePeriod, int dmgInPeriod, PoisonTypes poisonType)
+    public void StartPoisonEffect(float effectDuration, float damagePeriod, float dmgInPeriod, PoisonTypes poisonType)
     {
         for(int i=0; i<activePoisonsTypes.Length; i++)
         {
             if(activePoisonsTypes[i]==poisonType || activePoisonsTypes[i]==PoisonTypes.None)
             {
                 activePoisonsTypes[i]=poisonType;
-                StopCoroutine(activePoisons[i]);
+                if(activePoisons[i]!=null)
+                    StopCoroutine(activePoisons[i]);
                 activePoisons[i] = StartCoroutine(poisonEffect(effectDuration, damagePeriod, dmgInPeriod,i,poisonType));
                 uiManager.SetPoisonIcon(poisonType);
 
@@ -146,7 +147,7 @@ public class PlayerComponent : MonoBehaviour
 
 
 
-    private IEnumerator poisonEffect(float effectDuration, float damagePeriod, int dmgInPeriod, int indexInArray, PoisonTypes poisonType)
+    private IEnumerator poisonEffect(float effectDuration, float damagePeriod, float dmgInPeriod, int indexInArray, PoisonTypes poisonType)
     {
         float timePassed=0f;
 

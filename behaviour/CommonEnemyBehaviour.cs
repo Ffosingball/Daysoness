@@ -74,7 +74,7 @@ public class CommonEnemyBehaviour : MonoBehaviour
     private float timePassed, timeStuck=0f, timeLeftUntilTeleport=0f;
     //private bool countUntilPlayerLost=false;
     private Vector3 previousPosition;
-    private bool followPlayer;
+    private bool followPlayer=true;
 
 
     public bool IsDead()
@@ -89,9 +89,16 @@ public class CommonEnemyBehaviour : MonoBehaviour
     }
 
 
+    public bool IsAttacking()
+    {
+        return attacking!=null;
+    }
+
+
     public void setTargetDestination(Vector2 _destination)
     {
         targetDestination = _destination;
+        atTargetDestination=false;
     }
 
 

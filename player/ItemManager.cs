@@ -287,7 +287,7 @@ public class ItemManager : MonoBehaviour
 
     public void StartUsingFirstAid()
     {
-        if(numOfFirstAids>0)
+        if(numOfFirstAids>0 && !usingFirstAid)
         {
             FirstAid.SetActive(true);
             uiManager.StartFirstAidAnimation(firstAidAnimationTime);

@@ -8,6 +8,8 @@ public class FirearmWeapon : MonoBehaviour
     [SerializeField] private float dmgPerPatron;
     [SerializeField] private int maxAmountOfCatridges;
     [SerializeField] private bool automatic;
+    [SerializeField] private bool piercingBullets;
+    [SerializeField] private int piercingAmount;
     [SerializeField] private float firePeriod;
     [SerializeField] private float realoadTime;
     [SerializeField] private WeaponTypes type;
@@ -120,6 +122,7 @@ public class FirearmWeapon : MonoBehaviour
 
         RaycastHit2D[] hits = Physics2D.RaycastAll(transform.position, direction, bulletRange, hitMask);
 
+        float piercedEnemies=0;
         for (int i=0; i<hits.Length; i++)
         {
             if(hits[i].collider.gameObject.tag=="barrier")
@@ -127,18 +130,20 @@ public class FirearmWeapon : MonoBehaviour
             else if(hits[i].collider.gameObject.TryGetComponent<CommonEnemyBehaviour>(out CommonEnemyBehaviour commonEnemyBehaviour))
             {
                 if(!commonEnemyBehaviour.IsDead())
+                {
                     commonEnemyBehaviour.TakeDamage(dmgPerPatron);
+                    piercedEnemies++;
+
+                    if(piercingBullets)
+                    {
+                        if(piercedEnemies>=piercingAmount)
+                            break;
+                    }
+                    else
+                        break;
+                }
             }
         }
-
-        /*if (hit.collider!=null)
-        {
-            Debug.Log("Hit " + hit.collider.name);
-            if(hit.collider.gameObject.TryGetComponent<CommonEnemyBehaviour>(out CommonEnemyBehaviour commonEnemyBehaviour))
-            {
-                commonEnemyBehaviour.TakeDamage(dmgPerPatron);
-            }
-        }*/
 
         currentNumOfBullets--;
     }
