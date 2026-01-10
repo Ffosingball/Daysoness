@@ -6,12 +6,14 @@ public class InputManager : MonoBehaviour
     [SerializeField] private Movement movement;
     [SerializeField] private  ItemManager itemManager;
     [SerializeField] private  UIManager uiManager;
+    [SerializeField] private float epsilon=0.001f;
 
 
 
     public void OnMove(InputAction.CallbackContext ctx)
     {
-        movement.setMovementDirection(ctx.ReadValue<Vector2>());
+        if(Time.timeScale>epsilon)
+            movement.setMovementDirection(ctx.ReadValue<Vector2>());
     }
 
 
@@ -29,16 +31,18 @@ public class InputManager : MonoBehaviour
 
     public void OnFirePressed(InputAction.CallbackContext ctx)
     {
-        GameObject currentWeapon = itemManager.getCurrentWeapon();
-        //Debug.Log("LMB pressed");
+        if(Time.timeScale>epsilon)
+        {
+            GameObject currentWeapon = itemManager.getCurrentWeapon();
 
-        if(currentWeapon.TryGetComponent<FirearmWeapon>(out FirearmWeapon firearmWeapon))
-        {
-            firearmWeapon.StartFire();
-        }
-        else
-        {
-            currentWeapon.GetComponent<MeeleWeapon>().StartSwing();
+            if(currentWeapon.TryGetComponent<FirearmWeapon>(out FirearmWeapon firearmWeapon))
+            {
+                firearmWeapon.StartFire();
+            }
+            else
+            {
+                currentWeapon.GetComponent<MeeleWeapon>().StartSwing();
+            }
         }
     }
 
@@ -46,16 +50,18 @@ public class InputManager : MonoBehaviour
 
     public void OnFireReleased(InputAction.CallbackContext ctx)
     {
-        GameObject currentWeapon = itemManager.getCurrentWeapon();
-        //Debug.Log("LMB released");
+        if(Time.timeScale>epsilon)
+        {
+            GameObject currentWeapon = itemManager.getCurrentWeapon();
 
-        if(currentWeapon.TryGetComponent<FirearmWeapon>(out FirearmWeapon firearmWeapon))
-        {
-            firearmWeapon.StopFire();
-        }
-        else
-        {
-            currentWeapon.GetComponent<MeeleWeapon>().StopSwing();
+            if(currentWeapon.TryGetComponent<FirearmWeapon>(out FirearmWeapon firearmWeapon))
+            {
+                firearmWeapon.StopFire();
+            }
+            else
+            {
+                currentWeapon.GetComponent<MeeleWeapon>().StopSwing();
+            }
         }
     }
 
@@ -63,32 +69,45 @@ public class InputManager : MonoBehaviour
 
     public void OnSwitchForward(InputAction.CallbackContext ctx)
     {
-        if(ctx.started)
-            itemManager.SwitchWeaponForward();
+        if(Time.timeScale>epsilon)
+        {
+            //Debug.Log("Pressed forward");
+            if(ctx.started)
+                itemManager.SwitchWeaponForward();
+        }
     }
 
 
 
     public void OnSwitchBackward(InputAction.CallbackContext ctx)
     {
-        if(ctx.started)
-            itemManager.SwitchWeaponBackward();
+        if(Time.timeScale>epsilon)
+        {
+            if(ctx.started)
+                itemManager.SwitchWeaponBackward();
+        }
     }
 
 
 
     public void OnRecharge(InputAction.CallbackContext ctx)
     {
-        if(ctx.started)
-            itemManager.RechargeWeapon();
+        if(Time.timeScale>epsilon)
+        {
+            if(ctx.started)
+                itemManager.RechargeWeapon();
+        }
     }
 
 
 
     public void OnHeal(InputAction.CallbackContext ctx)
     {
-        if(ctx.started)
-            itemManager.StartUsingFirstAid();
+        if(Time.timeScale>epsilon)
+        {
+            if(ctx.started)
+                itemManager.StartUsingFirstAid();
+        }
     }
 
 
@@ -97,7 +116,7 @@ public class InputManager : MonoBehaviour
     {
         if(ctx.started)
         {
-            if(Time.deltaTime==0f)
+            if(Time.timeScale<epsilon)
                 uiManager.Continue();
             else
                 uiManager.Pause();

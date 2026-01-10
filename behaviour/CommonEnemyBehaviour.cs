@@ -54,6 +54,7 @@ public class CommonEnemyBehaviour : MonoBehaviour
     [SerializeField] private SpriteRenderer spriteRenderer;
     [SerializeField] private float periodToLosePlayer=5f;
     [SerializeField] private float timeUntilTeleport=200f;
+    [SerializeField] private bool isActive=true;
 
     private PlayerComponent playerComponent;
     private Transform playerTransform;
@@ -75,7 +76,7 @@ public class CommonEnemyBehaviour : MonoBehaviour
     //private bool countUntilPlayerLost=false;
     private Vector3 previousPosition;
     private bool followPlayer=true;
-
+    private BoxCollider2D collider2d;
 
     public bool IsDead()
     {
@@ -92,6 +93,12 @@ public class CommonEnemyBehaviour : MonoBehaviour
     public bool IsAttacking()
     {
         return attacking!=null;
+    }
+
+
+    public bool IsPursuiting()
+    {
+        return pursuting;
     }
 
 
@@ -114,9 +121,22 @@ public class CommonEnemyBehaviour : MonoBehaviour
     }
 
 
+    public void setIsActive(bool _isActive)
+    {
+        isActive = _isActive;
+        //Debug.Log("Changed activity");
+    }
+
+
     public bool getAtTargetDestination()
     {
         return atTargetDestination;
+    }
+
+
+    public float getDetectionRange()
+    {
+        return detectionRange;
     }
 
 
@@ -129,6 +149,7 @@ public class CommonEnemyBehaviour : MonoBehaviour
         move=false;
 
         rigidbody2d = GetComponent<Rigidbody2D>();
+        collider2d = GetComponent<BoxCollider2D>();
         playerTransform = GameObject.FindGameObjectWithTag("player").transform;
         playerComponent = GameObject.FindGameObjectWithTag("player").GetComponent<PlayerComponent>();
     
@@ -155,8 +176,9 @@ public class CommonEnemyBehaviour : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if(!dead)
+        if(!dead && isActive)
         {
+            //Debug.Log("FixedUpdate");
             if(attacking==null)
             {
                 if(pursuting)
@@ -203,7 +225,7 @@ public class CommonEnemyBehaviour : MonoBehaviour
 
     private void PursuitPlayer()
     {
-        //Debug.Log(gameObject.name+" pursuiting");
+        //Debug.Log("Pursuiting");
         move=true;
         float distanceToPlayer = Vector2.Distance(transform.position, playerTransform.position);
 
@@ -213,7 +235,8 @@ public class CommonEnemyBehaviour : MonoBehaviour
             {
                 Vector2 direction = (playerTransform.position - transform.position).normalized;
                 LayerMask hitMask = LayerMask.GetMask("Player", "Barrier");
-                RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, detectionRange, hitMask);
+                RaycastHit2D hit = Physics2D.BoxCast(collider2d.bounds.center, collider2d.bounds.size, 0f, direction, detectionRange, hitMask);
+                //RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, detectionRange, hitMask);
 
                 bool playerInFront=false;
                 if(hit.collider!=null)
@@ -262,7 +285,8 @@ public class CommonEnemyBehaviour : MonoBehaviour
             //Debug.Log("Player in range!");
             Vector2 direction = (playerTransform.position - transform.position).normalized;
             LayerMask hitMask = LayerMask.GetMask("Player", "Barrier");
-            RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, detectionRange, hitMask);
+            RaycastHit2D hit = Physics2D.BoxCast(collider2d.bounds.center, collider2d.bounds.size, 0f, direction, detectionRange, hitMask);
+            //RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, detectionRange, hitMask);
 
             if(hit.collider!=null)
             {
@@ -279,7 +303,7 @@ public class CommonEnemyBehaviour : MonoBehaviour
     {
         move=true;
         timeLeftUntilTeleport+=Time.fixedDeltaTime;
-        //Debug.Log(gameObject.name+" moving back");
+        //Debug.Log("Move to target");
 
         if(tempDirection!=Vector2.zero)
         {
@@ -297,7 +321,8 @@ public class CommonEnemyBehaviour : MonoBehaviour
 
                 Vector2 direction = (targetDestination - (Vector2)transform.position).normalized;
                 LayerMask hitMask = LayerMask.GetMask("Barrier");
-                RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, detectionRange, hitMask);
+                RaycastHit2D hit = Physics2D.BoxCast(collider2d.bounds.center, collider2d.bounds.size, 0f, direction, detectionRange, hitMask);
+                //RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, detectionRange, hitMask);
 
                 float distanceToTarget = Vector2.Distance(transform.position, targetDestination);
                 float distanceToBarrier;
@@ -314,7 +339,8 @@ public class CommonEnemyBehaviour : MonoBehaviour
             {
                 //Debug.Log("Moving at temp direction: "+tempDirection.x+"; "+tempDirection.y);
                 LayerMask hitMask = LayerMask.GetMask("Barrier");
-                RaycastHit2D hit = Physics2D.Raycast(transform.position, tempDirection, detectionRange, hitMask);
+                RaycastHit2D hit = Physics2D.BoxCast(collider2d.bounds.center, collider2d.bounds.size, 0f, tempDirection, detectionRange, hitMask);
+                //RaycastHit2D hit = Physics2D.Raycast(transform.position, tempDirection, detectionRange, hitMask);
                 
                 float distanceToBarrierInDirection;
                 if(hit.collider==null)
@@ -333,7 +359,8 @@ public class CommonEnemyBehaviour : MonoBehaviour
             //Debug.Log("Moving to final destination");
             Vector2 direction = (targetDestination - (Vector2)transform.position).normalized;
             LayerMask hitMask = LayerMask.GetMask("Barrier");
-            RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, detectionRange, hitMask);
+            RaycastHit2D hit = Physics2D.BoxCast(collider2d.bounds.center, collider2d.bounds.size, 0f, direction, detectionRange, hitMask);
+            //RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, detectionRange, hitMask);
 
             float distanceToTarget = Vector2.Distance(transform.position, targetDestination);
             float distanceToBarrier;
@@ -424,7 +451,8 @@ public class CommonEnemyBehaviour : MonoBehaviour
         if(previousDirection!=targetDirection)
         {
             LayerMask hitMask = LayerMask.GetMask("Barrier");
-            RaycastHit2D hit = Physics2D.Raycast(transform.position, targetDirection, detectionRange, hitMask);
+            RaycastHit2D hit = Physics2D.BoxCast(collider2d.bounds.center, collider2d.bounds.size, 0f, targetDirection, detectionRange, hitMask);
+            //RaycastHit2D hit = Physics2D.Raycast(transform.position, targetDirection, detectionRange, hitMask);
             if(hit.collider==null)
                 return true;
 
@@ -479,6 +507,7 @@ public class CommonEnemyBehaviour : MonoBehaviour
     public void TakeDamage(float rawDMG)
     {
         currentHP-=rawDMG;
+        EventsManager.CallOnDamageTaken(gameObject);
         if(damageB!=null)
         {
             StopCoroutine(damageB);

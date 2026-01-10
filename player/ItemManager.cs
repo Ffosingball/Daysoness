@@ -239,6 +239,8 @@ public class ItemManager : MonoBehaviour
 
     public void SwitchWeaponForward()
     {
+        //Debug.Log("Go forward");
+
         weaponsList[weaponNumber].SetActive(false);
         uiManager.CancelCatridgeReloadAnimation();
         weaponNumber++;

@@ -86,7 +86,7 @@ public class FirearmWeapon : MonoBehaviour
 
     public void Recharge()
     {
-        if(rechargeWait==null && haveThisWeapon)
+        if(rechargeWait==null && haveThisWeapon && currentNumOfCatridges>0)
         {
             rechargeWait = StartCoroutine(RealoadWait());
             uiManager.StartCatridgeReloadAnimation(realoadTime);
@@ -145,6 +145,7 @@ public class FirearmWeapon : MonoBehaviour
             }
         }
 
+        EventsManager.CallOnRobotsActivate(transform.position);
         currentNumOfBullets--;
     }
 

@@ -280,6 +280,7 @@ public class UIManager : MonoBehaviour
         Cursor.SetCursor(menuCursor, Vector2.zero, CursorMode.ForceSoftware);
         gameScreen.SetActive(false);
         deadScreen.SetActive(true);
+        Time.timeScale = 0f;
     }
 
 
@@ -289,5 +290,6 @@ public class UIManager : MonoBehaviour
         Cursor.SetCursor(targetCursor, Vector2.zero, CursorMode.ForceSoftware);
         gameScreen.SetActive(true);
         deadScreen.SetActive(false);
+        Time.timeScale = 1f;
     }
 }

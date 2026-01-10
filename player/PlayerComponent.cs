@@ -243,5 +243,6 @@ public class PlayerComponent : MonoBehaviour
         uiManager.SetDeadScreen();
         itemManager.CancelRechargeWeapon();
         itemManager.CancelUsingFirstAid();
+        EventsManager.CallOnAllRobotsDeactivate();
     }
 }
