@@ -21,15 +21,15 @@ public class InputManager : MonoBehaviour
     public void OnFire(InputAction.CallbackContext ctx)
     {
         if(ctx.started)
-            OnFirePressed(ctx);
+            OnFirePressed();
 
         if(ctx.canceled)
-            OnFireReleased(ctx);
+            OnFireReleased();
     }
 
 
 
-    public void OnFirePressed(InputAction.CallbackContext ctx)
+    public void OnFirePressed()
     {
         if(Time.timeScale>epsilon)
         {
@@ -48,7 +48,7 @@ public class InputManager : MonoBehaviour
 
 
 
-    public void OnFireReleased(InputAction.CallbackContext ctx)
+    public void OnFireReleased()
     {
         if(Time.timeScale>epsilon)
         {
@@ -111,15 +111,25 @@ public class InputManager : MonoBehaviour
     }
 
 
+    public void PauseResume()
+    {
+        if(Time.timeScale<epsilon)
+        {
+            uiManager.Continue();
+            movement.setMovementDirection(Vector2.zero);
+            OnFireReleased();
+        }
+        else
+            uiManager.Pause();
+    }
+
+
 
     public void OnPause_Resume(InputAction.CallbackContext ctx)
     {
         if(ctx.started)
         {
-            if(Time.timeScale<epsilon)
-                uiManager.Continue();
-            else
-                uiManager.Pause();
+            PauseResume();
         }
     }
 }

@@ -43,7 +43,7 @@ public class RobotBehaviour : MonoBehaviour
     private void checkWhoIsDamaged(GameObject victim)
     {
         if(victim==gameObject)
-            commonEnemyBehaviour.setIsActive(true);
+            EventsManager.CallOnRobotsActivate(transform.position);
     }
 
 

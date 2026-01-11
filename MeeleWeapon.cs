@@ -32,6 +32,11 @@ public class MeeleWeapon : MonoBehaviour
         return attackRowNum;
     }
 
+    public bool IsSwinging()
+    {
+        return swinging!=null;
+    }
+
     public void setHaveThisWeapon(bool val)
     {
         haveThisWeapon=val;
@@ -41,7 +46,7 @@ public class MeeleWeapon : MonoBehaviour
 
     public void StartSwing()
     {
-        attackRowNum=0;
+        //attackRowNum=0;
         swinging=StartCoroutine(SwingProcess());
     }
 
@@ -80,6 +85,7 @@ public class MeeleWeapon : MonoBehaviour
                 yield return new WaitForSeconds(swingPeriod/40f);
             }
 
+            Debug.Log("Swinging");
             attackRowNum++;
         }
     }

@@ -26,6 +26,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Sprite[] shieldLevels;
     [SerializeField] private GameObject beetlePoisonIcon;
     [SerializeField] private Image loadingFillBar;
+    [SerializeField] private float epsilon=0.001f;
 
     private Coroutine weaponReloading, firstAidReloading;
 
@@ -290,6 +291,8 @@ public class UIManager : MonoBehaviour
         Cursor.SetCursor(targetCursor, Vector2.zero, CursorMode.ForceSoftware);
         gameScreen.SetActive(true);
         deadScreen.SetActive(false);
-        Time.timeScale = 1f;
+
+        if(Time.timeScale<epsilon)
+            Time.timeScale = 1f;
     }
 }

@@ -127,20 +127,25 @@ public class FirearmWeapon : MonoBehaviour
         {
             if(hits[i].collider.gameObject.tag=="barrier")
                 break;
-            else if(hits[i].collider.gameObject.TryGetComponent<CommonEnemyBehaviour>(out CommonEnemyBehaviour commonEnemyBehaviour))
+            else
             {
-                if(!commonEnemyBehaviour.IsDead())
-                {
-                    commonEnemyBehaviour.TakeDamage(dmgPerPatron);
-                    piercedEnemies++;
+                GameObject parent = hits[i].collider.gameObject.transform.parent.gameObject;
 
-                    if(piercingBullets)
+                if(parent.TryGetComponent<CommonEnemyBehaviour>(out CommonEnemyBehaviour commonEnemyBehaviour))
+                {
+                    if(!commonEnemyBehaviour.IsDead())
                     {
-                        if(piercedEnemies>=piercingAmount)
+                        commonEnemyBehaviour.TakeDamage(dmgPerPatron);
+                        piercedEnemies++;
+
+                        if(piercingBullets)
+                        {
+                            if(piercedEnemies>=piercingAmount)
+                                break;
+                        }
+                        else
                             break;
                     }
-                    else
-                        break;
                 }
             }
         }

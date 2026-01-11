@@ -8,7 +8,7 @@ using Unity.VisualScripting;
 public class CurrentDamagingWeapon
 {
     private GameObject damagingMeeleWeapon = null;
-    private int attackRowAbsorbed = -1;
+    private int attackRowAbsorbed = 0;
 
     public CurrentDamagingWeapon(GameObject meeleWeapon)
     {
@@ -17,13 +17,18 @@ public class CurrentDamagingWeapon
 
     public bool GetHit()
     {
-        int currentAttackRow = damagingMeeleWeapon.GetComponent<MeeleWeapon>().getAttackRowNum();
+        if(damagingMeeleWeapon.GetComponent<MeeleWeapon>().IsSwinging())
+        {
+            int currentAttackRow = damagingMeeleWeapon.GetComponent<MeeleWeapon>().getAttackRowNum();
 
-        if(currentAttackRow==attackRowAbsorbed)
-            return false;
+            if(currentAttackRow==attackRowAbsorbed)
+                return false;
 
-        attackRowAbsorbed = currentAttackRow;
-        return true;
+            attackRowAbsorbed = currentAttackRow;
+            return true;
+        }
+
+        return false;
     }
 
     public bool IsEqual(GameObject gameObject)
@@ -167,6 +172,7 @@ public class CommonEnemyBehaviour : MonoBehaviour
         {
             if(weapon.GetHit())
             {
+                //EventsManager.CallOnRobotsActivate(transform.position);
                 TakeDamage(weapon.GetDMG());
             }
         }
