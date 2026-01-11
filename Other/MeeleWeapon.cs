@@ -85,7 +85,7 @@ public class MeeleWeapon : MonoBehaviour
                 yield return new WaitForSeconds(swingPeriod/40f);
             }
 
-            Debug.Log("Swinging");
+            //Debug.Log("Swinging");
             attackRowNum++;
         }
     }
