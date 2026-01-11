@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class RobotBehaviour : MonoBehaviour
 {
-    private PlayerComponent playerComponent;
     private Transform playerTransform;
     [SerializeField] private CommonEnemyBehaviour commonEnemyBehaviour;
 
@@ -12,9 +11,9 @@ public class RobotBehaviour : MonoBehaviour
 
     private void Start()
     {
-        playerComponent = GameObject.FindGameObjectWithTag("player").transform.GetComponent<PlayerComponent>();
         playerTransform = GameObject.FindGameObjectWithTag("player").transform;
         
+        //Subscribe functions to these events
         EventsManager.OnRobotsActivate += activateRobot;
         EventsManager.OnDamageTaken += checkWhoIsDamaged;
         EventsManager.OnAllRobotsDeactivate += deactivateRobot;
@@ -24,6 +23,7 @@ public class RobotBehaviour : MonoBehaviour
 
     private void Update()
     {
+        //If player is out of range then deactivate
         float distanceToPlayer = Vector2.Distance(transform.position, playerTransform.position);
 
         if(distanceToPlayer>=commonEnemyBehaviour.getDetectionRange())
@@ -31,6 +31,7 @@ public class RobotBehaviour : MonoBehaviour
     }
 
 
+    //Activate robot if player in range
     private void activateRobot(Vector2 callerPosition)
     {
         float distanceToCaller = Vector2.Distance(transform.position, callerPosition);
@@ -39,7 +40,7 @@ public class RobotBehaviour : MonoBehaviour
     }
 
 
-
+    //If robot is damaged then activate all robots in the player range
     private void checkWhoIsDamaged(GameObject victim)
     {
         if(victim==gameObject)
@@ -50,7 +51,6 @@ public class RobotBehaviour : MonoBehaviour
 
     private void deactivateRobot()
     {
-        //Debug.Log("Robot deactivated");
         commonEnemyBehaviour.setIsActive(false);
         commonEnemyBehaviour.StopAttack();
         commonEnemyBehaviour.StopPursuit();
@@ -60,6 +60,7 @@ public class RobotBehaviour : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
+        //If player hits a robot then activate everyone in range
         if(collision.gameObject.tag=="player")
         {
             EventsManager.CallOnRobotsActivate(collision.gameObject.transform.position);

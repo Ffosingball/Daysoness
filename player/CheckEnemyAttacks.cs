@@ -1,5 +1,8 @@
 using UnityEngine;
 
+//Yhis component is attached to the player and it checks if enemy entered player
+//hitbox than let the enemy attack player. If enemy exited player then let it pursuit
+//player
 public class CheckEnemyAttacks : MonoBehaviour
 {
     private void OnTriggerEnter2D(Collider2D collision)

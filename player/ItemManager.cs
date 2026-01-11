@@ -26,7 +26,6 @@ public class ItemManager : MonoBehaviour
     [SerializeField] private Movement movement;
 
     private int numOfFirstAids=0;
-    //[SerializeField] private  Transform sword_hand;
     private int weaponNumber=0;
     private GameObject[] weaponsList;
     private bool usingFirstAid=false;
@@ -239,8 +238,6 @@ public class ItemManager : MonoBehaviour
 
     public void SwitchWeaponForward()
     {
-        //Debug.Log("Go forward");
-
         weaponsList[weaponNumber].SetActive(false);
         uiManager.CancelCatridgeReloadAnimation();
         weaponNumber++;

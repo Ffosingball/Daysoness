@@ -3,24 +3,32 @@ using System.Collections;
 using UnityEngine;
 using System;
 using Unity.VisualScripting;
+using Unity.VisualScripting.Dependencies.NCalc;
 
 
+//This class saves which meele weapon is in the hitbox of the enemy
+//I made it this way, so if there in future more than one meele weapon will be 
+//hitting enemy then both of them will hit enemy
 public class CurrentDamagingWeapon
 {
     private GameObject damagingMeeleWeapon = null;
     private int attackRowAbsorbed = 0;
 
+    //Set meele weapon which touches an enemy
     public CurrentDamagingWeapon(GameObject meeleWeapon)
     {
         damagingMeeleWeapon = meeleWeapon;
     }
 
+    //Checks if enemy should be hitted by this weapon
     public bool GetHit()
     {
+        //Check that player uses weapon
         if(damagingMeeleWeapon.GetComponent<MeeleWeapon>().IsSwinging())
         {
             int currentAttackRow = damagingMeeleWeapon.GetComponent<MeeleWeapon>().getAttackRowNum();
 
+            //Check if weapon started new swing
             if(currentAttackRow==attackRowAbsorbed)
                 return false;
 
@@ -31,11 +39,13 @@ public class CurrentDamagingWeapon
         return false;
     }
 
+    //Returns if given gameObject equal to this weapon
     public bool IsEqual(GameObject gameObject)
     {
         return damagingMeeleWeapon==gameObject;
     }
 
+    //Get dmg of this weapon
     public float GetDMG()
     {
         return damagingMeeleWeapon.GetComponent<MeeleWeapon>().getDMG();
@@ -45,67 +55,92 @@ public class CurrentDamagingWeapon
 
 public class CommonEnemyBehaviour : MonoBehaviour
 {
+    //Maximum hp which enemy can have
     [SerializeField] private float maxHP;
+    //Howl long corpse should exist before disappearence
     [SerializeField] private float deadCorpseExists=120f;
-    [SerializeField] private Sprite deadBodySprite;
+    [SerializeField] private Sprite deadBodySprite;//WILL BE REMOVED
     [SerializeField] private float attackDMG;
+    //Time between attacks
     [SerializeField] private float attackPeriod;
+    //Duration of taking damage animation
     [SerializeField] private float damageBlinkPeriod=0.3f;
     [SerializeField] private float speed;
     [SerializeField] private float detectionRange;
-    [SerializeField] private float targetDestinationRange=0.5f;
+    //How close enemy should be to target to say that it reached it
+    [SerializeField] private float targetDestinationRange=0.3f;
+    //How close an obstacle should be to the enemy to change direction
     [SerializeField] private float distanceToBarrierToChangeDirection=1f;
+    //Check if path to target destination clear every n seconds
     [SerializeField] private float checkIfTargetVisibleWithInterval=1f;
     [SerializeField] private SpriteRenderer spriteRenderer;
+    //How long player should be out of view of the enemy, so thel lose them
+    //and go back to their usual behaviour
     [SerializeField] private float periodToLosePlayer=5f;
+    //If enemy will not be able to get to target destination in this period
+    //of time, then it will be just teleported there
     [SerializeField] private float timeUntilTeleport=200f;
+    //Flag to indicate if active then do some behaviour, otherwise
+    //do nothing
     [SerializeField] private bool isActive=true;
+    //Epsilon for float equality checks
+    [SerializeField] private float epsilon=0.001f;
 
     private PlayerComponent playerComponent;
     private Transform playerTransform;
+    //Current enemy health
     private float currentHP;
     private bool dead=false;
+    //List of all meele weapons in collider range
     private List<CurrentDamagingWeapon> attackingMeeleWeaponsInRange;
+    //deadCountdown stores countdown Coroutine
+    //attacking stores attackLoop Coroutine
+    //damageB stores damageBlink Coroutine
     private Coroutine deadCountdown, attacking, damageB;
     private Color spriteColor;
+    //This counter is important to ensure that enemy will not attack
+    //player more frequently than attackPeriod says
     private float timePassedSinceLastAttack=0f;
     private Rigidbody2D rigidbody2d;
+    //Flag which indicates whether enemy should move or not
     private bool move=false;
     private Vector2 movementDirection;
     private Vector2 targetDestination;
+    //Flag which tells if enemy is pursuiting someone
     private bool pursuting;
+    //Flag which tells if enemy reached target destination
     private bool atTargetDestination=false;
+    //Last seen player position before they dissapered out of view
     private Vector2 lastPlayerPosition;
+    //Temporary movement direction
     private Vector2 tempDirection;
+    //timePassed is counter of when to check for clear path to target destination
+    //timeStuck is counter which says how long enemy is not moving when it should move
     private float timePassed, timeStuck=0f, timeLeftUntilTeleport=0f;
-    //private bool countUntilPlayerLost=false;
     private Vector3 previousPosition;
     private bool followPlayer=true;
     private BoxCollider2D collider2d;
 
+    //Setters and getters
     public bool IsDead()
     {
         return dead;
     }
-
 
     public bool IsMoving()
     {
         return move;
     }
 
-
     public bool IsAttacking()
     {
         return attacking!=null;
     }
 
-
     public bool IsPursuiting()
     {
         return pursuting;
     }
-
 
     public void setTargetDestination(Vector2 _destination)
     {
@@ -113,18 +148,15 @@ public class CommonEnemyBehaviour : MonoBehaviour
         atTargetDestination=false;
     }
 
-
     public void setAtTargetDestination(bool _atTargetDestination)
     {
         atTargetDestination = _atTargetDestination;
     }
 
-
     public void setFollowPlayer(bool _followPlayer)
     {
         followPlayer = _followPlayer;
     }
-
 
     public void setIsActive(bool _isActive)
     {
@@ -132,12 +164,10 @@ public class CommonEnemyBehaviour : MonoBehaviour
         //Debug.Log("Changed activity");
     }
 
-
     public bool getAtTargetDestination()
     {
         return atTargetDestination;
     }
-
 
     public float getDetectionRange()
     {
@@ -146,6 +176,7 @@ public class CommonEnemyBehaviour : MonoBehaviour
 
 
 
+    //Initialize enemy
     private void Start()
     {
         attackingMeeleWeaponsInRange = new List<CurrentDamagingWeapon>();
@@ -166,13 +197,14 @@ public class CommonEnemyBehaviour : MonoBehaviour
 
     private void Update()
     {
+        //Increase counter
         timePassedSinceLastAttack+=Time.deltaTime;
 
+        //Check if any meele weapon does new swing then take damage from it
         foreach(CurrentDamagingWeapon weapon in attackingMeeleWeaponsInRange)
         {
             if(weapon.GetHit())
             {
-                //EventsManager.CallOnRobotsActivate(transform.position);
                 TakeDamage(weapon.GetDMG());
             }
         }
@@ -182,19 +214,21 @@ public class CommonEnemyBehaviour : MonoBehaviour
 
     private void FixedUpdate()
     {
+        //Check that enemy is active and not dead
         if(!dead && isActive)
         {
-            //Debug.Log("FixedUpdate");
+            //If enemy do not attacks
             if(attacking==null)
             {
+                //Pursuit if needed
                 if(pursuting)
                     PursuitPlayer();
                 else
                 {
+                    //Otherwise check for player and move to target if needed
                     CheckIfPlayerVisible();
 
                     float distanceToTarget = Vector2.Distance(transform.position, targetDestination);
-                    //Debug.Log("Distance: "+distanceToTarget+"; range: "+targetDestinationRange);
                     if(distanceToTarget>targetDestinationRange)
                         MoveToTargetPosition();
                     else
@@ -205,16 +239,18 @@ public class CommonEnemyBehaviour : MonoBehaviour
                 }
             }
 
+            //If can move than move
             if(move)
             {
+                //If temporary direction set than use it, otherwise use movement direction
                 if(tempDirection!=Vector2.zero)
                     rigidbody2d.linearVelocity = tempDirection * speed;
                 else
                     rigidbody2d.linearVelocity = movementDirection * speed;
 
-                if(Vector2.Distance(previousPosition,rigidbody2d.position)< 0.001f)
+                //If enemy position did not changed since previous fram then it stuck 
+                if(Vector2.Distance(previousPosition,rigidbody2d.position)< epsilon)
                 {
-                    //Debug.Log("Do not move "+timeStuck);
                     timeStuck+=Time.fixedDeltaTime;
                 }
                 else
@@ -229,27 +265,32 @@ public class CommonEnemyBehaviour : MonoBehaviour
 
 
 
+    //This functions is a behaviour of the enemy when it pursuit a player
     private void PursuitPlayer()
     {
-        //Debug.Log("Pursuiting");
+        //Check if player in range and it do not stuck for too long
         move=true;
         float distanceToPlayer = Vector2.Distance(transform.position, playerTransform.position);
 
         if(distanceToPlayer<=detectionRange && timeStuck<periodToLosePlayer)
         {
+            //Check if enemy should follow player
             if(followPlayer)
             {
+                //Set direction to player
                 Vector2 direction = (playerTransform.position - transform.position).normalized;
+                //Set hitMask, include there layer with enemies and obstacles
                 LayerMask hitMask = LayerMask.GetMask("Player", "Barrier");
+                //Make a cast
                 RaycastHit2D hit = Physics2D.BoxCast(collider2d.bounds.center, collider2d.bounds.size, 0f, direction, detectionRange, hitMask);
-                //RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, detectionRange, hitMask);
-
+                
                 bool playerInFront=false;
                 if(hit.collider!=null)
                 {
+                    //Check if hitted object is player
                     if(hit.collider.gameObject.tag=="player")
                     {
-                        //Debug.Log("I see player");
+                        //then go to player
                         movementDirection = direction;
                         lastPlayerPosition = playerTransform.position;
                         playerInFront=true;
@@ -259,8 +300,8 @@ public class CommonEnemyBehaviour : MonoBehaviour
 
                 if(!playerInFront)
                 {
-                    //Debug.Log("I do NOT see player");
-
+                    //If player is not visible and last remembered player position is reached
+                    //then stop pursuit, otherwise go to that remembered position
                     float distanceToRememberedPoint = Vector2.Distance(transform.position, lastPlayerPosition);
 
                     if(distanceToRememberedPoint<targetDestinationRange)
@@ -271,32 +312,29 @@ public class CommonEnemyBehaviour : MonoBehaviour
                         movementDirection = newDirection;
                     }
                 }
-            }
+            }//otherwise do not move
             else
                 move=false;
-        }
+        }//otherwise stop pursuit
         else
             StopPursuit();
     }
 
 
 
+    //This function checks if playe is visible, if so then start pursuit
     private void CheckIfPlayerVisible()
     {
-        //Debug.Log("Check player!");
         float distanceToPlayer = Vector2.Distance(transform.position, playerTransform.position);
 
         if(distanceToPlayer<=detectionRange && followPlayer)
         {
-            //Debug.Log("Player in range!");
             Vector2 direction = (playerTransform.position - transform.position).normalized;
             LayerMask hitMask = LayerMask.GetMask("Player", "Barrier");
             RaycastHit2D hit = Physics2D.BoxCast(collider2d.bounds.center, collider2d.bounds.size, 0f, direction, detectionRange, hitMask);
-            //RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, detectionRange, hitMask);
 
             if(hit.collider!=null)
             {
-                //Debug.Log("Tag: "+hit.collider.gameObject.tag);
                 if(hit.collider.gameObject.tag=="player")
                     StartPursuit();
             }
@@ -305,30 +343,33 @@ public class CommonEnemyBehaviour : MonoBehaviour
 
 
 
+    //This is a complicated behaviour of the enemy which tells how to reach the target destination
     private void MoveToTargetPosition()
     {
         move=true;
         timeLeftUntilTeleport+=Time.fixedDeltaTime;
-        //Debug.Log("Move to target");
 
+        //Check that temporary direction is set
         if(tempDirection!=Vector2.zero)
         {
             timePassed+=Time.fixedDeltaTime;
 
+            //If it stuck for long enough then change direction
             if(timeStuck>1f)
                 SelectNewTempDirection(tempDirection);
 
+            //Check if it is time to check if path to target is clear
             if(timePassed>checkIfTargetVisibleWithInterval)
             {
                 timePassed-=checkIfTargetVisibleWithInterval;
 
-                if(timeStuck-0f<0.01f)
+                //If enemy is not stuck then change direction
+                if(timeStuck<epsilon)
                     SelectNewTempDirection(tempDirection);
 
                 Vector2 direction = (targetDestination - (Vector2)transform.position).normalized;
                 LayerMask hitMask = LayerMask.GetMask("Barrier");
                 RaycastHit2D hit = Physics2D.BoxCast(collider2d.bounds.center, collider2d.bounds.size, 0f, direction, detectionRange, hitMask);
-                //RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, detectionRange, hitMask);
 
                 float distanceToTarget = Vector2.Distance(transform.position, targetDestination);
                 float distanceToBarrier;
@@ -337,16 +378,16 @@ public class CommonEnemyBehaviour : MonoBehaviour
                 else
                     distanceToBarrier = Vector2.Distance(transform.position, hit.collider.gameObject.transform.position);
                 
+                //Check if target is closer than obstacle than just go straight to the target
                 if(distanceToTarget<distanceToBarrier)
                     tempDirection = Vector2.zero;
             }
 
+            //Check again that temporary direction is set, because it might be different
             if(tempDirection!=Vector2.zero)
             {
-                //Debug.Log("Moving at temp direction: "+tempDirection.x+"; "+tempDirection.y);
                 LayerMask hitMask = LayerMask.GetMask("Barrier");
                 RaycastHit2D hit = Physics2D.BoxCast(collider2d.bounds.center, collider2d.bounds.size, 0f, tempDirection, detectionRange, hitMask);
-                //RaycastHit2D hit = Physics2D.Raycast(transform.position, tempDirection, detectionRange, hitMask);
                 
                 float distanceToBarrierInDirection;
                 if(hit.collider==null)
@@ -354,19 +395,18 @@ public class CommonEnemyBehaviour : MonoBehaviour
                 else
                     distanceToBarrierInDirection = Vector2.Distance(transform.position, hit.collider.gameObject.transform.position);
 
+                //Check if it to close to the obstacle than change direction
                 if(distanceToBarrierInDirection<distanceToBarrierToChangeDirection)
                     SelectNewTempDirection(tempDirection);
             }
-        }
+        }//otherwise go to target
         else
         {
             timePassed=0f;
 
-            //Debug.Log("Moving to final destination");
             Vector2 direction = (targetDestination - (Vector2)transform.position).normalized;
             LayerMask hitMask = LayerMask.GetMask("Barrier");
             RaycastHit2D hit = Physics2D.BoxCast(collider2d.bounds.center, collider2d.bounds.size, 0f, direction, detectionRange, hitMask);
-            //RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, detectionRange, hitMask);
 
             float distanceToTarget = Vector2.Distance(transform.position, targetDestination);
             float distanceToBarrier;
@@ -375,20 +415,24 @@ public class CommonEnemyBehaviour : MonoBehaviour
             else
                 distanceToBarrier = Vector2.Distance(transform.position, hit.collider.gameObject.transform.position);
             
+            //Check that target is closer then obstacle
             if(distanceToTarget<distanceToBarrier)
                 movementDirection=direction;
             else
-            {
+            {//If not then still go in direction of the target until it hit an obstacle, then 
+            //select new direction
                 if(distanceToBarrier<distanceToBarrierToChangeDirection)
                     SelectNewTempDirection(direction);
                 else
                     movementDirection=direction;
             }
 
+            //If it stuck for to long then go in other direction
             if(timeStuck>1f)
                 SelectNewTempDirection(direction);
         }
 
+        //If it cannot reach target for too long than just teleport there
         if(timeLeftUntilTeleport>timeUntilTeleport)
         {
             timeLeftUntilTeleport=0f;
@@ -399,45 +443,42 @@ public class CommonEnemyBehaviour : MonoBehaviour
 
 
 
+    //This function selects a new random free direction for enemy to go
     private void SelectNewTempDirection(Vector2 previousDirection)
     {
-        //.Log("Selecting new temp direction");
         timeStuck=0f;
+        //Round previous direction to whole numbers
         if(previousDirection!=tempDirection)
         {
             previousDirection.x = (float)Math.Round(previousDirection.x, MidpointRounding.AwayFromZero);
             previousDirection.y = (float)Math.Round(previousDirection.y, MidpointRounding.AwayFromZero);
         }
 
+        //Now check all four direction if they are free or not and add them to possible
+        //temporary directions list
         previousDirection = -previousDirection;
-
-        //string posDir="Possible dir: ";
         List<Vector2> listOfPossibleDirections = new List<Vector2>();
         if(IsThisDirectionPossible(previousDirection, Vector2.up))
         {
-            //posDir = posDir+" "+Vector2.up.x+", "+Vector2.up.y+";";
             listOfPossibleDirections.Add(Vector2.up);
         }
         
         if(IsThisDirectionPossible(previousDirection, Vector2.down))
         {
-            //posDir = posDir+" "+Vector2.down.x+", "+Vector2.down.y+";";
             listOfPossibleDirections.Add(Vector2.down);
         }
         
         if(IsThisDirectionPossible(previousDirection, Vector2.left))
         {
-            //posDir = posDir+" "+Vector2.left.x+", "+Vector2.left.y+";";
             listOfPossibleDirections.Add(Vector2.left);
         }
         
         if(IsThisDirectionPossible(previousDirection, Vector2.right))
         {
-            //posDir = posDir+" "+Vector2.right.x+", "+Vector2.right.y+";";
             listOfPossibleDirections.Add(Vector2.right);
         }
-        //Debug.Log(posDir);
 
+        //Now pick in which direction enemy should go
         if(listOfPossibleDirections.Count==0)
         {
             move=false;
@@ -452,18 +493,18 @@ public class CommonEnemyBehaviour : MonoBehaviour
 
 
 
+    //This function returns if direction does not have obstacle for some time
+    //and it does not equal to the previous one
     private bool IsThisDirectionPossible(Vector2 previousDirection, Vector2 targetDirection)
     {
         if(previousDirection!=targetDirection)
         {
             LayerMask hitMask = LayerMask.GetMask("Barrier");
             RaycastHit2D hit = Physics2D.BoxCast(collider2d.bounds.center, collider2d.bounds.size, 0f, targetDirection, detectionRange, hitMask);
-            //RaycastHit2D hit = Physics2D.Raycast(transform.position, targetDirection, detectionRange, hitMask);
             if(hit.collider==null)
                 return true;
 
             float distanceToBarrierInDirection = Vector2.Distance(transform.position, hit.collider.gameObject.transform.position);
-            //Debug.Log("Why skip? "+distanceToBarrierInDirection);
             if(distanceToBarrierInDirection>distanceToBarrierToChangeDirection*2f)
                 return true;
         }
@@ -476,7 +517,7 @@ public class CommonEnemyBehaviour : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D collision)
     {
         GameObject gameObject = collision.gameObject;
-
+        //Check if meele weapon entered enemy collider, then add to the list
         if(gameObject.tag=="swords")
         {
             attackingMeeleWeaponsInRange.Add(new CurrentDamagingWeapon(gameObject));
@@ -489,6 +530,7 @@ public class CommonEnemyBehaviour : MonoBehaviour
     {
         GameObject gameObject = collision.gameObject;
 
+        //Check if meele weapon exited enemy collider, then remove it from the list
         if(gameObject.tag=="swords")
         {
             int index=0;
@@ -514,21 +556,25 @@ public class CommonEnemyBehaviour : MonoBehaviour
     {
         currentHP-=rawDMG;
         EventsManager.CallOnDamageTaken(gameObject);
+        //Stop previous coroutine if it is active
         if(damageB!=null)
         {
             StopCoroutine(damageB);
             spriteRenderer.color = spriteColor;
         }
         
+        //Start taking damage animation
         if(!dead)
             damageB = StartCoroutine(DamageBlink());
 
+        //Check id enemy is dead
         if(currentHP<0)
             Die();
     }
 
 
 
+    //Animation of changing color when enemy receives damage
     private IEnumerator DamageBlink()
     {
         spriteColor = spriteRenderer.color;
@@ -537,11 +583,8 @@ public class CommonEnemyBehaviour : MonoBehaviour
         float timePassed=0f;
         while(timePassed<damageBlinkPeriod)
         {
-            //Debug.Log("B: "+currentColor.b);
             currentColor.b = Mathf.Clamp(timePassed/damageBlinkPeriod,0f,spriteColor.b);
-            //Debug.Log("G: "+currentColor.g);
             currentColor.g = Mathf.Clamp(timePassed/damageBlinkPeriod,0f,spriteColor.g);
-            //Debug.Log("R: "+currentColor.r);
             currentColor.r = Mathf.Clamp(timePassed/damageBlinkPeriod,1f,spriteColor.r);
             spriteRenderer.color = currentColor;
             timePassed+=0.02f;
@@ -585,6 +628,7 @@ public class CommonEnemyBehaviour : MonoBehaviour
 
 
 
+    //Countdown until object destruction
     private IEnumerator countdown()
     {
         yield return new WaitForSeconds(deadCorpseExists);
@@ -596,7 +640,6 @@ public class CommonEnemyBehaviour : MonoBehaviour
 
     public void StartPursuit()
     {
-        //Debug.Log("Started pursuit");
         timeStuck=0f;
         pursuting = true;
         move=true;
@@ -638,6 +681,7 @@ public class CommonEnemyBehaviour : MonoBehaviour
 
     private IEnumerator attackLoop()
     {
+        //Attack player until player is dead or enemy itself
         while(true)
         {
             while(timePassedSinceLastAttack<attackPeriod)

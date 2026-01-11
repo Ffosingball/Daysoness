@@ -4,23 +4,27 @@ using UnityEngine;
 
 public class BeatleBehaviour : MonoBehaviour
 {
+    //Coordinates of the root which beetle will follow
     [SerializeField] private Vector2[] routeCoords;
 
-    private Transform playerTransform;
     private PlayerComponent playerComponent;
     [SerializeField] private CommonEnemyBehaviour commonEnemyBehaviour;
     [SerializeField] private float poisonDuration;
     [SerializeField] private float poisonDMGPeriod;
     [SerializeField] private float poisonDMG;
+    //Flag which tells whther beetle should follow positions in the array
+    //from start to the end and again from start to end of the array (true)
+    //or from start to end then from end to start and again (false)
     [SerializeField] private bool positionsInCircle=false;
+    //Current choosed route position
     private int goToTarget=0;
+    //Flag which whether the beetle should go forward or backwards in the array of route positions
     private bool goForward=true;
 
 
 
     private void Start()
     {
-        playerTransform = GameObject.FindGameObjectWithTag("player").transform;
         playerComponent = GameObject.FindGameObjectWithTag("player").GetComponent<PlayerComponent>();
         commonEnemyBehaviour.setTargetDestination(routeCoords[goToTarget]);
     }
@@ -29,8 +33,10 @@ public class BeatleBehaviour : MonoBehaviour
 
     private void Update()
     {
+        //If it reached current route position, then select new one
         if(commonEnemyBehaviour.getAtTargetDestination())
         {
+            //Check hoe next route position should be choosed
             if(positionsInCircle)
             {
                 goToTarget++;
@@ -63,9 +69,11 @@ public class BeatleBehaviour : MonoBehaviour
                     goToTarget=0;
             }
 
+            //Set new target destination
             commonEnemyBehaviour.setTargetDestination(routeCoords[goToTarget]);
         }
 
+        //If beetle started attack then poison player and die
         if(commonEnemyBehaviour.IsAttacking())
         {
             playerComponent.StartPoisonEffect(poisonDuration,poisonDMGPeriod,poisonDMG,PoisonTypes.Beetle);

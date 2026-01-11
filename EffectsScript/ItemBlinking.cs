@@ -4,13 +4,16 @@ using UnityEngine;
 
 public class ItemBlinking : MonoBehaviour
 {
+    //Color with which item should blink
     [SerializeField] private Color blinkColor;
+    //How long blink happens
     [SerializeField] private float blinkTime = 1f;
 
     private SpriteRenderer spriteRenderer;
+    //Material which has a shader which can blink
     private Material material;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+
     void Start()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
@@ -19,8 +22,11 @@ public class ItemBlinking : MonoBehaviour
         StartCoroutine(BlinkLoop());
     }
 
+
+    //Coroutine which indefinitely changes color of the item
     private IEnumerator BlinkLoop()
     {
+        //Set color by its name in the shader
         material.SetColor("_BlinkColor", blinkColor);
 
         float elapsedTime=0f;
@@ -42,6 +48,7 @@ public class ItemBlinking : MonoBehaviour
             else
                 currentBlinkAmount = Mathf.Lerp(1f,0f,elapsedTime/blinkTime);
 
+            //Set percentage of color in shader by its name
             material.SetFloat("_BlinkAmount", currentBlinkAmount);
 
             yield return null;

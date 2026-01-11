@@ -23,9 +23,11 @@ public class SpiderBehaviour : MonoBehaviour
 
     private void Update()
     {
+        //Check that spiders do not go out nest range
         float distanceToNest = Vector2.Distance(transform.position, nestCoord);
         if(distanceToNest>nestRange)
         {
+            //If player closer to nest then the spider itself then follow player
             float distancePlayerToNest = Vector2.Distance(playerTransform.position, nestCoord);
             if(distancePlayerToNest<nestRange)
                 commonEnemyBehaviour.setFollowPlayer(true);
