@@ -9,6 +9,7 @@ using TMPro.EditorUtilities;
 
 public class ItemManager : MonoBehaviour
 {
+    //References to all weapons
     [SerializeField] private GameObject Hand;
     [SerializeField] private GameObject AK47;
     [SerializeField] private GameObject LaserBlaster;
@@ -19,25 +20,33 @@ public class ItemManager : MonoBehaviour
     [SerializeField] private GameObject FirstAid;
     [SerializeField] private UIManager uiManager;
     [SerializeField] private PlayerComponent playerComponent;
+    //How long player will use first aid before healing themselve
     [SerializeField] private float firstAidAnimationTime=2f;
+    //How much first aid recovers hp
     [SerializeField] private int firstAidHealHP=10;
+    //How many of each support item can player loose after death
     [SerializeField] private int afterDeathLooseMaxSupportItems=4;
+    //How many every firearm weapon will loose magazines after death
     [SerializeField] private int afterDeathLooseMaxCatridges=2;
     [SerializeField] private Movement movement;
 
+    //Current amount of first aids which player has
     private int numOfFirstAids=0;
+    //Currently selected weapon
     private int weaponNumber=0;
+    //List of all weapons
     private GameObject[] weaponsList;
+    //Flag which tells is player using first aid or not
     private bool usingFirstAid=false;
+    //How many time passed since player started using first aid
     private float timePassed=0f;
 
 
+    //Getters
     public int getWeaponNumber()
     {
         return weaponNumber;
     }
-
-
 
     public GameObject getCurrentWeapon()
     {
@@ -45,8 +54,10 @@ public class ItemManager : MonoBehaviour
     }
 
 
+
     private void Start()
     {
+        //Deactivate all weapons and their spriteRenderers
         AK47.GetComponent<SpriteRenderer>().enabled=false;
         AK47.SetActive(false);
         Pistol.GetComponent<SpriteRenderer>().enabled=false;
@@ -60,6 +71,7 @@ public class ItemManager : MonoBehaviour
         Knife.GetComponent<SpriteRenderer>().enabled=false;
         Knife.SetActive(false);
 
+        //Add all weapons to the array
         weaponsList = new GameObject[7];
         // 0 - nothing/hands, 1 - pistol, 2 - AK-47, 3 - Laser Blaster, 4 - Laser sniper, 5 - Lightsaber, 6 - Knife
         weaponsList[0] = Hand;
@@ -78,10 +90,11 @@ public class ItemManager : MonoBehaviour
     {
         timePassed+=Time.deltaTime;
 
+        //If player uses first aid more than required than recover health 
         if(usingFirstAid && timePassed>firstAidAnimationTime)
             FinishUsingFirstAid();
         else if(usingFirstAid && movement.getIfCharacterMoves())
-        {
+        {//otherwise if player moved during this period of time then cancel first aid recover
             usingFirstAid=false;
             FirstAid.SetActive(false);
             uiManager.CancelFirstAidAnimation();
@@ -89,13 +102,14 @@ public class ItemManager : MonoBehaviour
     }
 
 
-    //True - item was picked, False - item was not picked
+    //This function returns True if item was picked or False if item was not picked
     private bool PickUpWeapon(WeaponTypes type)
     {
         FirearmWeapon firearmWeapon=null;
         MeeleWeapon meeleWeapon=null;
         SpriteRenderer weaponPicture=null;
 
+        //Check which weapon type was picked and then get its components
         switch(type)
         {
             case WeaponTypes.AK47:
@@ -124,8 +138,10 @@ public class ItemManager : MonoBehaviour
                 break;
         }
 
+        //Check if firearm was picked
         if(firearmWeapon!=null)
         {
+            //Then if player picks it up first time then activate it
             if(!firearmWeapon.getHaveThisWeapon())
             {
                 firearmWeapon.setHaveThisWeapon(true);
@@ -134,8 +150,10 @@ public class ItemManager : MonoBehaviour
             }
         }
 
+        //Check if meele was picked
         if(meeleWeapon!=null)
         {
+            //Then if player picks it up first time then activate it
             if(!meeleWeapon.getHaveThisWeapon())
             {
                 meeleWeapon.setHaveThisWeapon(true);
@@ -144,14 +162,18 @@ public class ItemManager : MonoBehaviour
             }
         }
 
+        //Otherwise it was not a weapon
         return false;
     }
 
 
+
+    //This function returns True if item was picked or False if item was not picked
     private bool PickUpCatridge(WeaponTypes type)
     {
         FirearmWeapon firearmWeapon=null;
 
+        //Check magazine of which weapon player picked up
         switch(type)
         {
             case WeaponTypes.AK47:
@@ -168,6 +190,7 @@ public class ItemManager : MonoBehaviour
                 break;
         }
 
+        //Then if it was one of those weapons then increase its catridge amount
         if(firearmWeapon!=null)
         {
             if(firearmWeapon.getCurrentNumOfCatridges()<firearmWeapon.getMaxAmountOfCatridges())
@@ -182,10 +205,13 @@ public class ItemManager : MonoBehaviour
 
 
 
+    //This function returns True if item was picked or False if item was not picked
     private bool PickUpSupportItem(SupportItems type)
     {
         switch(type)
         {
+            //If this is a shield then increase shield level
+            //If it already has maximum level then do not pick up
             case SupportItems.Shield:
                 if(playerComponent.getCurrentShieldLevel()<playerComponent.getMaxShieldLevel())
                 {
@@ -194,6 +220,7 @@ public class ItemManager : MonoBehaviour
                     return true;
                 }
                 break;
+            //If this is a first aid then pick it up
             case SupportItems.FirstAid:
                 numOfFirstAids++;
                 uiManager.SetNumOfFirstAids(numOfFirstAids);
@@ -210,6 +237,8 @@ public class ItemManager : MonoBehaviour
         Func<WeaponTypes,bool> dealWithWeapons = null;
         WeaponTypes weaponType = WeaponTypes.None;
 
+        //Check what type of item was picked up, after choose correct function
+        //to deal with that item. If item was picked up then destroy it
         switch (collision.gameObject.tag)
         {
             case "Weapon":
@@ -236,6 +265,7 @@ public class ItemManager : MonoBehaviour
 
 
 
+    //This function switches currently selected weapon to the next one in the array
     public void SwitchWeaponForward()
     {
         weaponsList[weaponNumber].SetActive(false);
@@ -250,6 +280,7 @@ public class ItemManager : MonoBehaviour
 
 
 
+    //This function switches currently selected weapon to the previous one in the array
     public void SwitchWeaponBackward()
     {
         weaponsList[weaponNumber].SetActive(false);
@@ -264,6 +295,7 @@ public class ItemManager : MonoBehaviour
 
 
 
+    //Tells current weapon to reload its magazine
     public void RechargeWeapon()
     {
         if(weaponsList[weaponNumber].TryGetComponent<FirearmWeapon>(out FirearmWeapon fWeapon))
@@ -274,6 +306,7 @@ public class ItemManager : MonoBehaviour
 
 
 
+    //Tells current weapon to cancel reloading its magazine
     public void CancelRechargeWeapon()
     {
         if(weaponsList[weaponNumber].TryGetComponent<FirearmWeapon>(out FirearmWeapon fWeapon))
@@ -284,6 +317,7 @@ public class ItemManager : MonoBehaviour
 
 
 
+    //Starts counter for first aid usage
     public void StartUsingFirstAid()
     {
         if(numOfFirstAids>0 && !usingFirstAid)
@@ -297,6 +331,7 @@ public class ItemManager : MonoBehaviour
 
 
 
+    //If player succeds in using first aid then it will recover its health
     public void FinishUsingFirstAid()
     {
         FirstAid.SetActive(false);
@@ -308,6 +343,7 @@ public class ItemManager : MonoBehaviour
 
 
 
+    //If player fails in using first aid then it will cancel using it
     public void CancelUsingFirstAid()
     {
         FirstAid.SetActive(false);
@@ -317,6 +353,8 @@ public class ItemManager : MonoBehaviour
 
 
 
+    //This function removes certain amount of support item and remove somae number of
+    //magazines from every firearm weapon after player death
     public void Recalculation()
     {
         numOfFirstAids-=UnityEngine.Random.Range(0,afterDeathLooseMaxSupportItems);

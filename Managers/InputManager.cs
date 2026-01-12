@@ -3,15 +3,18 @@ using UnityEngine.InputSystem;
 
 public class InputManager : MonoBehaviour
 {
+    //References to other components
     [SerializeField] private Movement movement;
     [SerializeField] private  ItemManager itemManager;
     [SerializeField] private  UIManager uiManager;
+    //Epsilon for float equality comparisons
     [SerializeField] private float epsilon=0.001f;
 
 
 
     public void OnMove(InputAction.CallbackContext ctx)
     {
+        //Always set movement direaction
         if(Time.timeScale>epsilon)
             movement.setMovementDirection(ctx.ReadValue<Vector2>());
     }
@@ -20,6 +23,8 @@ public class InputManager : MonoBehaviour
 
     public void OnFire(InputAction.CallbackContext ctx)
     {
+        //Check when button is pressed and when is released
+        //Important for automatic firearms and meele weapons
         if(ctx.started)
             OnFirePressed();
 
@@ -69,9 +74,9 @@ public class InputManager : MonoBehaviour
 
     public void OnSwitchForward(InputAction.CallbackContext ctx)
     {
+        //Switch weapon for the next in the list
         if(Time.timeScale>epsilon)
         {
-            //Debug.Log("Pressed forward");
             if(ctx.started)
                 itemManager.SwitchWeaponForward();
         }
@@ -81,6 +86,7 @@ public class InputManager : MonoBehaviour
 
     public void OnSwitchBackward(InputAction.CallbackContext ctx)
     {
+        //Switch weapon for the previous in the list
         if(Time.timeScale>epsilon)
         {
             if(ctx.started)
@@ -92,6 +98,7 @@ public class InputManager : MonoBehaviour
 
     public void OnRecharge(InputAction.CallbackContext ctx)
     {
+        //Reload weapon
         if(Time.timeScale>epsilon)
         {
             if(ctx.started)
@@ -103,6 +110,7 @@ public class InputManager : MonoBehaviour
 
     public void OnHeal(InputAction.CallbackContext ctx)
     {
+        //Start using first aid to increase health
         if(Time.timeScale>epsilon)
         {
             if(ctx.started)
@@ -111,10 +119,12 @@ public class InputManager : MonoBehaviour
     }
 
 
+    //Checks whether game is paused or not and then 
     public void PauseResume()
     {
         if(Time.timeScale<epsilon)
         {
+            //Continue game and stops movement or fire if still works
             uiManager.Continue();
             movement.setMovementDirection(Vector2.zero);
             OnFireReleased();
