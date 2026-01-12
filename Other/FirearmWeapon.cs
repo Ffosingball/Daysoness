@@ -4,24 +4,38 @@ using UnityEngine.InputSystem;
 
 public class FirearmWeapon : MonoBehaviour
 {
+    //How many bullets has a single magazine
     [SerializeField] private int catridgeCapacity;
+    //damage of a single bullet
     [SerializeField] private float dmgPerPatron;
+    //How many magazines of this weapon can player carry
     [SerializeField] private int maxAmountOfCatridges;
+    //Flag which indicates weather a weapon is automatic or manual
     [SerializeField] private bool automatic;
+    //Flag which indicates if bullet can pierce more than one enemy
     [SerializeField] private bool piercingBullets;
+    //Maximum amount of enemies that a single bullet can pierce
     [SerializeField] private int piercingAmount;
+    //Time between firing bullets
     [SerializeField] private float firePeriod;
+    //Time to reaload a weapon
     [SerializeField] private float realoadTime;
     [SerializeField] private WeaponTypes type;
     private int currentNumOfBullets=0;
     private int currentNumOfCatridges=0;
+    //Does player have this weapon or not
     private bool haveThisWeapon=false;
+    //fireNullets stores coroutine which fires bullets and reloads it at certain rate
+    //rechargeWait stores reload weapon coroutine so if needed it can be canceled
     private Coroutine fireBullets, rechargeWait;
+    //Time passed since previous shot
+    private float timeSinceLastShot=0f;
     [SerializeField] private UIManager uiManager;
+    //How far bullet raycast will go
     [SerializeField] private float bulletRange = 300f;
-    //[SerializeField] private LayerMask barrierLayer;
 
 
+    //Getters and setters
     public int getMaxAmountOfCatridges()
     {
         return maxAmountOfCatridges;
@@ -63,17 +77,27 @@ public class FirearmWeapon : MonoBehaviour
     public void increaseCatridgeCount()
     {
         currentNumOfCatridges++;
-        //Debug.Log("Increased num of catridges!");
+    }
+
+
+
+    private void Update()
+    {
+        //Increase counter
+        timeSinceLastShot+=Time.deltaTime;
     }
 
 
 
     public void StartFire()
     {
+        //Just starts fire bullets coroutine
         fireBullets = StartCoroutine(FireBullets());
     }
 
 
+
+    //Stops fire bullet coroutine
     public void StopFire()
     {
         if(fireBullets!=null)
@@ -84,6 +108,8 @@ public class FirearmWeapon : MonoBehaviour
     }
 
 
+
+    //Starts reload wait time for this weapon
     public void Recharge()
     {
         if(rechargeWait==null && haveThisWeapon && currentNumOfCatridges>0)
@@ -94,6 +120,8 @@ public class FirearmWeapon : MonoBehaviour
     }
 
 
+
+    //Cancells reload wait
     public void CancelRecharge()
     {
         if(rechargeWait!=null)
@@ -111,33 +139,39 @@ public class FirearmWeapon : MonoBehaviour
     }
 
 
+
+    //Creates a raycast in the direction of the mouse and checks if someone was hitted
     private void CreateABullet()
     {
+        //Get mouse direction 
         Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
         Vector3 direction = (mousePosition - transform.position).normalized;
 
-        //Debug.DrawRay(transform.position, direction*200f, Color.red, 3f);
+        //Set mask in which look for colliders
         LayerMask hitMask = LayerMask.GetMask("Enemy", "Barrier");
-        //RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, bulletRange, hitMask);
 
+        //Get all colliders on the way of a bullet
         RaycastHit2D[] hits = Physics2D.RaycastAll(transform.position, direction, bulletRange, hitMask);
 
         float piercedEnemies=0;
         for (int i=0; i<hits.Length; i++)
-        {
+        {//Traverse through objects in the array
             if(hits[i].collider.gameObject.tag=="barrier")
-                break;
+                break;//If bullet hits an obstacle then bullet is stuck there
             else
             {
+                //Otherwise get parent of  the hitted collider, because all enemies has
+                //separate hitbox for bullets as child of the original enemy
                 GameObject parent = hits[i].collider.gameObject.transform.parent.gameObject;
 
                 if(parent.TryGetComponent<CommonEnemyBehaviour>(out CommonEnemyBehaviour commonEnemyBehaviour))
-                {
+                {//Check if hitted object is an enemy
                     if(!commonEnemyBehaviour.IsDead())
                     {
                         commonEnemyBehaviour.TakeDamage(dmgPerPatron);
                         piercedEnemies++;
 
+                        //Proceed piercing bullets
                         if(piercingBullets)
                         {
                             if(piercedEnemies>=piercingAmount)
@@ -152,6 +186,7 @@ public class FirearmWeapon : MonoBehaviour
 
         EventsManager.CallOnRobotsActivate(transform.position);
         currentNumOfBullets--;
+        timeSinceLastShot=0f;
     }
 
 
@@ -163,9 +198,12 @@ public class FirearmWeapon : MonoBehaviour
             {
                 while (currentNumOfBullets>0)
                 {
-                    CreateABullet();
+                    while(timeSinceLastShot<firePeriod)
+                    {
+                        yield return null;
+                    }
 
-                    yield return new WaitForSeconds(firePeriod);
+                    CreateABullet();
                 }
 
                 Recharge();
@@ -177,6 +215,11 @@ public class FirearmWeapon : MonoBehaviour
         }
         else
         {
+            while(timeSinceLastShot<firePeriod)
+            {
+                yield return null;
+            }
+
             if(currentNumOfBullets>0)
                 CreateABullet();
             else

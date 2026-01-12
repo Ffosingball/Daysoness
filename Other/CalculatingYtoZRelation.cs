@@ -1,10 +1,11 @@
 using UnityEngine;
 
+//This code calculates z position for the gameObject, so all objects in the world
+//will be drew correctly objects lower by y coordinate will be in front of the objects 
+//which have higher y coordinate
 public class CalculatingYtoZRelation : MonoBehaviour
 {
-    //private Transform transform;
-
-    //Between camera and grid
+    //Distance between camera and grid
     [SerializeField] private float zRange=100f;
     //World size in unity units
     [SerializeField] private float worldSizeY=1000f;
@@ -16,6 +17,7 @@ public class CalculatingYtoZRelation : MonoBehaviour
 
     private void CalculateZToYRelation()
     {
+        //Calculate correct z position
         Vector3 position = transform.position;
         position.z = -1*(zRange-(position.y+worldCenterAt)*(zRange/worldSizeY));
         transform.position=position;
@@ -25,15 +27,13 @@ public class CalculatingYtoZRelation : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        //transform = GetComponent<Transform>();
-
         CalculateZToYRelation();
 
         if(calculateOnce)
             Destroy(this);
     }
 
-    // Update is called once per frame
+
     void Update()
     {
         CalculateZToYRelation();
