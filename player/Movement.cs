@@ -9,10 +9,12 @@ public class Movement : MonoBehaviour
 
     private Vector2 movementDirection;
     private Rigidbody2D playerRigid;
-    private Coroutine TurnIt;
+    //characterMoves tells whether player is moving now or not
+    //canMove sets weather player can move or not
     private bool characterMoves=false, canMove=true;
 
 
+    //Setters and getters
     public void setMovementDirection(Vector2 direction)
     {
         movementDirection = direction;
@@ -35,21 +37,15 @@ public class Movement : MonoBehaviour
 
     private void FixedUpdate() 
     {
-        //Character movement
+        //Check if player can move then move
         if(canMove)
         {
-            //transform.Translate(new Vector3(movementDirection.x,movementDirection.y,0f)*speed*Time.deltaTime);
             playerRigid.linearVelocity = movementDirection * speed;
 
             if(movementDirection.x==0 && movementDirection.y==0)
                 characterMoves=false;
             else
                 characterMoves=true;
-
-            /*if(movementDirection.x>0)
-                Flip("right");
-            else
-                Flip("left");*/
         }
     }
 }

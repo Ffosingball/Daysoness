@@ -190,12 +190,17 @@ public class FirearmWeapon : MonoBehaviour
     }
 
 
+
+    //Coroutine which fires a bullet
     private IEnumerator FireBullets()
     {
+        //Check if weapon automatic or not
         if(automatic)
         {
+            //Check that there are still some bullets and magazines left
             while(currentNumOfBullets>0 || currentNumOfCatridges>0)
             {
+                //If there are some bullets then fire them
                 while (currentNumOfBullets>0)
                 {
                     while(timeSinceLastShot<firePeriod)
@@ -206,6 +211,7 @@ public class FirearmWeapon : MonoBehaviour
                     CreateABullet();
                 }
 
+                //If bullets finished then reload weapon if possible
                 Recharge();
                 while(currentNumOfBullets<=0)
                 {
@@ -215,15 +221,18 @@ public class FirearmWeapon : MonoBehaviour
         }
         else
         {
+            //Check that weapon colldown passed before firing another bullet
             while(timeSinceLastShot<firePeriod)
             {
                 yield return null;
             }
 
+            //Fire bullet if can
             if(currentNumOfBullets>0)
                 CreateABullet();
             else
             {
+                //Reload if can
                 Recharge();
 
                 while(currentNumOfBullets<=0)
@@ -234,14 +243,17 @@ public class FirearmWeapon : MonoBehaviour
                 CreateABullet();
             }
         }
-
+        
+        //otherwise stop fire
         StopFire();
     }
 
 
 
+    //Reload coroutine
     private IEnumerator RealoadWait()
     {
+        //If there some spare magazines then start reloading weapon
         if(currentNumOfCatridges>0)
         {
             float timePassed=0f;

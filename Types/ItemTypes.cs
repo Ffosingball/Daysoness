@@ -1,5 +1,4 @@
-using UnityEngine;
-
+//All weapon types
 public enum WeaponTypes
 {
     AK47,
@@ -12,6 +11,7 @@ public enum WeaponTypes
     None
 }
 
+//All support item types
 public enum SupportItems
 {
     FirstAid,
@@ -19,6 +19,7 @@ public enum SupportItems
     None
 }
 
+//All poison types
 public enum PoisonTypes
 {
     Beetle,

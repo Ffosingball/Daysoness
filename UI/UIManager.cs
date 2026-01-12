@@ -6,21 +6,34 @@ using UnityEngine.SceneManagement;
 
 public class UIManager : MonoBehaviour
 {
+    //Cursor textures
     [SerializeField] private Texture2D targetCursor, menuCursor;
+    //References to ui screens
     [SerializeField] private GameObject pauseScreen;
     [SerializeField] private GameObject gameScreen;
     [SerializeField] private GameObject statisticsScreen;
     [SerializeField] private GameObject loadingScreen;
     [SerializeField] private GameObject deadScreen;
+    //Image which shows currently selected weapon 
     [SerializeField] private Image weaponChoosedImage;
+    //References to the sprites of all weapons
     [SerializeField] private Sprite HandsPic, AK47Pic, PistolPic, LaserBlasterPic, LaserSniperPic, LightsaberPic, KnifePic;
     [SerializeField] private ItemManager itemManager;
+    //Text which says how many magazines player has
     [SerializeField] private TMP_Text catridgeText;
+    //Text which says how many bullets player has
     [SerializeField] private TMP_Text bulletText;
+    //Text which says how many first aids player has
     [SerializeField] private TMP_Text firstAidText;
+    //Image which shows weapon reload progress
     [SerializeField] private Image weaponReloadImage;
+    //Image which shows first aid usage progress
     [SerializeField] private Image firstAidReloadImage;
+    //Shows how many health player has
     [SerializeField] private Image healthBarImage;
+    //As a health bar is behind of the frame which has some thickness, when player
+    //has 100% healt or very low health, healthbar may not show decrease in health
+    //when player will take damage, so this offset is required to solve this issue
     [SerializeField] private float healthBarPadding=0.08f;
     [SerializeField] private Image shieldBarImage;
     [SerializeField] private Sprite[] shieldLevels;

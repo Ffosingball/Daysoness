@@ -1,8 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+//Deprecated code but works as intended so I will leave as it is for now
 public class mainMenu : MonoBehaviour
 {
     public Texture2D menuCursor;

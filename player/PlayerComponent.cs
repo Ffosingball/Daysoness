@@ -6,11 +6,16 @@ using UnityEngine.UI;
 
 public class PlayerComponent : MonoBehaviour
 {
+    //Maximum health which player can have
     [SerializeField] private float maxHP=20;
+    //Maximum shield level which player can have
     [SerializeField] private int maxShieldLevel=4;
+    //This variable sets maximum amount of poisons to which player can be affected
     [SerializeField] private int maxPoisonLevel=8;
+    //How many dmg can absorb one level of the shield
     [SerializeField] private float shieldDurability=20;
     [SerializeField] private UIManager uiManager;
+    //Position where player will appear after death
     [SerializeField] private Vector2 spawnpoint;
     [SerializeField] private ItemManager itemManager;
 
@@ -18,25 +23,21 @@ public class PlayerComponent : MonoBehaviour
     private int currentShieldLevel=0;
     private float currentShieldDurability=0;
     private bool dead=false;
-    //private Transform transform;
-    //private bool poisoned=false;
-    //private int currentPoisonLevel = 0;
 
     private Coroutine[] activePoisons;
     private PoisonTypes[] activePoisonsTypes;
 
 
+    //Getters and setters
     public int getCurrentShieldLevel()
     {
         return currentShieldLevel;
     }
 
-
     public int getMaxShieldLevel()
     {
         return maxShieldLevel;
     }
-
 
     public bool isDead()
     {
@@ -44,6 +45,8 @@ public class PlayerComponent : MonoBehaviour
     }
 
 
+
+    //Increases shield level of the player
     public void increaseCurrentShieldLevel()
     {
         if(currentShieldLevel==0)
@@ -60,10 +63,10 @@ public class PlayerComponent : MonoBehaviour
     }
 
 
+
+    //Initialize player
     private void Start()
     {
-        //transform = GetComponent<Transform>();
-
         activePoisons = new Coroutine[maxPoisonLevel];
         activePoisonsTypes = new PoisonTypes[maxPoisonLevel];
 
@@ -77,7 +80,6 @@ public class PlayerComponent : MonoBehaviour
         uiManager.ChangeHPBar(currentHP, maxHP);
         uiManager.ChangeShieldBar(currentShieldLevel);
         uiManager.RemoveAllPoisonIcons();
-        //itemManager.Recalculation();
 
         transform.position = new Vector3(spawnpoint.x,spawnpoint.y,0);
 
@@ -86,15 +88,18 @@ public class PlayerComponent : MonoBehaviour
 
 
 
+    //Respawn player
     public void Respawn()
     {
+        //Recover player
         currentHP = maxHP;
         dead=false;
-        //currentPoisonLevel=0;
 
+        //Remove one level of the shield
         if(currentShieldLevel>0)
             currentShieldLevel--;
 
+        //Remove all poisons
         for(int i=0; i<activePoisons.Length; i++)
         {
             if(activePoisons[i]!=null)
@@ -105,6 +110,7 @@ public class PlayerComponent : MonoBehaviour
             }
         }
         
+        //Reset UI
         uiManager.ChangeHPBar(currentHP, maxHP);
         uiManager.ChangeShieldBar(currentShieldLevel);
         uiManager.RemoveAllPoisonIcons();
@@ -117,6 +123,7 @@ public class PlayerComponent : MonoBehaviour
 
 
 
+    //Recove health of the player
     public void Heal(int hpToHeal)
     {
         currentHP+=hpToHeal;
@@ -128,12 +135,15 @@ public class PlayerComponent : MonoBehaviour
 
 
 
+    //Start new or reset current poison effect
     public void StartPoisonEffect(float effectDuration, float damagePeriod, float dmgInPeriod, PoisonTypes poisonType)
     {
         for(int i=0; i<activePoisonsTypes.Length; i++)
         {
+            //Check if this slot is empty or has poison of the same type
             if(activePoisonsTypes[i]==poisonType || activePoisonsTypes[i]==PoisonTypes.None)
             {
+                //Then refresh or create that poison
                 activePoisonsTypes[i]=poisonType;
                 if(activePoisons[i]!=null)
                     StopCoroutine(activePoisons[i]);
@@ -147,6 +157,7 @@ public class PlayerComponent : MonoBehaviour
 
 
 
+    //Coroutine of the poison effect which periodically deals damage 
     private IEnumerator poisonEffect(float effectDuration, float damagePeriod, float dmgInPeriod, int indexInArray, PoisonTypes poisonType)
     {
         float timePassed=0f;
@@ -164,6 +175,7 @@ public class PlayerComponent : MonoBehaviour
 
 
 
+    //Stop this type of poison
     private void StopPoison(int index, PoisonTypes poisonType)
     {
         StopCoroutine(activePoisons[index]);
@@ -174,8 +186,10 @@ public class PlayerComponent : MonoBehaviour
 
 
 
+    //Calculates which damage should receive a player
     public void TakeDamage(float rawDMG)
     {
+        //Deal damage depending on the shield level
         switch(currentShieldLevel)
         {
             case 0:
@@ -199,12 +213,13 @@ public class PlayerComponent : MonoBehaviour
         }
 
         uiManager.ChangeHPBar(currentHP, maxHP);
-        if(currentHP<=0)
+        if(currentHP<=0)//Die if health is less then 0
            Die();
     }
 
 
 
+    //Calculate how many damage a shield should receive
     public void TakeShieldDamage(float rawDMG)
     {
         float removeDurability = rawDMG/2f;
@@ -223,6 +238,7 @@ public class PlayerComponent : MonoBehaviour
 
 
 
+    //Decreses shield level
     public void DecreaseShieldLevel(int n)
     {
         currentShieldLevel-=n;
@@ -237,6 +253,7 @@ public class PlayerComponent : MonoBehaviour
 
 
 
+    //Player dies when this is called
     public void Die()
     {
         dead=true;
