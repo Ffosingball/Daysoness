@@ -35,18 +35,22 @@ public class UIManager : MonoBehaviour
     //has 100% healt or very low health, healthbar may not show decrease in health
     //when player will take damage, so this offset is required to solve this issue
     [SerializeField] private float healthBarPadding=0.08f;
+    //This image shows  current shield level
     [SerializeField] private Image shieldBarImage;
+    //Array of all sprites for each shield level
     [SerializeField] private Sprite[] shieldLevels;
     [SerializeField] private GameObject beetlePoisonIcon;
     [SerializeField] private Image loadingFillBar;
+    //Maximal diferrence between two float numbers to be considered as equal
     [SerializeField] private float epsilon=0.001f;
 
+    //weaponReloading stores Catridge reloading timer
+    //firstAidReloading stores firstAidReloading timer
     private Coroutine weaponReloading, firstAidReloading;
 
-    // 1 - pistol, 2 - AK-47, 3 - Laser Blaster, 4 - Laser sniper, 5 - Lightsaber, 6 - Knife
-    //private int currentlySelectedWeapon=0;
 
 
+    //Initialize UI
     private void Start()
     {
         Cursor.SetCursor(targetCursor, Vector2.zero, CursorMode.ForceSoftware);
@@ -61,10 +65,13 @@ public class UIManager : MonoBehaviour
 
     private void Update()
     {
+        //Update weapon info every frame
         GameObject weapon = itemManager.getCurrentWeapon();
 
+        //Check which type of weapon is this
         if(weapon.TryGetComponent<FirearmWeapon>(out FirearmWeapon fWeapon))
         {
+            //Set correct picture
             switch(fWeapon.getWeaponType())
             {
                 case WeaponTypes.AK47:
@@ -81,6 +88,7 @@ public class UIManager : MonoBehaviour
                     break;
             }
             
+            //Check if player has this weapon or not
             Color color = weaponChoosedImage.color;
             if(fWeapon.getHaveThisWeapon())
                 color.a = 1;
@@ -95,6 +103,7 @@ public class UIManager : MonoBehaviour
         {
             MeeleWeapon mWeapon = weapon.GetComponent<MeeleWeapon>();
 
+            //Set correct picture
             switch(mWeapon.getWeaponType())
             {
                 case WeaponTypes.Hands:
@@ -108,6 +117,7 @@ public class UIManager : MonoBehaviour
                     break;
             }
             
+            //Check if player has this weapon or not
             Color color = weaponChoosedImage.color;
             if(mWeapon.getHaveThisWeapon())
                 color.a = 1;
@@ -122,6 +132,7 @@ public class UIManager : MonoBehaviour
 
 
 
+    //Start magazine reloading animation
     public void StartCatridgeReloadAnimation(float time)
     {
         weaponReloading = StartCoroutine(CatridgeReloading(time));
@@ -129,6 +140,7 @@ public class UIManager : MonoBehaviour
 
 
 
+    //changes picture fill percentage to show the current progress of reloading
     private IEnumerator CatridgeReloading(float time)
     {
         float timePassed=0f;
@@ -146,6 +158,7 @@ public class UIManager : MonoBehaviour
 
 
 
+    //Cancels magazine reload animation
     public void CancelCatridgeReloadAnimation()
     {
         if(weaponReloading!=null)
@@ -157,6 +170,7 @@ public class UIManager : MonoBehaviour
 
 
 
+    //Start first aid animation
     public void StartFirstAidAnimation(float time)
     {
         firstAidReloading = StartCoroutine(FirstAidReloading(time));
@@ -164,6 +178,7 @@ public class UIManager : MonoBehaviour
 
 
 
+    //changes picture fill percentage to show the current progress of using first aid
     private IEnumerator FirstAidReloading(float time)
     {
         float timePassed=0f;
@@ -181,6 +196,7 @@ public class UIManager : MonoBehaviour
 
 
 
+    //Cancel first aid animation
     public void CancelFirstAidAnimation()
     {
         if(firstAidReloading!=null)
@@ -192,6 +208,7 @@ public class UIManager : MonoBehaviour
 
 
 
+    //Set new value to the health bar
     public void ChangeHPBar(float hpLeft, float maxHP)
     {
         healthBarImage.fillAmount = Mathf.Lerp(healthBarPadding,1-healthBarPadding,hpLeft/maxHP);
@@ -199,6 +216,7 @@ public class UIManager : MonoBehaviour
 
 
 
+    //Set new value to shield bar
     public void ChangeShieldBar(int shieldLeft)
     {
         shieldBarImage.sprite = shieldLevels[shieldLeft];
@@ -206,6 +224,7 @@ public class UIManager : MonoBehaviour
 
 
 
+    //Change text of how many first aid left
     public void SetNumOfFirstAids(int numOfFirstAids)
     {
         firstAidText.text = numOfFirstAids.ToString();
@@ -213,6 +232,7 @@ public class UIManager : MonoBehaviour
 
 
 
+    //Show poison icon, so player know what poison is acting on them now
     public void SetPoisonIcon(PoisonTypes poisonType)
     {
         switch(poisonType)
@@ -225,6 +245,7 @@ public class UIManager : MonoBehaviour
 
 
 
+    //Hide poison icon
     public void RemovePoisonIcon(PoisonTypes poisonType)
     {
         switch(poisonType)
@@ -237,6 +258,7 @@ public class UIManager : MonoBehaviour
 
 
 
+    //Hides all poison icons
     public void RemoveAllPoisonIcons()
     {
         beetlePoisonIcon.SetActive(false);
@@ -244,6 +266,7 @@ public class UIManager : MonoBehaviour
 
 
 
+    //Pauses the game
     public void Pause()
     {
         Cursor.SetCursor(menuCursor, Vector2.zero, CursorMode.ForceSoftware);
@@ -254,6 +277,7 @@ public class UIManager : MonoBehaviour
 
 
 
+    //Resumes the game
     public void Continue()
     {
         Cursor.SetCursor(targetCursor, Vector2.zero, CursorMode.ForceSoftware);
@@ -264,12 +288,15 @@ public class UIManager : MonoBehaviour
 
 
 
+    //Starts loading screen
     public void ExitToMainMenu()
     {
         StartCoroutine(LoadSceneAsync("menu"));
     }
 
 
+
+    //Loading screen shows the progress of loading new scene
     private IEnumerator LoadSceneAsync(string sceneName)
     {
 
@@ -289,6 +316,7 @@ public class UIManager : MonoBehaviour
 
 
 
+    //Show dead screen
     public void SetDeadScreen()
     {
         Cursor.SetCursor(menuCursor, Vector2.zero, CursorMode.ForceSoftware);
@@ -299,6 +327,7 @@ public class UIManager : MonoBehaviour
 
 
 
+    //Hide dead screen
     public void RemoveDeadScreen()
     {
         Cursor.SetCursor(targetCursor, Vector2.zero, CursorMode.ForceSoftware);
