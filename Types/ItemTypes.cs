@@ -26,3 +26,12 @@ public enum PoisonTypes
     Fire,
     None
 }
+
+//Possible direction for all animations
+public enum Directions
+{
+    Up,
+    Down,
+    Left,
+    Right
+}

@@ -20,6 +20,10 @@ public class Movement : MonoBehaviour
         movementDirection = direction;
     }
 
+    public Vector2 getMovementDirection()
+    {
+        return movementDirection;
+    }
 
     public bool getIfCharacterMoves()
     {
