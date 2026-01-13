@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class PlayerAnimations : MonoBehaviour
 {
+    //Animation sprites
     [SerializeField] private Sprite[] moveLeftSprites;
     [SerializeField] private Sprite[] moveRightSprites;
     [SerializeField] private Sprite[] moveUpSprites;
@@ -14,28 +15,39 @@ public class PlayerAnimations : MonoBehaviour
     [SerializeField] private Sprite[] longIdleRightSprites;
     [SerializeField] private Sprite[] longIdleUpSprites;
     [SerializeField] private Sprite[] longIdleDownSprites;
+    //Time after which moving sprites should be changed
     [SerializeField] private float moveFlipTime=0.2f;
+    //Time after which idle sprites should be changed
     [SerializeField] private float idleFlipTime=1f;
     [SerializeField] private float timeToWaitUntilLongIdleAnimation=10f;
+    [SerializeField] private Vector3 longAnimationUpOffset;
+    [SerializeField] private Vector3 longAnimationDownOffset;
+    [SerializeField] private Vector3 longAnimationLeftOffset;
+    [SerializeField] private Vector3 longAnimationRightOffset;
+    [SerializeField] private Transform shadow;
 
     private int currentSprite=0;
     private Movement movement;
     private SpriteRenderer spriteRenderer;
     private Directions currentDirection;
     private float timePassed=0f;
-    private float timePassedForLongIdleAnimation=0f;
+    private float timePassedForLongIdleAnimation=10f;
+    private bool movingAnimation=true;
+    private Vector3 usualShadowPosition;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+
+
     void Start()
     {
         movement = transform.parent.gameObject.GetComponent<Movement>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         currentDirection=Directions.Down;
-
+        usualShadowPosition = shadow.localPosition;
         spriteRenderer.sprite = longIdleDownSprites[0];
     }
 
-    // Update is called once per frame
+    
+
     void Update()
     {
         timePassed+=Time.deltaTime;
@@ -43,11 +55,13 @@ public class PlayerAnimations : MonoBehaviour
 
         if(movement.getIfCharacterMoves())
         {
-            if(timePassed>moveFlipTime)
+            if(timePassed>moveFlipTime || !movingAnimation)
             {
                 timePassed-=moveFlipTime;
                 currentSprite++;
                 Vector2 direction = movement.getMovementDirection();
+                movingAnimation=true;
+                shadow.localPosition = usualShadowPosition;
 
                 if(direction.y>0.7)
                     currentDirection=Directions.Up;
@@ -58,71 +72,20 @@ public class PlayerAnimations : MonoBehaviour
                 else if(direction.x<-0.7)
                     currentDirection=Directions.Left;
                 
-                switch(currentDirection)
-                {
-                    case Directions.Up:
-                        if(currentSprite>=moveUpSprites.Length)
-                            currentSprite=0;
-
-                        spriteRenderer.sprite = moveUpSprites[currentSprite];
-                        break;
-                    case Directions.Down:
-                        if(currentSprite>=moveDownSprites.Length)
-                            currentSprite=0;
-
-                        spriteRenderer.sprite = moveDownSprites[currentSprite];
-                        break;
-                    case Directions.Left:
-                        if(currentSprite>=moveLeftSprites.Length)
-                            currentSprite=0;
-
-                        spriteRenderer.sprite = moveLeftSprites[currentSprite];
-                        break;
-                    case Directions.Right:
-                        if(currentSprite>=moveRightSprites.Length)
-                            currentSprite=0;
-
-                        spriteRenderer.sprite = moveRightSprites[currentSprite];
-                        break;
-                }
+                SetNewSprite(moveUpSprites, moveDownSprites, moveLeftSprites, moveRightSprites);
 
                 timePassedForLongIdleAnimation=0f;
             }
         }
         else if(timePassedForLongIdleAnimation<timeToWaitUntilLongIdleAnimation)
         {
-            if(timePassed>idleFlipTime)
+            if(timePassed>idleFlipTime || movingAnimation)
             {
                 timePassed-=idleFlipTime;
                 currentSprite++;
+                movingAnimation=false;
 
-                switch(currentDirection)
-                {
-                    case Directions.Up:
-                        if(currentSprite>=idleUpSprites.Length)
-                            currentSprite=0;
-
-                        spriteRenderer.sprite = idleUpSprites[currentSprite];
-                        break;
-                    case Directions.Down:
-                        if(currentSprite>=idleDownSprites.Length)
-                            currentSprite=0;
-
-                        spriteRenderer.sprite = idleDownSprites[currentSprite];
-                        break;
-                    case Directions.Left:
-                        if(currentSprite>=idleLeftSprites.Length)
-                            currentSprite=0;
-
-                        spriteRenderer.sprite = idleLeftSprites[currentSprite];
-                        break;
-                    case Directions.Right:
-                        if(currentSprite>=idleRightSprites.Length)
-                            currentSprite=0;
-
-                        spriteRenderer.sprite = idleRightSprites[currentSprite];
-                        break;
-                }
+                SetNewSprite(idleUpSprites, idleDownSprites, idleLeftSprites, idleRightSprites);
             }
         }
         else
@@ -132,34 +95,60 @@ public class PlayerAnimations : MonoBehaviour
                 timePassed-=idleFlipTime;
                 currentSprite++;
 
+                SetNewSprite(longIdleUpSprites, longIdleDownSprites, longIdleLeftSprites, longIdleRightSprites);
+
                 switch(currentDirection)
-                {
-                    case Directions.Up:
-                        if(currentSprite>=longIdleUpSprites.Length)
-                            currentSprite=0;
-
-                        spriteRenderer.sprite = longIdleUpSprites[currentSprite];
-                        break;
-                    case Directions.Down:
-                        if(currentSprite>=longIdleDownSprites.Length)
-                            currentSprite=0;
-
-                        spriteRenderer.sprite = longIdleDownSprites[currentSprite];
-                        break;
-                    case Directions.Left:
-                        if(currentSprite>=longIdleLeftSprites.Length)
-                            currentSprite=0;
-
-                        spriteRenderer.sprite = longIdleLeftSprites[currentSprite];
-                        break;
-                    case Directions.Right:
-                        if(currentSprite>=longIdleRightSprites.Length)
-                            currentSprite=0;
-
-                        spriteRenderer.sprite = longIdleRightSprites[currentSprite];
-                        break;
-                }
+        {
+            case Directions.Up:
+                shadow.localPosition = usualShadowPosition+longAnimationUpOffset;
+                break;
+            case Directions.Down:
+                shadow.localPosition = usualShadowPosition+longAnimationDownOffset;
+                break;
+            case Directions.Left:
+                shadow.localPosition = usualShadowPosition+longAnimationLeftOffset;
+                break;
+            case Directions.Right:
+                shadow.localPosition = usualShadowPosition+longAnimationRightOffset;
+                break;
+        }
             }
+        }
+
+        if(timePassed<0)
+            timePassed=0f;
+    }
+
+
+
+    private void SetNewSprite(Sprite[] up, Sprite[] down, Sprite[] left, Sprite[] right)
+    {
+        switch(currentDirection)
+        {
+            case Directions.Up:
+                if(currentSprite>=up.Length)
+                    currentSprite=0;
+
+                spriteRenderer.sprite = up[currentSprite];
+                break;
+            case Directions.Down:
+                if(currentSprite>=down.Length)
+                    currentSprite=0;
+
+                spriteRenderer.sprite = down[currentSprite];
+                break;
+            case Directions.Left:
+                if(currentSprite>=left.Length)
+                    currentSprite=0;
+
+                spriteRenderer.sprite = left[currentSprite];
+                break;
+            case Directions.Right:
+                if(currentSprite>=right.Length)
+                    currentSprite=0;
+
+                spriteRenderer.sprite = right[currentSprite];
+                break;
         }
     }
 }
