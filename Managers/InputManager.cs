@@ -7,6 +7,7 @@ public class InputManager : MonoBehaviour
     [SerializeField] private Movement movement;
     [SerializeField] private  ItemManager itemManager;
     [SerializeField] private  UIManager uiManager;
+    [SerializeField] private  CameraMovement cameraMovement;
     //Epsilon for float equality comparisons
     [SerializeField] private float epsilon=0.001f;
 
@@ -17,6 +18,15 @@ public class InputManager : MonoBehaviour
         //Always set movement direaction
         if(Time.timeScale>epsilon)
             movement.setMovementDirection(ctx.ReadValue<Vector2>());
+    }
+
+
+
+    public void OnZoom(InputAction.CallbackContext ctx)
+    {
+        //Get zoom change
+        if(Time.timeScale>epsilon)
+            cameraMovement.setDeltaCameraZoom(ctx.ReadValue<Vector2>());
     }
 
 

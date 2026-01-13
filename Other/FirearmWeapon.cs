@@ -91,8 +91,9 @@ public class FirearmWeapon : MonoBehaviour
 
     public void StartFire()
     {
-        //Just starts fire bullets coroutine
-        fireBullets = StartCoroutine(FireBullets());
+        //Just starts fire bullets coroutine if weapon do not reloads
+        if(rechargeWait==null)
+            fireBullets = StartCoroutine(FireBullets());
     }
 
 
