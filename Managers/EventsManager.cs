@@ -8,6 +8,8 @@ public static class EventsManager
     public static event Action OnAllRobotsDeactivate;
     public static event Action<GameObject> OnDamageTaken;
     public static event Action OnWeaponSwitched;
+    public static event Action OnStartFire;
+    public static event Action OnStopFire;
 
     //Event calls
     public static void CallOnRobotsActivate(Vector2 callerPosition)
@@ -28,5 +30,15 @@ public static class EventsManager
     public static void CallOnWeaponSwitched()
     {
         OnWeaponSwitched?.Invoke();
+    }
+
+    public static void CallOnStartFire()
+    {
+        OnStartFire?.Invoke();
+    }
+
+    public static void CallOnStopFire()
+    {
+        OnStopFire?.Invoke();
     }
 }

@@ -13,6 +13,14 @@ public class InputManager : MonoBehaviour
 
 
 
+    private void Start()
+    {
+        EventsManager.OnStopFire+=OnFireReleased;
+        EventsManager.OnStartFire+=OnFirePressed;
+    }
+
+
+
     public void OnMove(InputAction.CallbackContext ctx)
     {
         //Always set movement direaction
@@ -36,10 +44,10 @@ public class InputManager : MonoBehaviour
         //Check when button is pressed and when is released
         //Important for automatic firearms and meele weapons
         if(ctx.started)
-            OnFirePressed();
+            EventsManager.CallOnStartFire();
 
         if(ctx.canceled)
-            OnFireReleased();
+            EventsManager.CallOnStopFire();
     }
 
 

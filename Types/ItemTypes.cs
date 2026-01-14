@@ -33,5 +33,9 @@ public enum Directions
     Up,
     Down,
     Left,
-    Right
+    Right,
+    BackwardsUp,
+    BackwardsDown,
+    BackwardsLeft,
+    BackwardsRight
 }
