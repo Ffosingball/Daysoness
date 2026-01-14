@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using UnityEngine.InputSystem;
+using System.Runtime.CompilerServices;
 
 public class FirearmWeapon : MonoBehaviour
 {
@@ -33,12 +34,18 @@ public class FirearmWeapon : MonoBehaviour
     [SerializeField] private UIManager uiManager;
     //How far bullet raycast will go
     [SerializeField] private float bulletRange = 300f;
+    private FirearmWeaponAnimation firearmWeaponAnimation;
 
 
     //Getters and setters
     public int getMaxAmountOfCatridges()
     {
         return maxAmountOfCatridges;
+    }
+
+    public bool isFiring()
+    {
+        return fireBullets!=null;
     }
 
     public WeaponTypes getWeaponType()
@@ -81,6 +88,13 @@ public class FirearmWeapon : MonoBehaviour
 
 
 
+    private void Start()
+    {
+        firearmWeaponAnimation = GetComponent<FirearmWeaponAnimation>();
+    }
+
+
+
     private void Update()
     {
         //Increase counter
@@ -113,6 +127,8 @@ public class FirearmWeapon : MonoBehaviour
     //Starts reload wait time for this weapon
     public void Recharge()
     {
+        firearmWeaponAnimation.StartedRecharge();
+
         if(rechargeWait==null && haveThisWeapon && currentNumOfCatridges>0)
         {
             rechargeWait = StartCoroutine(RealoadWait());
@@ -144,6 +160,7 @@ public class FirearmWeapon : MonoBehaviour
     //Creates a raycast in the direction of the mouse and checks if someone was hitted
     private void CreateABullet()
     {
+        firearmWeaponAnimation.ShowFireSpark();
         //Get mouse direction 
         Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
         Vector3 direction = (mousePosition - transform.position).normalized;
@@ -264,7 +281,8 @@ public class FirearmWeapon : MonoBehaviour
                 timePassed+=Time.deltaTime;
                 yield return null;
             }
-
+            
+            firearmWeaponAnimation.FinishedRecharge();
             currentNumOfCatridges--;
             currentNumOfBullets = catridgeCapacity;
         }

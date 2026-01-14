@@ -25,6 +25,7 @@ public class PlayerAnimations : MonoBehaviour
     [SerializeField] private Vector3 longAnimationLeftOffset;
     [SerializeField] private Vector3 longAnimationRightOffset;
     [SerializeField] private Transform shadow;
+    [SerializeField] private float scaleDecreaseToVertical=0.7f;
 
     private int currentSprite=0;
     private Movement movement;
@@ -34,6 +35,19 @@ public class PlayerAnimations : MonoBehaviour
     private float timePassedForLongIdleAnimation=10f;
     private bool movingAnimation=true;
     private Vector3 usualShadowPosition;
+    private bool longWaitAnimation=false;
+    private float initScale;
+
+
+    public Directions getDirection()
+    {
+        return currentDirection;
+    }
+
+    public bool isLongWaitAnimation()
+    {
+        return longWaitAnimation;
+    }
 
 
 
@@ -44,6 +58,7 @@ public class PlayerAnimations : MonoBehaviour
         currentDirection=Directions.Down;
         usualShadowPosition = shadow.localPosition;
         spriteRenderer.sprite = longIdleDownSprites[0];
+        initScale = transform.localScale.x;
     }
 
     
@@ -52,6 +67,7 @@ public class PlayerAnimations : MonoBehaviour
     {
         timePassed+=Time.deltaTime;
         timePassedForLongIdleAnimation+=Time.deltaTime;
+        longWaitAnimation=false;
 
         if(movement.getIfCharacterMoves())
         {
@@ -90,6 +106,8 @@ public class PlayerAnimations : MonoBehaviour
         }
         else
         {
+            longWaitAnimation=true;
+
             if(timePassed>idleFlipTime)
             {
                 timePassed-=idleFlipTime;
@@ -98,20 +116,20 @@ public class PlayerAnimations : MonoBehaviour
                 SetNewSprite(longIdleUpSprites, longIdleDownSprites, longIdleLeftSprites, longIdleRightSprites);
 
                 switch(currentDirection)
-        {
-            case Directions.Up:
-                shadow.localPosition = usualShadowPosition+longAnimationUpOffset;
-                break;
-            case Directions.Down:
-                shadow.localPosition = usualShadowPosition+longAnimationDownOffset;
-                break;
-            case Directions.Left:
-                shadow.localPosition = usualShadowPosition+longAnimationLeftOffset;
-                break;
-            case Directions.Right:
-                shadow.localPosition = usualShadowPosition+longAnimationRightOffset;
-                break;
-        }
+                {
+                    case Directions.Up:
+                        shadow.localPosition = usualShadowPosition+longAnimationUpOffset;
+                        break;
+                    case Directions.Down:
+                        shadow.localPosition = usualShadowPosition+longAnimationDownOffset;
+                        break;
+                    case Directions.Left:
+                        shadow.localPosition = usualShadowPosition+longAnimationLeftOffset;
+                        break;
+                    case Directions.Right:
+                        shadow.localPosition = usualShadowPosition+longAnimationRightOffset;
+                        break;
+                }
             }
         }
 

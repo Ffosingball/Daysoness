@@ -268,6 +268,7 @@ public class ItemManager : MonoBehaviour
     //This function switches currently selected weapon to the next one in the array
     public void SwitchWeaponForward()
     {
+        EventsManager.CallOnWeaponSwitched();
         weaponsList[weaponNumber].SetActive(false);
         uiManager.CancelCatridgeReloadAnimation();
         weaponNumber++;
@@ -283,6 +284,7 @@ public class ItemManager : MonoBehaviour
     //This function switches currently selected weapon to the previous one in the array
     public void SwitchWeaponBackward()
     {
+        EventsManager.CallOnWeaponSwitched();
         weaponsList[weaponNumber].SetActive(false);
         uiManager.CancelCatridgeReloadAnimation();
         weaponNumber--;
