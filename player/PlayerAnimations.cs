@@ -27,6 +27,7 @@ public class PlayerAnimations : MonoBehaviour
     [SerializeField] private Vector3 longAnimationLeftOffset;
     [SerializeField] private Vector3 longAnimationRightOffset;
     [SerializeField] private Transform shadow;
+    [SerializeField] private float timeToCancelFireSprites=1f;
 
     private int currentSprite=0;
     private Movement movement;
@@ -34,6 +35,7 @@ public class PlayerAnimations : MonoBehaviour
     private Directions currentDirection;
     private float timePassed=0f;
     private float timePassedForLongIdleAnimation=10f;
+    private float timePassedSinceFireStoped=0f;
     private bool movingAnimation=true;
     private Vector3 usualShadowPosition;
     private bool longWaitAnimation=false;
@@ -84,20 +86,23 @@ public class PlayerAnimations : MonoBehaviour
     {
         timePassed+=Time.deltaTime;
         timePassedForLongIdleAnimation+=Time.deltaTime;
-        longWaitAnimation=false;
+        timePassedSinceFireStoped+=Time.deltaTime;
+        //longWaitAnimation=false;
 
         GetAngleToMouse();
 
         if(movement.getIfCharacterMoves())
         {
-            if(firing)
+            longWaitAnimation=false;
+
+            if(firing || timePassedSinceFireStoped<timeToCancelFireSprites)
                 animationPicker=FireMovementAnimation;
             else
                 animationPicker=UsualMovementAnimation;
         }
         else if(!longWaitAnimation)
         {
-            if(firing)
+            if(firing || timePassedSinceFireStoped<timeToCancelFireSprites)
                 animationPicker=FireWaitAnimation;
             else
                 animationPicker=ShortWaitAnimation;
@@ -113,6 +118,8 @@ public class PlayerAnimations : MonoBehaviour
 
     private void StartFireAnimation()
     {
+        timePassedForLongIdleAnimation=0f;
+        longWaitAnimation=false;
         firing=true;
     }
 
@@ -120,6 +127,8 @@ public class PlayerAnimations : MonoBehaviour
 
     private void StopFireAnimation()
     {
+        timePassedForLongIdleAnimation=0f;
+        timePassedSinceFireStoped=0f;
         firing=false;
     }
 
@@ -253,8 +262,9 @@ public class PlayerAnimations : MonoBehaviour
             SetNewSprite(idleUpSprites, idleDownSprites, idleLeftSprites, idleRightSprites);
         }
 
-        if(timePassedForLongIdleAnimation<timeToWaitUntilLongIdleAnimation)
+        if(timePassedForLongIdleAnimation>timeToWaitUntilLongIdleAnimation)
         {
+            longWaitAnimation=true;
             timePassed+=idleFlipTime;
             animationPicker=LongWaitAnimation;
         }
@@ -264,8 +274,6 @@ public class PlayerAnimations : MonoBehaviour
 
     private void LongWaitAnimation()
     {
-        longWaitAnimation=true;
-
         if(timePassed>idleFlipTime)
         {
             timePassed-=idleFlipTime;

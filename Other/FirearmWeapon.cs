@@ -91,6 +91,7 @@ public class FirearmWeapon : MonoBehaviour
     private void Start()
     {
         firearmWeaponAnimation = GetComponent<FirearmWeaponAnimation>();
+        EventsManager.OnWeaponSwitched+=CancelRecharge;
     }
 
 

@@ -17,7 +17,7 @@ public class FirearmWeaponAnimation : MonoBehaviour
     [SerializeField] private Sprite verticalWithMagazine;
     [SerializeField] private Sprite horizontalWithoutMagazine;
     [SerializeField] private Sprite verticalWithoutMagazine;
-    [SerializeField] private float timeToCancelFireSprites=0.5f;
+    [SerializeField] private float timeToCancelFireSprites=1f;
     [SerializeField] private float firingSparkDuration=0.1f;
     [SerializeField] private PlayerAnimations playerAnimation;
     [SerializeField] private SpriteRenderer firingSpark;
@@ -46,6 +46,13 @@ public class FirearmWeaponAnimation : MonoBehaviour
 
         EventsManager.OnWeaponSwitched+=HideFireSpark;
         EventsManager.OnStopFire+=StopFire;
+    }
+
+
+    void OnEnable()
+    {
+        sparkTime+=firingSparkDuration;
+        timePassedSinceFire+=timeToCancelFireSprites;
     }
 
 
@@ -180,8 +187,6 @@ public class FirearmWeaponAnimation : MonoBehaviour
     private void IdleAnimation()
     {
         Vector3 currentScale = transform.localScale;
-        currentScale.x = initScale;
-        transform.localScale = currentScale;
             
         switch(playerAnimation.getDirection())
         {
@@ -221,17 +226,33 @@ public class FirearmWeaponAnimation : MonoBehaviour
         {
             //Debug.Log("Rot: "+transform.rotation.eulerAngles.z);
             if(Mathf.Abs(transform.rotation.eulerAngles.z-90f)<epsilon || Mathf.Abs(transform.rotation.eulerAngles.z-270f)<epsilon)
+            {
                 spriteRenderer.sprite=verticalWithoutMagazine;
+                currentScale.x = initScale*scaleDecreaseToVertical;
+                transform.localScale = currentScale;
+            }
             else
+            {
                 spriteRenderer.sprite=horizontalWithoutMagazine;
+                currentScale.x = initScale;
+                transform.localScale = currentScale;
+            }
         }
         else
         {
             //Debug.Log("Rot: "+transform.rotation.eulerAngles.z);
             if(Mathf.Abs(transform.rotation.eulerAngles.z-90f)<epsilon || Mathf.Abs(transform.rotation.eulerAngles.z-270f)<epsilon)
+            {
                 spriteRenderer.sprite=verticalWithMagazine;
+                currentScale.x = initScale*scaleDecreaseToVertical;
+                transform.localScale = currentScale;
+            }
             else
+            {
                 spriteRenderer.sprite=horizontalWithMagazine;
+                currentScale.x = initScale;
+                transform.localScale = currentScale;
+            }
         }
     }
 

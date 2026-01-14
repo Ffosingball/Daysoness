@@ -269,6 +269,7 @@ public class ItemManager : MonoBehaviour
     public void SwitchWeaponForward()
     {
         EventsManager.CallOnWeaponSwitched();
+        //weaponsList[weaponNumber].GetComponent<>CancelRecharge();
         weaponsList[weaponNumber].SetActive(false);
         uiManager.CancelCatridgeReloadAnimation();
         weaponNumber++;
