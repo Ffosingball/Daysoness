@@ -81,10 +81,6 @@ public class InputManager : MonoBehaviour
             {
                 firearmWeapon.StopFire();
             }
-            else
-            {
-                currentWeapon.GetComponent<MeeleWeapon>().StopSwing();
-            }
         }
     }
 

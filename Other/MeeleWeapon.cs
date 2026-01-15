@@ -10,10 +10,10 @@ public class MeeleWeapon : MonoBehaviour
     private bool haveThisWeapon=false;
     [SerializeField] private WeaponTypes type;
     [SerializeField] private GameObject meeleWeapon;
+    [SerializeField] private EnemiesHittedByMeeleWeapon enemiesChecker;
     //Stores swing coroutine
     private Coroutine swinging;
     //Rotation of the weapon before swining
-    private float initZRotation;
     //This number store current consequent swing
     private int attackRowNum=0;
 
@@ -59,7 +59,8 @@ public class MeeleWeapon : MonoBehaviour
     //Starts swing coroutine
     public void StartSwing()
     {
-        swinging=StartCoroutine(SwingProcess());
+        if(swinging==null)
+            swinging=StartCoroutine(SwingProcess());
     }
 
 
@@ -72,9 +73,6 @@ public class MeeleWeapon : MonoBehaviour
             StopCoroutine(swinging);
             swinging=null;
         }
-
-        //Reset weapon rotation
-        meeleWeapon.transform.rotation=Quaternion.Euler(0,0,initZRotation);
     }
 
 
@@ -84,10 +82,14 @@ public class MeeleWeapon : MonoBehaviour
     //that
     private IEnumerator SwingProcess()
     {
-        while(true)
-        {
-            yield return new WaitForSeconds(swingPeriod);
-            attackRowNum++;
-        }
+        yield return new WaitForSeconds(swingPeriod/4f);
+
+        enemiesChecker.DealDamageToCollectedEnemies();
+        yield return new WaitForSeconds(swingPeriod/2f);
+
+        enemiesChecker.DealDamageToCollectedEnemies();
+        yield return new WaitForSeconds(swingPeriod/4f);
+
+        swinging=null;
     }
 }

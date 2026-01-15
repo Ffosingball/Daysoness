@@ -2,55 +2,6 @@ using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
 using System;
-using Unity.VisualScripting;
-using Unity.VisualScripting.Dependencies.NCalc;
-
-
-//This class saves which meele weapon is in the hitbox of the enemy
-//I made it this way, so if there in future more than one meele weapon will be 
-//hitting enemy then both of them will hit enemy
-public class CurrentDamagingWeapon
-{
-    private GameObject damagingMeeleWeapon = null;
-    private int attackRowAbsorbed = 0;
-
-    //Set meele weapon which touches an enemy
-    public CurrentDamagingWeapon(GameObject meeleWeapon)
-    {
-        damagingMeeleWeapon = meeleWeapon;
-    }
-
-    //Checks if enemy should be hitted by this weapon
-    public bool GetHit()
-    {
-        //Check that player uses weapon
-        if(damagingMeeleWeapon.GetComponent<MeeleWeapon>().IsSwinging())
-        {
-            int currentAttackRow = damagingMeeleWeapon.GetComponent<MeeleWeapon>().getAttackRowNum();
-
-            //Check if weapon started new swing
-            if(currentAttackRow==attackRowAbsorbed)
-                return false;
-
-            attackRowAbsorbed = currentAttackRow;
-            return true;
-        }
-
-        return false;
-    }
-
-    //Returns if given gameObject equal to this weapon
-    public bool IsEqual(GameObject gameObject)
-    {
-        return damagingMeeleWeapon==gameObject;
-    }
-
-    //Get dmg of this weapon
-    public float GetDMG()
-    {
-        return damagingMeeleWeapon.GetComponent<MeeleWeapon>().getDMG();
-    }
-}
 
 
 public class CommonEnemyBehaviour : MonoBehaviour
@@ -91,8 +42,6 @@ public class CommonEnemyBehaviour : MonoBehaviour
     //Current enemy health
     private float currentHP;
     private bool dead=false;
-    //List of all meele weapons in collider range
-    private List<CurrentDamagingWeapon> attackingMeeleWeaponsInRange;
     //deadCountdown stores countdown Coroutine
     //attacking stores attackLoop Coroutine
     //damageB stores damageBlink Coroutine
@@ -179,7 +128,6 @@ public class CommonEnemyBehaviour : MonoBehaviour
     //Initialize enemy
     private void Start()
     {
-        attackingMeeleWeaponsInRange = new List<CurrentDamagingWeapon>();
         currentHP = maxHP;
         dead=false;
         move=false;
@@ -199,15 +147,6 @@ public class CommonEnemyBehaviour : MonoBehaviour
     {
         //Increase counter
         timePassedSinceLastAttack+=Time.deltaTime;
-
-        //Check if any meele weapon does new swing then take damage from it
-        foreach(CurrentDamagingWeapon weapon in attackingMeeleWeaponsInRange)
-        {
-            if(weapon.GetHit())
-            {
-                TakeDamage(weapon.GetDMG());
-            }
-        }
     }
 
 
@@ -514,47 +453,10 @@ public class CommonEnemyBehaviour : MonoBehaviour
 
 
 
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        GameObject gameObject = collision.gameObject;
-        //Check if meele weapon entered enemy collider, then add to the list
-        if(gameObject.tag=="swords")
-        {
-            attackingMeeleWeaponsInRange.Add(new CurrentDamagingWeapon(gameObject));
-        }
-    }
-
-
-
-    private void OnTriggerExit2D(Collider2D collision) 
-    {
-        GameObject gameObject = collision.gameObject;
-
-        //Check if meele weapon exited enemy collider, then remove it from the list
-        if(gameObject.tag=="swords")
-        {
-            int index=0;
-            int target=-1;
-            foreach(CurrentDamagingWeapon weapon in attackingMeeleWeaponsInRange)
-            {
-                if(weapon.IsEqual(gameObject))
-                {
-                    target = index;
-                    break;
-                }
-                
-                index++;
-            }
-
-            attackingMeeleWeaponsInRange.RemoveAt(target);
-        }
-    }
-
-
-
     public void TakeDamage(float rawDMG)
     {
         currentHP-=rawDMG;
+        Debug.Log("Damage Taken: "+rawDMG);
         EventsManager.CallOnDamageTaken(gameObject);
         //Stop previous coroutine if it is active
         if(damageB!=null)

@@ -3,6 +3,7 @@ using UnityEngine;
 public class MeeleWeaponAnimation : MonoBehaviour
 {
     [SerializeField] private Vector3 weaponUsualPosition;
+    [SerializeField] private Vector3 weaponMoveDownPosition;
     [SerializeField] private Vector3 weaponLongUpPosition;
     [SerializeField] private Vector3 weaponLongDownPosition;
     [SerializeField] private Vector3 weaponLongRightPosition;
@@ -14,9 +15,11 @@ public class MeeleWeaponAnimation : MonoBehaviour
     [SerializeField] private float swingAngle=90f;
     [SerializeField] private float forwardSwingDistance=0.3f;
     [SerializeField] private SpriteRenderer weaponPicture;
+    [SerializeField] private Transform weaponLocalTransform;
 
 
     private float timePassedSinceSwing=0f;
+    private float swiningPassed=0f;
     private bool needToSwing=false;
     private float lastSavedRotation;
     private float swingPeriod;
@@ -56,9 +59,12 @@ public class MeeleWeaponAnimation : MonoBehaviour
 
     public void StartSwing()
     {
-        timePassedSinceSwing=0f;
-        needToSwing=true;
-        lastSavedRotation=playerAnimation.getCurrentAngle();
+        if(!needToSwing)
+        {
+            swiningPassed=0f;
+            needToSwing=true;
+            lastSavedRotation=playerAnimation.getCurrentAngle();
+        }
     }
 
 
@@ -73,6 +79,7 @@ public class MeeleWeaponAnimation : MonoBehaviour
     void Update()
     {
         timePassedSinceSwing+=Time.deltaTime;
+        swiningPassed+=Time.deltaTime;
 
         if(playerAnimation.isAttacking() || timePassedSinceSwing<timeToCancelSwingAnimation)
             SwingingAnimation();
@@ -105,33 +112,35 @@ public class MeeleWeaponAnimation : MonoBehaviour
         if(needToSwing)
         {
             //Swing down
-            if(timePassedSinceSwing<swingPeriod/2f)
+            if(swiningPassed<swingPeriod/2f)
             {
-                float currentRotation=lastSavedRotation+Mathf.Lerp(0,swingAngle,timePassedSinceSwing/(swingPeriod/2f))-(swingAngle/2f);
-                Debug.Log("currentRotation "+currentRotation);
+                float currentRotation=lastSavedRotation+Mathf.Lerp(0,swingAngle,swiningPassed/(swingPeriod/2f))-(swingAngle/2f);
+                //Debug.Log("currentRotation "+currentRotation+"; passed: "+swiningPassed+"; swingPeriod: "+swingPeriod);
                 transform.rotation=Quaternion.Euler(0,0,currentRotation);
+                lastSavedXCooord = weaponLocalTransform.localPosition.x;
             }
-            else if(timePassedSinceSwing<swingPeriod)
+            else if(swiningPassed<swingPeriod)
             {
                 transform.rotation=Quaternion.Euler(0,0,lastSavedRotation);
                 float currentXCoord;
 
                 //Swing forward
-                if(timePassedSinceSwing<swingPeriod*0.75f)
+                if(swiningPassed<swingPeriod*0.75f)
                 {
-                    currentXCoord = lastSavedXCooord+Mathf.Lerp(0,forwardSwingDistance,(timePassedSinceSwing-(swingPeriod/2f))/(swingPeriod/4f));
+                    currentXCoord = lastSavedXCooord+Mathf.Lerp(0,forwardSwingDistance,(swiningPassed-(swingPeriod/2f))/(swingPeriod/4f));
                 }
                 else//Swing backward
                 {
-                    currentXCoord = lastSavedXCooord+Mathf.Lerp(forwardSwingDistance,0,(timePassedSinceSwing-(swingPeriod*0.75f))/(swingPeriod/4f));
+                    currentXCoord = lastSavedXCooord+Mathf.Lerp(forwardSwingDistance,0,(swiningPassed-(swingPeriod*0.75f))/(swingPeriod/4f));
                 }
 
-                Vector3 pos = transform.localPosition;
+                Vector3 pos = weaponLocalTransform.localPosition;
                 pos.x = currentXCoord;
-                transform.localPosition = pos;
+                weaponLocalTransform.localPosition = pos;
             }
             else
             {
+                timePassedSinceSwing=0f;
                 needToSwing=false;
             }
         }
@@ -150,22 +159,21 @@ public class MeeleWeaponAnimation : MonoBehaviour
             case Directions.Up:
                 weaponUsualPosition.z=0.1f;
                 transform.localPosition = weaponUsualPosition;
-                transform.rotation = Quaternion.Euler(0f,0f,45f);
+                transform.rotation = Quaternion.Euler(0f,0f,90f);
                 break;
             case Directions.Down:
-                weaponUsualPosition.z=-0.1f;
-                transform.localPosition = weaponUsualPosition;
-                transform.rotation = Quaternion.Euler(0f,0f,45f);
+                transform.localPosition = weaponMoveDownPosition;
+                transform.rotation = Quaternion.Euler(0f,0f,90f);
                 break;
             case Directions.Left:
                 weaponUsualPosition.z=-0.1f;
                 transform.localPosition = weaponUsualPosition;
-                transform.rotation = Quaternion.Euler(0f,0f,90f);
+                transform.rotation = Quaternion.Euler(0f,0f,135f);
                 break;
             case Directions.Right:
                 weaponUsualPosition.z=-0.1f;
                 transform.localPosition = weaponUsualPosition;
-                transform.rotation = Quaternion.Euler(0f,0f,0f);
+                transform.rotation = Quaternion.Euler(0f,0f,45f);
                 break;
         }
     }
@@ -179,19 +187,19 @@ public class MeeleWeaponAnimation : MonoBehaviour
         {
             case Directions.Up:
                 transform.localPosition = weaponLongUpPosition;
-                transform.rotation = Quaternion.Euler(0f,0f,45f);
+                transform.rotation = Quaternion.Euler(0f,0f,-90f);
                 break;
             case Directions.Down:
                 transform.localPosition = weaponLongDownPosition;
-                transform.rotation = Quaternion.Euler(0f,0f,45f);
+                transform.rotation = Quaternion.Euler(0f,0f,-90f);
                 break;
             case Directions.Left:
                 transform.localPosition = weaponLongLeftPosition;
-                transform.rotation = Quaternion.Euler(0f,0f,45f);
+                transform.rotation = Quaternion.Euler(0f,0f,-90f);
                 break;
             case Directions.Right:
                 transform.localPosition = weaponLongRightPosition;
-                transform.rotation = Quaternion.Euler(0f,0f,45f);
+                transform.rotation = Quaternion.Euler(0f,0f,-90f);
                 break;
         }
     }

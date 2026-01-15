@@ -152,7 +152,7 @@ public class ItemManager : MonoBehaviour
             {
                 SetWeaponByNumber(setWeapon);
                 meeleWeapon.setHaveThisWeapon(true);
-                Debug.Log("Set weapon: "+setWeapon);
+                //Debug.Log("Set weapon: "+setWeapon);
                 EventsManager.CallOnNewWeaponAcquired();
                 return true;
             }
