@@ -44,6 +44,11 @@ public class MeeleWeapon : MonoBehaviour
         return swinging!=null;
     }
 
+    public float getSwingPeriod()
+    {
+        return swingPeriod;
+    }
+
     public void setHaveThisWeapon(bool val)
     {
         haveThisWeapon=val;
@@ -79,29 +84,9 @@ public class MeeleWeapon : MonoBehaviour
     //that
     private IEnumerator SwingProcess()
     {
-        //Prepare weapon for swining
-        initZRotation = meeleWeapon.transform.eulerAngles.z;
-        float currentRotation=initZRotation-45;
-        meeleWeapon.transform.rotation=Quaternion.Euler(0,0,currentRotation);
-
         while(true)
         {
-            //Swing down
-            for(float i=0f;i<swingPeriod/2f;i+=swingPeriod/40f)
-            {
-                currentRotation=currentRotation+(90/20);
-                meeleWeapon.transform.rotation=Quaternion.Euler(0,0,currentRotation);
-                yield return new WaitForSeconds(swingPeriod/40f);
-            }
-
-            //Swing up
-            for(float i=0f;i<swingPeriod/2f;i+=swingPeriod/40f)
-            {
-                currentRotation=currentRotation-(90/20);
-                meeleWeapon.transform.rotation=Quaternion.Euler(0,0,currentRotation);
-                yield return new WaitForSeconds(swingPeriod/40f);
-            }
-
+            yield return new WaitForSeconds(swingPeriod);
             attackRowNum++;
         }
     }

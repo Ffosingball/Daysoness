@@ -161,7 +161,7 @@ public class FirearmWeapon : MonoBehaviour
     //Creates a raycast in the direction of the mouse and checks if someone was hitted
     private void CreateABullet()
     {
-        firearmWeaponAnimation.ShowFireSpark();
+        EventsManager.CallOnFireBullet();
         //Get mouse direction 
         Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
         Vector3 direction = (mousePosition - transform.position).normalized;

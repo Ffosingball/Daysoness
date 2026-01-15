@@ -34,13 +34,13 @@ public class PlayerAnimations : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     private Directions currentDirection;
     private float timePassed=0f;
-    private float timePassedForLongIdleAnimation=10f;
+    private float timePassedForLongIdleAnimation;
     private float timePassedSinceFireStoped=0f;
     private bool movingAnimation=true;
     private Vector3 usualShadowPosition;
     private bool longWaitAnimation=false;
     private Action animationPicker;
-    private bool firing=false;
+    private bool attacking=false;
     private Directions previousDirection;
     private float currentAngle;
 
@@ -60,9 +60,9 @@ public class PlayerAnimations : MonoBehaviour
         return currentAngle;
     }
 
-    public bool isFiring()
+    public bool isAttacking()
     {
-        return firing;
+        return attacking;
     }
 
 
@@ -75,9 +75,11 @@ public class PlayerAnimations : MonoBehaviour
         usualShadowPosition = shadow.localPosition;
         spriteRenderer.sprite = longIdleDownSprites[0];
         animationPicker = LongWaitAnimation;
+        longWaitAnimation=true;
+        timePassedForLongIdleAnimation=timeToWaitUntilLongIdleAnimation+1f;
 
-        EventsManager.OnStopFire+=StopFireAnimation;
-        EventsManager.OnStartFire+=StartFireAnimation;
+        EventsManager.OnStopFire+=StopAttackAnimation;
+        EventsManager.OnStartFire+=StartAttackAnimation;
     }
 
     
@@ -95,14 +97,14 @@ public class PlayerAnimations : MonoBehaviour
         {
             longWaitAnimation=false;
 
-            if(firing || timePassedSinceFireStoped<timeToCancelFireSprites)
+            if(attacking || timePassedSinceFireStoped<timeToCancelFireSprites)
                 animationPicker=FireMovementAnimation;
             else
                 animationPicker=UsualMovementAnimation;
         }
         else if(!longWaitAnimation)
         {
-            if(firing || timePassedSinceFireStoped<timeToCancelFireSprites)
+            if(attacking || timePassedSinceFireStoped<timeToCancelFireSprites)
                 animationPicker=FireWaitAnimation;
             else
                 animationPicker=ShortWaitAnimation;
@@ -116,20 +118,20 @@ public class PlayerAnimations : MonoBehaviour
 
 
 
-    private void StartFireAnimation()
+    private void StartAttackAnimation()
     {
         timePassedForLongIdleAnimation=0f;
         longWaitAnimation=false;
-        firing=true;
+        attacking=true;
     }
 
 
 
-    private void StopFireAnimation()
+    private void StopAttackAnimation()
     {
         timePassedForLongIdleAnimation=0f;
         timePassedSinceFireStoped=0f;
-        firing=false;
+        attacking=false;
     }
 
 

@@ -57,20 +57,6 @@ public class ItemManager : MonoBehaviour
 
     private void Start()
     {
-        //Deactivate all weapons and their spriteRenderers
-        AK47.GetComponent<SpriteRenderer>().enabled=false;
-        AK47.SetActive(false);
-        Pistol.GetComponent<SpriteRenderer>().enabled=false;
-        Pistol.SetActive(false);
-        LaserBlaster.GetComponent<SpriteRenderer>().enabled=false;
-        LaserBlaster.SetActive(false);
-        LaserSniper.GetComponent<SpriteRenderer>().enabled=false;
-        LaserSniper.SetActive(false);
-        Lightsaber.GetComponent<SpriteRenderer>().enabled=false;
-        Lightsaber.SetActive(false);
-        Knife.GetComponent<SpriteRenderer>().enabled=false;
-        Knife.SetActive(false);
-
         //Add all weapons to the array
         weaponsList = new GameObject[7];
         // 0 - nothing/hands, 1 - pistol, 2 - AK-47, 3 - Laser Blaster, 4 - Laser sniper, 5 - Lightsaber, 6 - Knife
@@ -81,6 +67,12 @@ public class ItemManager : MonoBehaviour
         weaponsList[4] = LaserSniper;
         weaponsList[5] = Lightsaber;
         weaponsList[6] = Knife;
+
+        //Deactivate all weapons except hand
+        for(int i=1; i<weaponsList.Length; i++)
+        {
+            weaponsList[i].SetActive(false);
+        }
 
         FirstAid.SetActive(false);
     }
@@ -107,34 +99,34 @@ public class ItemManager : MonoBehaviour
     {
         FirearmWeapon firearmWeapon=null;
         MeeleWeapon meeleWeapon=null;
-        SpriteRenderer weaponPicture=null;
+        int setWeapon=0;
 
         //Check which weapon type was picked and then get its components
         switch(type)
         {
             case WeaponTypes.AK47:
                 firearmWeapon = AK47.GetComponent<FirearmWeapon>();
-                weaponPicture = AK47.GetComponent<SpriteRenderer>();
+                setWeapon=2;
                 break;
             case WeaponTypes.LaserBlaster:
                 firearmWeapon = LaserBlaster.GetComponent<FirearmWeapon>();
-                weaponPicture = LaserBlaster.GetComponent<SpriteRenderer>();
+                setWeapon=3;
                 break;
             case WeaponTypes.LaserSniper:
                 firearmWeapon = LaserSniper.GetComponent<FirearmWeapon>();
-                weaponPicture = LaserSniper.GetComponent<SpriteRenderer>();
+                setWeapon=4;
                 break;
             case WeaponTypes.Pistol:
                 firearmWeapon = Pistol.GetComponent<FirearmWeapon>();
-                weaponPicture = Pistol.GetComponent<SpriteRenderer>();
+                setWeapon=1;
                 break;
             case WeaponTypes.Lightsaber:
                 meeleWeapon = Lightsaber.GetComponent<MeeleWeapon>();
-                weaponPicture = Lightsaber.GetComponent<SpriteRenderer>();
+                setWeapon=5;
                 break;
             case WeaponTypes.Knife:
                 meeleWeapon = Knife.GetComponent<MeeleWeapon>();
-                weaponPicture = Knife.GetComponent<SpriteRenderer>();
+                setWeapon=6;
                 break;
         }
 
@@ -144,8 +136,10 @@ public class ItemManager : MonoBehaviour
             //Then if player picks it up first time then activate it
             if(!firearmWeapon.getHaveThisWeapon())
             {
+                SetWeaponByNumber(setWeapon);
                 firearmWeapon.setHaveThisWeapon(true);
-                weaponPicture.enabled=true;
+                //Debug.Log("Set weapon: "+setWeapon);
+                EventsManager.CallOnNewWeaponAcquired();
                 return true;
             }
         }
@@ -156,8 +150,10 @@ public class ItemManager : MonoBehaviour
             //Then if player picks it up first time then activate it
             if(!meeleWeapon.getHaveThisWeapon())
             {
+                SetWeaponByNumber(setWeapon);
                 meeleWeapon.setHaveThisWeapon(true);
-                weaponPicture.enabled=true;
+                Debug.Log("Set weapon: "+setWeapon);
+                EventsManager.CallOnNewWeaponAcquired();
                 return true;
             }
         }
@@ -277,6 +273,18 @@ public class ItemManager : MonoBehaviour
         if(weaponNumber>=weaponsList.Length)
             weaponNumber=0;
 
+        weaponsList[weaponNumber].SetActive(true);
+    }
+
+
+
+    //This function sets weapon by number
+    public void SetWeaponByNumber(int weaponToSet)
+    {
+        EventsManager.CallOnWeaponSwitched();
+        weaponsList[weaponNumber].SetActive(false);
+        uiManager.CancelCatridgeReloadAnimation();
+        weaponNumber=weaponToSet;
         weaponsList[weaponNumber].SetActive(true);
     }
 

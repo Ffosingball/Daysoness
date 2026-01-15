@@ -18,9 +18,7 @@ public class FirearmWeaponAnimation : MonoBehaviour
     [SerializeField] private Sprite horizontalWithoutMagazine;
     [SerializeField] private Sprite verticalWithoutMagazine;
     [SerializeField] private float timeToCancelFireSprites=1f;
-    [SerializeField] private float firingSparkDuration=0.1f;
     [SerializeField] private PlayerAnimations playerAnimation;
-    [SerializeField] private SpriteRenderer firingSpark;
     [SerializeField] private float scaleDecreaseToVertical=0.7f;
     [SerializeField] private bool uprightWhenGoUpOrDown=false;
     [SerializeField] private float epsilon=0.001f;
@@ -30,7 +28,6 @@ public class FirearmWeaponAnimation : MonoBehaviour
     //private FirearmWeapon playerAnimation;
     private bool withoutMagazines=true;
     private float timePassedSinceFire=0f;
-    private float sparkTime=0f;
     private float initScale;
 
 
@@ -39,20 +36,33 @@ public class FirearmWeaponAnimation : MonoBehaviour
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
         spriteRenderer.sprite = horizontalWithoutMagazine;
-        Color color = firingSpark.color;
-        color.a=0f;
-        firingSpark.color = color;
         initScale = transform.localScale.x;
 
-        EventsManager.OnWeaponSwitched+=HideFireSpark;
         EventsManager.OnStopFire+=StopFire;
     }
 
 
+
     void OnEnable()
     {
-        sparkTime+=firingSparkDuration;
         timePassedSinceFire+=timeToCancelFireSprites;
+        EventsManager.OnNewWeaponAcquired+=TurnOnWeaponRenderer;
+    }
+
+
+
+    void OnDisable()
+    {
+        EventsManager.OnNewWeaponAcquired-=TurnOnWeaponRenderer;
+    }
+
+
+
+    private void TurnOnWeaponRenderer()
+    {
+        if(spriteRenderer==null)
+            spriteRenderer=GetComponent<SpriteRenderer>();
+        spriteRenderer.enabled=true;
     }
 
 
@@ -71,13 +81,6 @@ public class FirearmWeaponAnimation : MonoBehaviour
 
 
 
-    public void ShowFireSpark()
-    {
-        sparkTime=0f;
-    }
-
-
-
     public void StopFire()
     {
         timePassedSinceFire=0f;
@@ -85,25 +88,11 @@ public class FirearmWeaponAnimation : MonoBehaviour
 
 
 
-    public void HideFireSpark()
-    {
-        timePassedSinceFire+=firingSparkDuration;
-    }
-
-
-
     void Update()
     {
         timePassedSinceFire+=Time.deltaTime;
-        sparkTime+=Time.deltaTime;
-        if(sparkTime<firingSparkDuration)
-        {
-            Color color = firingSpark.color;
-            color.a=Mathf.Lerp(1f,0f,sparkTime/firingSparkDuration);
-            firingSpark.color = color;
-        }
 
-        if(playerAnimation.isFiring() || timePassedSinceFire<timeToCancelFireSprites)
+        if(playerAnimation.isAttacking() || timePassedSinceFire<timeToCancelFireSprites)
             FiringAnimation();
         else
         {
