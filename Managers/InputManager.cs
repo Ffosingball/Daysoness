@@ -92,7 +92,10 @@ public class InputManager : MonoBehaviour
         if(Time.timeScale>epsilon)
         {
             if(ctx.started)
+            {
+                EventsManager.CallOnWeaponSwitched();
                 itemManager.SwitchWeaponForward();
+            }
         }
     }
 
@@ -104,7 +107,10 @@ public class InputManager : MonoBehaviour
         if(Time.timeScale>epsilon)
         {
             if(ctx.started)
+            {
+                EventsManager.CallOnWeaponSwitched();
                 itemManager.SwitchWeaponBackward();
+            }
         }
     }
 

@@ -456,7 +456,7 @@ public class CommonEnemyBehaviour : MonoBehaviour
     public void TakeDamage(float rawDMG)
     {
         currentHP-=rawDMG;
-        Debug.Log("Damage Taken: "+rawDMG);
+        //Debug.Log("Damage Taken: "+rawDMG);
         EventsManager.CallOnDamageTaken(gameObject);
         //Stop previous coroutine if it is active
         if(damageB!=null)

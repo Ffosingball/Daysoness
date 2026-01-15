@@ -18,6 +18,14 @@ public class MeeleWeapon : MonoBehaviour
     private int attackRowNum=0;
 
 
+
+    private void Start()
+    {
+        EventsManager.OnWeaponSwitched+=StopSwing;
+    }
+
+
+
     //Getters and setters
     public WeaponTypes getWeaponType()
     {
