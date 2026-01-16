@@ -2,16 +2,21 @@ using UnityEngine;
 
 public class FiringParticleAnimation : MonoBehaviour
 {
+    //How long spark should exist
     [SerializeField] private float firingSparkDuration=0.1f;
+    //Spark offsets
     [SerializeField] private Vector3 leftOffset;
     [SerializeField] private Vector3 rightOffset;
     [SerializeField] private Vector3 upOffset;
     [SerializeField] private Vector3 downOffset;
+    //Should spark be rotated when it will be shown again
     [SerializeField] private bool rotateParticle;
+    //Variations of the spark
     [SerializeField] private Sprite[] particlesVariations;
     [SerializeField] private PlayerAnimations playerAnimation;
 
     private SpriteRenderer firingSpark;
+    //Time counter
     private float sparkTime=0f;
 
 
@@ -31,8 +36,10 @@ public class FiringParticleAnimation : MonoBehaviour
 
     private void Update()
     {
+        //Increase counter
         sparkTime+=Time.deltaTime;
 
+        //Fade away spark, if sprark is still visible
         Color color = firingSpark.color;
         if(sparkTime<firingSparkDuration)
             color.a=Mathf.Lerp(1f,0f,sparkTime/firingSparkDuration);
@@ -40,6 +47,7 @@ public class FiringParticleAnimation : MonoBehaviour
             color.a=0f;
         firingSpark.color = color;
 
+        //Set correct position depending on the direction
         switch(playerAnimation.getDirection())
         {
             case Directions.Up:
@@ -63,6 +71,7 @@ public class FiringParticleAnimation : MonoBehaviour
 
 
 
+    //When it is active make spark invisible
     void OnEnable()
     {
         sparkTime+=firingSparkDuration;
@@ -70,6 +79,8 @@ public class FiringParticleAnimation : MonoBehaviour
 
 
 
+    //When this meythod is called it will show spark, set new sprite variation
+    //to it and rotate if needed
     public void ShowFireSpark()
     {
         sparkTime=0f;
@@ -82,6 +93,7 @@ public class FiringParticleAnimation : MonoBehaviour
 
 
 
+    //Hides spark
     public void HideFireSpark()
     {
         sparkTime+=firingSparkDuration;

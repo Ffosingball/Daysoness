@@ -34,6 +34,7 @@ public class FirearmWeapon : MonoBehaviour
     [SerializeField] private UIManager uiManager;
     //How far bullet raycast will go
     [SerializeField] private float bulletRange = 300f;
+    //Reference to animation component of its weapon
     private FirearmWeaponAnimation firearmWeaponAnimation;
 
 

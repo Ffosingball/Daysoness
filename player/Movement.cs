@@ -4,8 +4,11 @@ using UnityEngine;
 
 public class Movement : MonoBehaviour
 {
+    //Movement speed when player do not attacks
     [SerializeField] private float usualSpeed=5f;
+    //Movement speed when player attacks
     [SerializeField] private float attackingSpeed=2.5f;
+    //Reference to another component
     [SerializeField] private PlayerAnimations playerAnimation;
 
 

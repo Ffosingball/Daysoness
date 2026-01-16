@@ -3,6 +3,7 @@ using System;
 
 public class FirearmWeaponAnimation : MonoBehaviour
 {
+    //Weapon position for different player states and directions
     [SerializeField] private Vector3 weaponUpPosition;
     [SerializeField] private Vector3 weaponDownPosition;
     [SerializeField] private Vector3 weaponRightPosition;
@@ -13,11 +14,14 @@ public class FirearmWeaponAnimation : MonoBehaviour
     [SerializeField] private Vector3 weaponLongLeftPosition;
     [SerializeField] private Vector3 weaponFiringUpPosition;
     [SerializeField] private Vector3 weaponFiringDownPosition;
+    //All weapon sprites
     [SerializeField] private Sprite horizontalWithMagazine;
     [SerializeField] private Sprite verticalWithMagazine;
     [SerializeField] private Sprite horizontalWithoutMagazine;
     [SerializeField] private Sprite verticalWithoutMagazine;
+    //Reference to player animation
     [SerializeField] private PlayerAnimations playerAnimation;
+    //When weapon is showed 
     [SerializeField] private float scaleDecreaseToVertical=0.7f;
     [SerializeField] private bool uprightWhenGoUpOrDown=false;
     [SerializeField] private float epsilon=0.001f;

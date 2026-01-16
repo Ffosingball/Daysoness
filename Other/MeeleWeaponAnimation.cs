@@ -9,6 +9,8 @@ public class MeeleWeaponAnimation : MonoBehaviour
     [SerializeField] private Vector3 weaponLongRightPosition;
     [SerializeField] private Vector3 weaponLongLeftPosition;
     [SerializeField] private Vector3 weaponAttackDownPosition;
+    [SerializeField] private Sprite horizontalSword;
+    [SerializeField] private Sprite verticalSword;
     [SerializeField] private PlayerAnimations playerAnimation;
     //[SerializeField] private float epsilon=0.001f;
     [SerializeField] private float swingAngle=90f;
@@ -84,6 +86,8 @@ public class MeeleWeaponAnimation : MonoBehaviour
 
     private void SwingingAnimation()
     {
+        weaponPicture.sprite = horizontalSword;
+
         switch(playerAnimation.getDirection())
         {
              case Directions.Up:
@@ -144,6 +148,8 @@ public class MeeleWeaponAnimation : MonoBehaviour
 
     private void IdleAnimation()
     {
+        weaponPicture.sprite = horizontalSword;
+
         switch(playerAnimation.getDirection())
         {
             case Directions.Up:
@@ -176,18 +182,22 @@ public class MeeleWeaponAnimation : MonoBehaviour
         switch(playerAnimation.getDirection())
         {
             case Directions.Up:
+                weaponPicture.sprite = horizontalSword;
                 transform.localPosition = weaponLongUpPosition;
                 transform.rotation = Quaternion.Euler(0f,0f,-90f);
                 break;
             case Directions.Down:
+                weaponPicture.sprite = horizontalSword;
                 transform.localPosition = weaponLongDownPosition;
                 transform.rotation = Quaternion.Euler(0f,0f,-90f);
                 break;
             case Directions.Left:
+                weaponPicture.sprite = verticalSword;
                 transform.localPosition = weaponLongLeftPosition;
                 transform.rotation = Quaternion.Euler(0f,0f,-90f);
                 break;
             case Directions.Right:
+                weaponPicture.sprite = verticalSword;
                 transform.localPosition = weaponLongRightPosition;
                 transform.rotation = Quaternion.Euler(0f,0f,-90f);
                 break;

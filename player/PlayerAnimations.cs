@@ -20,31 +20,48 @@ public class PlayerAnimations : MonoBehaviour
     //Time after which moving sprites should be changed
     [SerializeField] private float moveFlipTime=0.2f;
     //Time after which idle sprites should be changed
-    [SerializeField] private float idleFlipTime=1f;
+    [SerializeField] private float idleFlipTime=0.4f;
+    //Time after which character will go into long wait animation state
+    //(Currently after that time main character will sit down and wait)
     [SerializeField] private float timeToWaitUntilLongIdleAnimation=10f;
+    //Offset for the shadow
     [SerializeField] private Vector3 longAnimationUpOffset;
     [SerializeField] private Vector3 longAnimationDownOffset;
     [SerializeField] private Vector3 longAnimationLeftOffset;
     [SerializeField] private Vector3 longAnimationRightOffset;
     [SerializeField] private Transform shadow;
+    //Time after which player will exit the attack state
     [SerializeField] private float timeToCancelFireSprites=1f;
 
+    //Curent index of the sprite in the array
     private int currentSprite=0;
+    //References to other components
     private Movement movement;
     private SpriteRenderer spriteRenderer;
+    //Direction in which player now moves
     private Directions currentDirection;
+    //Time counter to flip sprites
     private float timePassed=0f;
+    //Time counter to enter long wait animation state
     private float timePassedForLongIdleAnimation;
+    //Time counter to exit sttack state
     private float timePassedSinceFireStoped=0f;
+    //Flag which tells whether player is moving state or not
     private bool movingAnimation=true;
+    //Stores initial shadow position
     private Vector3 usualShadowPosition;
+    //Flag which tells whether player is long wait animation state or not
     private bool longWaitAnimation=false;
+    //Stores which animation to use
     private Action animationPicker;
+    //Is player attacking now
     private bool attacking=false;
     private Directions previousDirection;
+    //Current angle between main character, mouse and x-axis
     private float currentAngle;
 
 
+    //Getters and setters
     public Directions getDirection()
     {
         return currentDirection;
@@ -92,13 +109,15 @@ public class PlayerAnimations : MonoBehaviour
 
     void Update()
     {
+        //Increase counters
         timePassed+=Time.deltaTime;
         timePassedForLongIdleAnimation+=Time.deltaTime;
         timePassedSinceFireStoped+=Time.deltaTime;
-        //longWaitAnimation=false;
 
+        //Calculate angle
         GetAngleToMouse();
 
+        //Select which animation to show
         if(movement.getIfCharacterMoves())
         {
             longWaitAnimation=false;
@@ -115,7 +134,8 @@ public class PlayerAnimations : MonoBehaviour
             else
                 animationPicker=ShortWaitAnimation;
         }
-
+        
+        //Show animation
         animationPicker();
 
         if(timePassed<0)
@@ -124,6 +144,7 @@ public class PlayerAnimations : MonoBehaviour
 
 
 
+    //Starts attack animation
     private void StartAttackAnimation()
     {
         timePassedForLongIdleAnimation=0f;
@@ -133,6 +154,7 @@ public class PlayerAnimations : MonoBehaviour
 
 
 
+    //Stops attack animation
     private void StopAttackAnimation()
     {
         timePassedForLongIdleAnimation=0f;
@@ -142,16 +164,20 @@ public class PlayerAnimations : MonoBehaviour
 
 
 
+    //This method shows movement animation
     private void UsualMovementAnimation()
     {
+        //If time passed then flip sprite
         if(timePassed>moveFlipTime || !movingAnimation)
         {
             timePassed-=moveFlipTime;
             currentSprite++;
+            //Get current direction
             Vector2 direction = movement.getMovementDirection();
             movingAnimation=true;
             shadow.localPosition = usualShadowPosition;
 
+            //Get current direction
             if(direction.y>0.7)
                 currentDirection=Directions.Up;
             else if(direction.y<-0.7)
@@ -160,7 +186,7 @@ public class PlayerAnimations : MonoBehaviour
                 currentDirection=Directions.Right;
             else if(direction.x<-0.7)
                 currentDirection=Directions.Left;
-                
+            
             SetNewSprite(moveUpSprites, moveDownSprites, moveLeftSprites, moveRightSprites);
 
             timePassedForLongIdleAnimation=0f;
@@ -169,6 +195,8 @@ public class PlayerAnimations : MonoBehaviour
 
 
 
+    //This method calculates angle between character, mouse and x-axis and stores
+    //in in the currentAngle
     private void GetAngleToMouse()
     {
         Vector2 a = transform.position;
@@ -180,6 +208,7 @@ public class PlayerAnimations : MonoBehaviour
 
 
 
+    //This mouse returns direction in which mouse is right now
     private Directions GetMouseDirection()
     {
         if(currentAngle>-45 && currentAngle<45)
@@ -194,8 +223,10 @@ public class PlayerAnimations : MonoBehaviour
 
 
 
+    //This method shows movement animation while attacking
     private void FireMovementAnimation()
     {
+        //Check if time to change sprite
         if(timePassed>moveFlipTime || !movingAnimation)
         {
             timePassed-=moveFlipTime;
@@ -205,8 +236,10 @@ public class PlayerAnimations : MonoBehaviour
             shadow.localPosition = usualShadowPosition;
             timePassedForLongIdleAnimation=0f;
 
+            //Get mouse direction
             Directions mouseDirection = GetMouseDirection();
 
+            //Get direction for the player movement
             switch(mouseDirection)
             {
                 case Directions.Up:
@@ -241,10 +274,12 @@ public class PlayerAnimations : MonoBehaviour
 
 
 
+    //This method shows movement animation while standing on a place
     private void FireWaitAnimation()
     {
         currentDirection = GetMouseDirection();
 
+        //Check if time to change sprite
         if(timePassed>idleFlipTime || movingAnimation || currentDirection!=previousDirection)
         {
             timePassed-=idleFlipTime;
@@ -259,8 +294,10 @@ public class PlayerAnimations : MonoBehaviour
 
 
 
+    //This method shows wait animation just after movement
     private void ShortWaitAnimation()
     {
+        //Check if time to change sprite
         if(timePassed>idleFlipTime || movingAnimation)
         {
             timePassed-=idleFlipTime;
@@ -270,6 +307,7 @@ public class PlayerAnimations : MonoBehaviour
             SetNewSprite(idleUpSprites, idleDownSprites, idleLeftSprites, idleRightSprites);
         }
 
+        //Check if time to enter long wait animation state
         if(timePassedForLongIdleAnimation>timeToWaitUntilLongIdleAnimation)
         {
             longWaitAnimation=true;
@@ -280,8 +318,10 @@ public class PlayerAnimations : MonoBehaviour
 
 
 
+    //This method shows long wait animation
     private void LongWaitAnimation()
     {
+        //Check if time to change sprite
         if(timePassed>idleFlipTime)
         {
             timePassed-=idleFlipTime;
@@ -289,6 +329,7 @@ public class PlayerAnimations : MonoBehaviour
 
             SetNewSprite(longIdleUpSprites, longIdleDownSprites, longIdleLeftSprites, longIdleRightSprites);
 
+            //Set correct shadow position
             switch(currentDirection)
             {
                 case Directions.Up:
@@ -309,6 +350,8 @@ public class PlayerAnimations : MonoBehaviour
 
 
 
+    //This method sets new sprite depending on the current direction 
+    //in which character is looking
     private void SetNewSprite(Sprite[] up, Sprite[] down, Sprite[] left, Sprite[] right)
     {
         switch(currentDirection)
