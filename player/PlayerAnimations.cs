@@ -60,9 +60,14 @@ public class PlayerAnimations : MonoBehaviour
         return currentAngle;
     }
 
-    public bool isAttacking()
+    public float getTimeToCancelAttackingAnimation()
     {
-        return attacking;
+        return timeToCancelFireSprites;
+    }
+
+    public bool isAttackingAnimation()
+    {
+        return attacking || timePassedSinceFireStoped<timeToCancelFireSprites;
     }
 
 
@@ -77,6 +82,7 @@ public class PlayerAnimations : MonoBehaviour
         animationPicker = LongWaitAnimation;
         longWaitAnimation=true;
         timePassedForLongIdleAnimation=timeToWaitUntilLongIdleAnimation+1f;
+        timePassedSinceFireStoped+=timeToCancelFireSprites;
 
         EventsManager.OnStopFire+=StopAttackAnimation;
         EventsManager.OnStartFire+=StartAttackAnimation;
@@ -97,14 +103,14 @@ public class PlayerAnimations : MonoBehaviour
         {
             longWaitAnimation=false;
 
-            if(attacking || timePassedSinceFireStoped<timeToCancelFireSprites)
+            if(isAttackingAnimation())
                 animationPicker=FireMovementAnimation;
             else
                 animationPicker=UsualMovementAnimation;
         }
         else if(!longWaitAnimation)
         {
-            if(attacking || timePassedSinceFireStoped<timeToCancelFireSprites)
+            if(isAttackingAnimation())
                 animationPicker=FireWaitAnimation;
             else
                 animationPicker=ShortWaitAnimation;

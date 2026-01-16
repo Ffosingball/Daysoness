@@ -9,7 +9,6 @@ public class MeeleWeaponAnimation : MonoBehaviour
     [SerializeField] private Vector3 weaponLongRightPosition;
     [SerializeField] private Vector3 weaponLongLeftPosition;
     [SerializeField] private Vector3 weaponAttackDownPosition;
-    [SerializeField] private float timeToCancelSwingAnimation=1f;
     [SerializeField] private PlayerAnimations playerAnimation;
     //[SerializeField] private float epsilon=0.001f;
     [SerializeField] private float swingAngle=90f;
@@ -18,7 +17,6 @@ public class MeeleWeaponAnimation : MonoBehaviour
     [SerializeField] private Transform weaponLocalTransform;
 
 
-    private float timePassedSinceSwing=0f;
     private float swiningPassed=0f;
     private bool needToSwing=false;
     private float lastSavedRotation;
@@ -30,14 +28,12 @@ public class MeeleWeaponAnimation : MonoBehaviour
     void Start()
     {
         swingPeriod=GetComponent<MeeleWeapon>().getSwingPeriod();
-        EventsManager.OnStopFire+=StopSwing;
         EventsManager.OnStartFire+=StartSwing;
     }
 
 
     void OnEnable()
     {
-        timePassedSinceSwing+=timeToCancelSwingAnimation;
         EventsManager.OnNewWeaponAcquired+=TurnOnWeaponRenderer;
     }
 
@@ -69,19 +65,11 @@ public class MeeleWeaponAnimation : MonoBehaviour
 
 
 
-    public void StopSwing()
-    {
-        timePassedSinceSwing=0f;
-    }
-
-
-
     void Update()
     {
-        timePassedSinceSwing+=Time.deltaTime;
         swiningPassed+=Time.deltaTime;
 
-        if(playerAnimation.isAttacking() || timePassedSinceSwing<timeToCancelSwingAnimation)
+        if(playerAnimation.isAttackingAnimation())
             SwingingAnimation();
         else
         {
@@ -140,7 +128,9 @@ public class MeeleWeaponAnimation : MonoBehaviour
             }
             else
             {
-                timePassedSinceSwing=0f;
+                Vector3 pos = weaponLocalTransform.localPosition;
+                pos.x = lastSavedXCooord;
+                weaponLocalTransform.localPosition = pos;
                 needToSwing=false;
             }
         }

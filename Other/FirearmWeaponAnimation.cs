@@ -17,7 +17,6 @@ public class FirearmWeaponAnimation : MonoBehaviour
     [SerializeField] private Sprite verticalWithMagazine;
     [SerializeField] private Sprite horizontalWithoutMagazine;
     [SerializeField] private Sprite verticalWithoutMagazine;
-    [SerializeField] private float timeToCancelFireSprites=1f;
     [SerializeField] private PlayerAnimations playerAnimation;
     [SerializeField] private float scaleDecreaseToVertical=0.7f;
     [SerializeField] private bool uprightWhenGoUpOrDown=false;
@@ -27,7 +26,6 @@ public class FirearmWeaponAnimation : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     //private FirearmWeapon playerAnimation;
     private bool withoutMagazines=true;
-    private float timePassedSinceFire=0f;
     private float initScale;
 
 
@@ -37,15 +35,12 @@ public class FirearmWeaponAnimation : MonoBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>();
         spriteRenderer.sprite = horizontalWithoutMagazine;
         initScale = transform.localScale.x;
-
-        EventsManager.OnStopFire+=StopFire;
     }
 
 
 
     void OnEnable()
     {
-        timePassedSinceFire+=timeToCancelFireSprites;
         EventsManager.OnNewWeaponAcquired+=TurnOnWeaponRenderer;
     }
 
@@ -81,18 +76,9 @@ public class FirearmWeaponAnimation : MonoBehaviour
 
 
 
-    public void StopFire()
-    {
-        timePassedSinceFire=0f;
-    }
-
-
-
     void Update()
     {
-        timePassedSinceFire+=Time.deltaTime;
-
-        if(playerAnimation.isAttacking() || timePassedSinceFire<timeToCancelFireSprites)
+        if(playerAnimation.isAttackingAnimation())
             FiringAnimation();
         else
         {

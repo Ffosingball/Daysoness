@@ -6,8 +6,6 @@ using UnityEngine;
 // pursuit player
 public class EnemiesHittedByMeeleWeapon : MonoBehaviour
 {
-    [SerializeField] private MeeleWeapon meeleWeapon;
-
     private List<CommonEnemyBehaviour> hittedEnemies;
 
 
@@ -19,11 +17,11 @@ public class EnemiesHittedByMeeleWeapon : MonoBehaviour
 
 
 
-    public void DealDamageToCollectedEnemies()
+    public void DealDamageToCollectedEnemies(float dmg)
     {
         foreach(CommonEnemyBehaviour behaviour in hittedEnemies)
         {
-            behaviour.TakeDamage(meeleWeapon.getDMG());
+            behaviour.TakeDamage(dmg);
         }
     }
 

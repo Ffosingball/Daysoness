@@ -33,12 +33,12 @@ public class FiringParticleAnimation : MonoBehaviour
     {
         sparkTime+=Time.deltaTime;
 
+        Color color = firingSpark.color;
         if(sparkTime<firingSparkDuration)
-        {
-            Color color = firingSpark.color;
             color.a=Mathf.Lerp(1f,0f,sparkTime/firingSparkDuration);
-            firingSpark.color = color;
-        }
+        else
+            color.a=0f;
+        firingSpark.color = color;
 
         switch(playerAnimation.getDirection())
         {

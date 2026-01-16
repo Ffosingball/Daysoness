@@ -3,19 +3,16 @@ using System.Collections;
 
 public class MeeleWeapon : MonoBehaviour
 {
-    [SerializeField] private float dmgPerSwing;
+    [SerializeField] private float dmgPerFirstSwing;
+    [SerializeField] private float dmgPerSecondSwing;
     //How long takes a single swing
     [SerializeField] private float swingPeriod;
     //Flag which tells if player has this weapon or not
     private bool haveThisWeapon=false;
     [SerializeField] private WeaponTypes type;
-    [SerializeField] private GameObject meeleWeapon;
     [SerializeField] private EnemiesHittedByMeeleWeapon enemiesChecker;
     //Stores swing coroutine
     private Coroutine swinging;
-    //Rotation of the weapon before swining
-    //This number store current consequent swing
-    private int attackRowNum=0;
 
 
 
@@ -35,16 +32,6 @@ public class MeeleWeapon : MonoBehaviour
     public bool getHaveThisWeapon()
     {
         return haveThisWeapon;
-    }
-
-    public float getDMG()
-    {
-        return dmgPerSwing;
-    }
-
-    public int getAttackRowNum()
-    {
-        return attackRowNum;
     }
 
     public bool IsSwinging()
@@ -92,10 +79,10 @@ public class MeeleWeapon : MonoBehaviour
     {
         yield return new WaitForSeconds(swingPeriod/4f);
 
-        enemiesChecker.DealDamageToCollectedEnemies();
+        enemiesChecker.DealDamageToCollectedEnemies(dmgPerFirstSwing);
         yield return new WaitForSeconds(swingPeriod/2f);
 
-        enemiesChecker.DealDamageToCollectedEnemies();
+        enemiesChecker.DealDamageToCollectedEnemies(dmgPerSecondSwing);
         yield return new WaitForSeconds(swingPeriod/4f);
 
         swinging=null;

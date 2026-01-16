@@ -4,7 +4,9 @@ using UnityEngine;
 
 public class Movement : MonoBehaviour
 {
-    [SerializeField] private float speed=5f;
+    [SerializeField] private float usualSpeed=5f;
+    [SerializeField] private float attackingSpeed=2.5f;
+    [SerializeField] private PlayerAnimations playerAnimation;
 
 
     private Vector2 movementDirection;
@@ -44,7 +46,10 @@ public class Movement : MonoBehaviour
         //Check if player can move then move
         if(canMove)
         {
-            playerRigid.linearVelocity = movementDirection * speed;
+            if(playerAnimation.isAttackingAnimation())
+                playerRigid.linearVelocity = movementDirection * attackingSpeed;
+            else
+                playerRigid.linearVelocity = movementDirection * usualSpeed;
 
             if(movementDirection.x==0 && movementDirection.y==0)
                 characterMoves=false;
