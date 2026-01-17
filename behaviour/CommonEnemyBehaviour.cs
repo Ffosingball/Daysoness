@@ -10,7 +10,6 @@ public class CommonEnemyBehaviour : MonoBehaviour
     [SerializeField] private float maxHP;
     //Howl long corpse should exist before disappearence
     [SerializeField] private float deadCorpseExists=120f;
-    [SerializeField] private Sprite deadBodySprite;//WILL BE REMOVED
     [SerializeField] private float attackDMG;
     //Time between attacks
     [SerializeField] private float attackPeriod;
@@ -36,6 +35,7 @@ public class CommonEnemyBehaviour : MonoBehaviour
     [SerializeField] private bool isActive=true;
     //Epsilon for float equality checks
     [SerializeField] private float epsilon=0.001f;
+    [SerializeField] private EnemyAnimation enemyAnimation;
 
     private PlayerComponent playerComponent;
     private Transform playerTransform;
@@ -176,6 +176,8 @@ public class CommonEnemyBehaviour : MonoBehaviour
                         atTargetDestination=true;
                     }
                 }
+
+                enemyAnimation.setCurrentAnimation(AnimationStates.Idle);
             }
 
             //If can move than move
@@ -183,20 +185,30 @@ public class CommonEnemyBehaviour : MonoBehaviour
             {
                 //If temporary direction set than use it, otherwise use movement direction
                 if(tempDirection!=Vector2.zero)
+                {
+                    enemyAnimation.setMovementDirection(tempDirection);
                     rigidbody2d.linearVelocity = tempDirection * speed;
+                }
                 else
+                {
+                    enemyAnimation.setMovementDirection(movementDirection);
                     rigidbody2d.linearVelocity = movementDirection * speed;
+                }
 
-                //If enemy position did not changed since previous fram then it stuck 
+                //If enemy position did not changed since previous frame then it stuck 
                 if(Vector2.Distance(previousPosition,rigidbody2d.position)< epsilon)
                 {
                     timeStuck+=Time.fixedDeltaTime;
                 }
                 else
                     timeStuck=0f;
+
+                enemyAnimation.setCurrentAnimation(AnimationStates.Moving);
             }
             else
+            {
                 rigidbody2d.linearVelocity = movementDirection * 0f;
+            }
         }
 
         previousPosition = rigidbody2d.position;
@@ -511,11 +523,11 @@ public class CommonEnemyBehaviour : MonoBehaviour
     public void Die()
     {
         dead = true;
-        spriteRenderer.sprite = deadBodySprite;
         StopAttack();
         StopPursuit();
         deadCountdown = StartCoroutine(countdown());
         move=false;
+        enemyAnimation.setCurrentAnimation(AnimationStates.Dead);
     }
 
 
@@ -566,6 +578,7 @@ public class CommonEnemyBehaviour : MonoBehaviour
     {
         atTargetDestination=false;
         attacking = StartCoroutine(attackLoop());
+        enemyAnimation.setCurrentAnimation(AnimationStates.IdleAttacking);
     }
 
 

@@ -39,3 +39,14 @@ public enum Directions
     BackwardsLeft,
     BackwardsRight
 }
+
+//Possible direction for all animations
+public enum AnimationStates
+{
+    Idle,
+    Moving,
+    MovingAttacking,
+    IdleAttacking,
+    LongIdle,
+    Dead
+}
