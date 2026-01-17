@@ -18,11 +18,16 @@ public class PlayerComponent : MonoBehaviour
     //Position where player will appear after death
     [SerializeField] private Vector2 spawnpoint;
     [SerializeField] private ItemManager itemManager;
+    [SerializeField] private Color blinkColor;
+    [SerializeField] private SpriteRenderer spriteRenderer;
+    [SerializeField] private float damageBlinkPeriod=0.1f;
 
     private float currentHP=0;
     private int currentShieldLevel=0;
     private float currentShieldDurability=0;
     private bool dead=false;
+    private Material material;
+    private Coroutine damageB;
 
     private Coroutine[] activePoisons;
     private PoisonTypes[] activePoisonsTypes;
@@ -76,6 +81,8 @@ public class PlayerComponent : MonoBehaviour
         }
 
         currentHP = maxHP;
+        material = spriteRenderer.material;
+        material.SetFloat("_BlinkAmount", 0f);
 
         uiManager.ChangeHPBar(currentHP, maxHP);
         uiManager.ChangeShieldBar(currentShieldLevel);
@@ -212,9 +219,39 @@ public class PlayerComponent : MonoBehaviour
                 break;
         }
 
+        if(damageB!=null)
+        {
+            StopCoroutine(damageB);
+            damageB=null;
+        }
+
+        damageB=StartCoroutine(DamageBlink());
+
         uiManager.ChangeHPBar(currentHP, maxHP);
         if(currentHP<=0)//Die if health is less then 0
            Die();
+    }
+
+
+
+    //Animation of changing color when enemy receives damage
+    private IEnumerator DamageBlink()
+    {
+        material.SetColor("_BlinkColor", blinkColor);
+        float currentBlinkAmount=1f;
+        material.SetFloat("_BlinkAmount", 1f);
+
+        float timePassed=0f;
+        while(timePassed<damageBlinkPeriod)
+        {
+            currentBlinkAmount = Mathf.Lerp(1f,0f,timePassed/damageBlinkPeriod);
+
+            material.SetFloat("_BlinkAmount", currentBlinkAmount);
+            timePassed+=Time.deltaTime;
+            yield return null;
+        }
+
+        damageB=null;
     }
 
 
@@ -261,5 +298,13 @@ public class PlayerComponent : MonoBehaviour
         itemManager.CancelRechargeWeapon();
         itemManager.CancelUsingFirstAid();
         EventsManager.CallOnAllRobotsDeactivate();
+
+        if(damageB!=null)
+        {
+            StopCoroutine(damageB);
+            damageB=null;
+        }
+
+        material.SetFloat("_BlinkAmount", 0f);
     }
 }

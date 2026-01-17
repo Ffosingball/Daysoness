@@ -32,6 +32,7 @@ public class MeeleWeaponAnimation : MonoBehaviour
         swingPeriod=GetComponent<MeeleWeapon>().getSwingPeriod();
         transform.localPosition = weaponUsualPosition;
         EventsManager.OnStartFire+=StartSwing;
+        lastSavedXCooord = weaponLocalTransform.localPosition.x;
     }
 
 
@@ -110,7 +111,6 @@ public class MeeleWeaponAnimation : MonoBehaviour
                 float currentRotation=lastSavedRotation+Mathf.Lerp(0,swingAngle,swiningPassed/(swingPeriod/2f))-(swingAngle/2f);
                 //Debug.Log("currentRotation "+currentRotation+"; passed: "+swiningPassed+"; swingPeriod: "+swingPeriod);
                 transform.rotation=Quaternion.Euler(0,0,currentRotation);
-                lastSavedXCooord = weaponLocalTransform.localPosition.x;
             }
             else if(swiningPassed<swingPeriod)
             {

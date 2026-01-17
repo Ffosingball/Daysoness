@@ -227,7 +227,7 @@ public class PlayerAnimations : MonoBehaviour
     private void FireMovementAnimation()
     {
         //Check if time to change sprite
-        if(timePassed>moveFlipTime || !movingAnimation)
+        if(timePassed>(moveFlipTime*(movement.getUsualSpeed()/movement.getAttackingSpeed())) || !movingAnimation)
         {
             timePassed-=moveFlipTime;
             currentSprite++;

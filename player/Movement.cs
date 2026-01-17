@@ -35,6 +35,16 @@ public class Movement : MonoBehaviour
         return characterMoves;
     }
 
+    public float getUsualSpeed()
+    {
+        return usualSpeed;
+    }
+
+    public float getAttackingSpeed()
+    {
+        return attackingSpeed;
+    }
+
 
 
     private void Start() 

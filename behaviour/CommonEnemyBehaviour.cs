@@ -14,7 +14,7 @@ public class CommonEnemyBehaviour : MonoBehaviour
     //Time between attacks
     [SerializeField] private float attackPeriod;
     //Duration of taking damage animation
-    [SerializeField] private float damageBlinkPeriod=0.3f;
+    [SerializeField] private float damageBlinkPeriod=0.2f;
     [SerializeField] private float speed;
     [SerializeField] private float detectionRange;
     //How close enemy should be to target to say that it reached it
@@ -36,6 +36,7 @@ public class CommonEnemyBehaviour : MonoBehaviour
     //Epsilon for float equality checks
     [SerializeField] private float epsilon=0.001f;
     [SerializeField] private EnemyAnimation enemyAnimation;
+    [SerializeField] private Color blinkColor;
 
     private PlayerComponent playerComponent;
     private Transform playerTransform;
@@ -46,7 +47,6 @@ public class CommonEnemyBehaviour : MonoBehaviour
     //attacking stores attackLoop Coroutine
     //damageB stores damageBlink Coroutine
     private Coroutine deadCountdown, attacking, damageB;
-    private Color spriteColor;
     //This counter is important to ensure that enemy will not attack
     //player more frequently than attackPeriod says
     private float timePassedSinceLastAttack=0f;
@@ -69,6 +69,8 @@ public class CommonEnemyBehaviour : MonoBehaviour
     private Vector3 previousPosition;
     private bool followPlayer=true;
     private BoxCollider2D collider2d;
+    private Material material;
+
 
     //Setters and getters
     public bool IsDead()
@@ -132,6 +134,8 @@ public class CommonEnemyBehaviour : MonoBehaviour
         dead=false;
         move=false;
 
+        material = spriteRenderer.material;
+        material.SetFloat("_BlinkAmount", 0f);
         rigidbody2d = GetComponent<Rigidbody2D>();
         collider2d = GetComponent<BoxCollider2D>();
         playerTransform = GameObject.FindGameObjectWithTag("player").transform;
@@ -476,7 +480,6 @@ public class CommonEnemyBehaviour : MonoBehaviour
         if(damageB!=null)
         {
             StopCoroutine(damageB);
-            spriteRenderer.color = spriteColor;
         }
         
         //Start taking damage animation
@@ -493,18 +496,18 @@ public class CommonEnemyBehaviour : MonoBehaviour
     //Animation of changing color when enemy receives damage
     private IEnumerator DamageBlink()
     {
-        spriteColor = spriteRenderer.color;
-        Color currentColor = new Color(1f,0f,0f,spriteColor.a);
+        material.SetColor("_BlinkColor", blinkColor);
+        float currentBlinkAmount=1f;
+        material.SetFloat("_BlinkAmount", 1f);
 
         float timePassed=0f;
         while(timePassed<damageBlinkPeriod)
         {
-            currentColor.b = Mathf.Clamp(timePassed/damageBlinkPeriod,0f,spriteColor.b);
-            currentColor.g = Mathf.Clamp(timePassed/damageBlinkPeriod,0f,spriteColor.g);
-            currentColor.r = Mathf.Clamp(timePassed/damageBlinkPeriod,1f,spriteColor.r);
-            spriteRenderer.color = currentColor;
-            timePassed+=0.02f;
-            yield return new WaitForSeconds(0.02f);
+            currentBlinkAmount = Mathf.Lerp(1f,0f,timePassed/damageBlinkPeriod);
+
+            material.SetFloat("_BlinkAmount", currentBlinkAmount);
+            timePassed+=Time.deltaTime;
+            yield return null;
         }
 
         damageB=null;
@@ -539,7 +542,6 @@ public class CommonEnemyBehaviour : MonoBehaviour
         dead = false;
         currentHP = maxHP;
         StopCoroutine(deadCountdown);
-        spriteRenderer.color = spriteColor;
     }
 
 
