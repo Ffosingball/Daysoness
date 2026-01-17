@@ -210,6 +210,8 @@ public class CommonEnemyBehaviour : MonoBehaviour
                 rigidbody2d.linearVelocity = movementDirection * 0f;
             }
         }
+        else if(!dead)
+            enemyAnimation.setCurrentAnimation(AnimationStates.LongIdle);
 
         previousPosition = rigidbody2d.position;
     }

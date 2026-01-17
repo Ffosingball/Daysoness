@@ -30,6 +30,7 @@ public class MeeleWeaponAnimation : MonoBehaviour
     void Start()
     {
         swingPeriod=GetComponent<MeeleWeapon>().getSwingPeriod();
+        transform.localPosition = weaponUsualPosition;
         EventsManager.OnStartFire+=StartSwing;
     }
 
