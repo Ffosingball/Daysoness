@@ -61,7 +61,7 @@ public class RobotBehaviour : MonoBehaviour
     private void OnCollisionEnter2D(Collision2D collision)
     {
         //If player hits a robot then activate everyone in range
-        if(collision.gameObject.tag=="player")
+        if(collision.gameObject.tag=="player" && !commonEnemyBehaviour.IsDead())
         {
             EventsManager.CallOnRobotsActivate(collision.gameObject.transform.position);
         }

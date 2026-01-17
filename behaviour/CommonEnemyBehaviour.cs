@@ -38,6 +38,7 @@ public class CommonEnemyBehaviour : MonoBehaviour
     [SerializeField] private EnemyAnimation enemyAnimation;
     [SerializeField] private Color blinkColor;
     [SerializeField] private float damageBlinkTransparency=0.6f;
+    [SerializeField] private float disappearenceTime=2f;
 
     private PlayerComponent playerComponent;
     private Transform playerTransform;
@@ -551,6 +552,18 @@ public class CommonEnemyBehaviour : MonoBehaviour
     private IEnumerator countdown()
     {
         yield return new WaitForSeconds(deadCorpseExists);
+
+        Color currentColor = spriteRenderer.color;
+
+        float timePassed=0f;
+        while(timePassed<disappearenceTime)
+        {
+            currentColor.a = Mathf.Lerp(1f,0f,timePassed/disappearenceTime);
+
+            spriteRenderer.color = currentColor;
+            timePassed+=Time.deltaTime;
+            yield return null;
+        }
 
         Destroy(gameObject);
     }
