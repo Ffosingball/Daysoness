@@ -37,6 +37,7 @@ public class CommonEnemyBehaviour : MonoBehaviour
     [SerializeField] private float epsilon=0.001f;
     [SerializeField] private EnemyAnimation enemyAnimation;
     [SerializeField] private Color blinkColor;
+    [SerializeField] private float damageBlinkTransparency=0.6f;
 
     private PlayerComponent playerComponent;
     private Transform playerTransform;
@@ -497,13 +498,13 @@ public class CommonEnemyBehaviour : MonoBehaviour
     private IEnumerator DamageBlink()
     {
         material.SetColor("_BlinkColor", blinkColor);
-        float currentBlinkAmount=1f;
-        material.SetFloat("_BlinkAmount", 1f);
+        float currentBlinkAmount=damageBlinkTransparency;
+        material.SetFloat("_BlinkAmount", damageBlinkTransparency);
 
         float timePassed=0f;
         while(timePassed<damageBlinkPeriod)
         {
-            currentBlinkAmount = Mathf.Lerp(1f,0f,timePassed/damageBlinkPeriod);
+            currentBlinkAmount = Mathf.Lerp(damageBlinkTransparency,0f,timePassed/damageBlinkPeriod);
 
             material.SetFloat("_BlinkAmount", currentBlinkAmount);
             timePassed+=Time.deltaTime;

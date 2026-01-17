@@ -43,10 +43,15 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Image loadingFillBar;
     //Maximal diferrence between two float numbers to be considered as equal
     [SerializeField] private float epsilon=0.001f;
+    [SerializeField] private float percentageOfHPToStartBlink=0.1f;
+    [SerializeField] private Color blinkColor;
+    [SerializeField] private float damageBlinkTransparency=0.6f;
+    [SerializeField] Image[] hpBarParts;
+    [SerializeField] private float blinkPeriod=1.5f;
 
     //weaponReloading stores Catridge reloading timer
     //firstAidReloading stores firstAidReloading timer
-    private Coroutine weaponReloading, firstAidReloading;
+    private Coroutine weaponReloading, firstAidReloading, hpBarBlink;
 
 
 
@@ -211,7 +216,81 @@ public class UIManager : MonoBehaviour
     //Set new value to the health bar
     public void ChangeHPBar(float hpLeft, float maxHP)
     {
+        if(hpLeft<maxHP*percentageOfHPToStartBlink)
+            StartHPBarBlink();
+        else
+            StopHPBarBlink();
+
         healthBarImage.fillAmount = Mathf.Lerp(healthBarPadding,1-healthBarPadding,hpLeft/maxHP);
+    }
+
+
+
+    public void StartHPBarBlink()
+    {
+        if(hpBarBlink==null)
+            hpBarBlink = StartCoroutine(HPBarBlink());
+    }
+
+
+
+    public void StopHPBarBlink()
+    {
+        if(hpBarBlink!=null)
+        {
+            StopCoroutine(hpBarBlink);
+            hpBarBlink=null;
+        }
+
+        Color currentColor = new Color(1f,1f,1f);
+        foreach(Image im in hpBarParts)
+        {
+            im.color = currentColor;
+        }
+    }
+
+
+    private IEnumerator HPBarBlink()
+    {
+        Color currentColor = new Color(1f,1f,1f);
+        foreach(Image im in hpBarParts)
+        {
+            im.color = currentColor;
+        }
+
+        float timePassed=0f;
+        while(true)
+        {
+            while(timePassed<blinkPeriod)
+            {
+                currentColor.g = Mathf.Lerp(1f, damageBlinkTransparency,timePassed/blinkPeriod);
+                currentColor.b = Mathf.Lerp(1f, damageBlinkTransparency,timePassed/blinkPeriod);
+
+                foreach(Image im in hpBarParts)
+                {
+                    im.color = currentColor;
+                }
+                timePassed+=Time.deltaTime;
+                yield return null;
+            }
+
+            timePassed-=blinkPeriod;
+
+            while(timePassed<blinkPeriod)
+            {
+                currentColor.g = Mathf.Lerp(damageBlinkTransparency,1f,timePassed/blinkPeriod);
+                currentColor.b = Mathf.Lerp(damageBlinkTransparency,1f,timePassed/blinkPeriod);
+
+                foreach(Image im in hpBarParts)
+                {
+                    im.color = currentColor;
+                }
+                timePassed+=Time.deltaTime;
+                yield return null;
+            }
+
+            timePassed-=blinkPeriod;
+        }
     }
 
 

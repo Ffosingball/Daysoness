@@ -20,7 +20,8 @@ public class PlayerComponent : MonoBehaviour
     [SerializeField] private ItemManager itemManager;
     [SerializeField] private Color blinkColor;
     [SerializeField] private SpriteRenderer spriteRenderer;
-    [SerializeField] private float damageBlinkPeriod=0.1f;
+    [SerializeField] private float damageBlinkPeriod=0.15f;
+    [SerializeField] private float damageBlinkTransparency=0.6f;
 
     private float currentHP=0;
     private int currentShieldLevel=0;
@@ -230,6 +231,8 @@ public class PlayerComponent : MonoBehaviour
         uiManager.ChangeHPBar(currentHP, maxHP);
         if(currentHP<=0)//Die if health is less then 0
            Die();
+
+        //Debug.Log("HP: "+currentHP);
     }
 
 
@@ -238,13 +241,13 @@ public class PlayerComponent : MonoBehaviour
     private IEnumerator DamageBlink()
     {
         material.SetColor("_BlinkColor", blinkColor);
-        float currentBlinkAmount=1f;
-        material.SetFloat("_BlinkAmount", 1f);
+        float currentBlinkAmount=damageBlinkTransparency;
+        material.SetFloat("_BlinkAmount", damageBlinkTransparency);
 
         float timePassed=0f;
         while(timePassed<damageBlinkPeriod)
         {
-            currentBlinkAmount = Mathf.Lerp(1f,0f,timePassed/damageBlinkPeriod);
+            currentBlinkAmount = Mathf.Lerp(damageBlinkTransparency,0f,timePassed/damageBlinkPeriod);
 
             material.SetFloat("_BlinkAmount", currentBlinkAmount);
             timePassed+=Time.deltaTime;
