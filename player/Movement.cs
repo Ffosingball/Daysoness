@@ -10,6 +10,9 @@ public class Movement : MonoBehaviour
     [SerializeField] private float attackingSpeed=2.5f;
     //Reference to another component
     [SerializeField] private PlayerAnimations playerAnimation;
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip[] stepClips;
+    [SerializeField] private float gapBetweenStepClips=0.04f;
 
 
     private Vector2 movementDirection;
@@ -17,6 +20,7 @@ public class Movement : MonoBehaviour
     //characterMoves tells whether player is moving now or not
     //canMove sets weather player can move or not
     private bool characterMoves=false, canMove=true;
+    private Coroutine stepsSound;
 
 
     //Setters and getters
@@ -65,9 +69,51 @@ public class Movement : MonoBehaviour
                 playerRigid.linearVelocity = movementDirection * usualSpeed;
 
             if(movementDirection.x==0 && movementDirection.y==0)
+            {
                 characterMoves=false;
+                StopStepsSound();
+            }
             else
+            {
                 characterMoves=true;
+                StartStepsSound();
+            }
+        }
+    }
+
+
+
+    private void StartStepsSound()
+    {
+        if(stepsSound==null)
+            stepsSound = StartCoroutine(PlayStepSounds());
+    }
+
+
+
+    private void StopStepsSound()
+    {
+        if(stepsSound!=null)
+        {
+            StopCoroutine(stepsSound);
+            stepsSound=null;
+
+            audioSource.Stop();
+        }
+    }
+
+
+
+    private IEnumerator PlayStepSounds()
+    {
+        while(true)
+        {
+            int selectedClip = Random.Range(0,stepClips.Length);
+            audioSource.Stop();
+            audioSource.clip = stepClips[selectedClip];
+            audioSource.Play();
+
+            yield return new WaitForSeconds(stepClips[selectedClip].length+gapBetweenStepClips);
         }
     }
 }

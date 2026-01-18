@@ -72,6 +72,7 @@ public class CommonEnemyBehaviour : MonoBehaviour
     private bool followPlayer=true;
     private BoxCollider2D collider2d;
     private Material material;
+    private bool doNotCancelAttack=false;
 
 
     //Setters and getters
@@ -125,6 +126,11 @@ public class CommonEnemyBehaviour : MonoBehaviour
     public float getDetectionRange()
     {
         return detectionRange;
+    }
+
+    public void setDoNotCancelAttack(bool _doNotCancelAttack)
+    {
+        doNotCancelAttack=_doNotCancelAttack;
     }
 
 
@@ -572,12 +578,15 @@ public class CommonEnemyBehaviour : MonoBehaviour
 
     public void StartPursuit()
     {
-        timeStuck=0f;
-        pursuting = true;
-        move=true;
-        atTargetDestination=false;
-        tempDirection=Vector2.zero;
-        timeLeftUntilTeleport=0f;
+        if(!doNotCancelAttack)
+        {
+            timeStuck=0f;
+            pursuting = true;
+            move=true;
+            atTargetDestination=false;
+            tempDirection=Vector2.zero;
+            timeLeftUntilTeleport=0f;
+        }
     }
 
 
@@ -603,7 +612,7 @@ public class CommonEnemyBehaviour : MonoBehaviour
 
     public void StopAttack()
     {
-        if(attacking!=null)
+        if(attacking!=null && !doNotCancelAttack)
         {
             StopCoroutine(attacking);
             attacking=null;
@@ -622,6 +631,7 @@ public class CommonEnemyBehaviour : MonoBehaviour
                 yield return null;
             }
 
+            //Debug.Log(gameObject.name+": TimePassed: "+timePassedSinceLastAttack);
             timePassedSinceLastAttack=0f;
             playerComponent.TakeDamage(attackDMG);
 

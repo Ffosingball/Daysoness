@@ -3,6 +3,8 @@ using UnityEngine.UI;
 using TMPro;
 using System.Collections;
 using UnityEngine.SceneManagement;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 
 public class UIManager : MonoBehaviour
 {
@@ -43,11 +45,22 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Image loadingFillBar;
     //Maximal diferrence between two float numbers to be considered as equal
     [SerializeField] private float epsilon=0.001f;
-    [SerializeField] private float percentageOfHPToStartBlink=0.1f;
+    [SerializeField] private float percentageOfHPToStartBlink=0.3f;
+    [SerializeField] private float percentageOfHPForMaxBlink=0.1f;
     [SerializeField] private Color blinkColor;
-    [SerializeField] private float damageBlinkTransparency=0.6f;
+    [SerializeField] private float lowHPBlink=0.7f;
+    [SerializeField] private float veryLowHPBlink=0.4f;
+    [SerializeField] private float vigneteIntensityLow=0.2f;
+    [SerializeField] private float vigneteIntensityHigh=0.4f;
     [SerializeField] Image[] hpBarParts;
     [SerializeField] private float blinkPeriod=1.5f;
+    [SerializeField] private AudioSource uiSource;
+    [SerializeField] private AudioSource heartSource;
+    [SerializeField] private AudioClip diedClip;
+    [SerializeField] private AudioClip buttonClickClip;
+    [SerializeField] private AudioClip heartBeating;
+    [SerializeField] private Volume volume;
+    private Vignette vignette;
 
     //weaponReloading stores Catridge reloading timer
     //firstAidReloading stores firstAidReloading timer
@@ -64,6 +77,9 @@ public class UIManager : MonoBehaviour
 
         weaponReloadImage.fillAmount=0f;
         firstAidReloadImage.fillAmount=0f;
+
+        volume.profile.TryGet(out vignette);
+        vignette.intensity.value = Mathf.Clamp01(0f);
     }
 
 
@@ -240,6 +256,8 @@ public class UIManager : MonoBehaviour
         {
             StopCoroutine(hpBarBlink);
             hpBarBlink=null;
+            heartSource.Stop();
+            vignette.intensity.value = Mathf.Clamp01(0f);
         }
 
         Color currentColor = new Color(1f,1f,1f);
@@ -258,19 +276,35 @@ public class UIManager : MonoBehaviour
             im.color = currentColor;
         }
 
+        heartSource.clip = heartBeating;
+        heartSource.Play();
+
         float timePassed=0f;
         while(true)
         {
             while(timePassed<blinkPeriod)
             {
-                currentColor.g = Mathf.Lerp(1f, damageBlinkTransparency,timePassed/blinkPeriod);
-                currentColor.b = Mathf.Lerp(1f, damageBlinkTransparency,timePassed/blinkPeriod);
+                if((healthBarImage.fillAmount-healthBarPadding)/(1-(healthBarPadding*2))<percentageOfHPForMaxBlink)
+                {
+                    currentColor.g = Mathf.Lerp(1f, veryLowHPBlink,timePassed/blinkPeriod);
+                    currentColor.b = Mathf.Lerp(1f, veryLowHPBlink,timePassed/blinkPeriod);
+                    heartSource.volume=1f;
+                    vignette.intensity.value = Mathf.Clamp01(vigneteIntensityHigh);
+                }
+                else
+                {
+                    currentColor.g = Mathf.Lerp(1f, lowHPBlink,timePassed/blinkPeriod);
+                    currentColor.b = Mathf.Lerp(1f, lowHPBlink,timePassed/blinkPeriod);
+                    heartSource.volume=0.5f;
+                    vignette.intensity.value = Mathf.Clamp01(vigneteIntensityLow);
+                }
 
                 foreach(Image im in hpBarParts)
                 {
                     im.color = currentColor;
                 }
                 timePassed+=Time.deltaTime;
+
                 yield return null;
             }
 
@@ -278,8 +312,20 @@ public class UIManager : MonoBehaviour
 
             while(timePassed<blinkPeriod)
             {
-                currentColor.g = Mathf.Lerp(damageBlinkTransparency,1f,timePassed/blinkPeriod);
-                currentColor.b = Mathf.Lerp(damageBlinkTransparency,1f,timePassed/blinkPeriod);
+                if((healthBarImage.fillAmount-healthBarPadding)/(1-(healthBarPadding*2))<percentageOfHPForMaxBlink)
+                {
+                    currentColor.g = Mathf.Lerp(veryLowHPBlink,1f,timePassed/blinkPeriod);
+                    currentColor.b = Mathf.Lerp(veryLowHPBlink,1f,timePassed/blinkPeriod);
+                    heartSource.volume=1f;
+                    vignette.intensity.value = Mathf.Clamp01(vigneteIntensityHigh);
+                }
+                else
+                {
+                    currentColor.g = Mathf.Lerp(lowHPBlink,1f,timePassed/blinkPeriod);
+                    currentColor.b = Mathf.Lerp(lowHPBlink,1f,timePassed/blinkPeriod);
+                    heartSource.volume=0.5f;
+                    vignette.intensity.value = Mathf.Clamp01(vigneteIntensityLow);
+                }
 
                 foreach(Image im in hpBarParts)
                 {
@@ -395,6 +441,13 @@ public class UIManager : MonoBehaviour
 
 
 
+    public void PlayButtonClickSound()
+    {
+        uiSource.PlayOneShot(buttonClickClip);
+    }
+
+
+
     //Show dead screen
     public void SetDeadScreen()
     {
@@ -402,6 +455,8 @@ public class UIManager : MonoBehaviour
         gameScreen.SetActive(false);
         deadScreen.SetActive(true);
         Time.timeScale = 0f;
+
+        uiSource.PlayOneShot(diedClip);
     }
 
 

@@ -29,6 +29,8 @@ public class ItemManager : MonoBehaviour
     //How many every firearm weapon will loose magazines after death
     [SerializeField] private int afterDeathLooseMaxCatridges=2;
     [SerializeField] private Movement movement;
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip pickUpItemClip;
 
     //Current amount of first aids which player has
     private int numOfFirstAids=0;
@@ -248,14 +250,20 @@ public class ItemManager : MonoBehaviour
             case "Support_item":
                 SupportItems supportType = collision.gameObject.GetComponent<SupportTypeComponent>().supportType;
                 if(PickUpSupportItem(supportType))
+                {
+                    audioSource.PlayOneShot(pickUpItemClip);
                     Destroy(collision.gameObject);
+                }
                 break;
         }
 
         if(weaponType!=WeaponTypes.None)
         {
             if(dealWithWeapons(weaponType))
+            {
+                audioSource.PlayOneShot(pickUpItemClip);
                 Destroy(collision.gameObject);
+            }
         }
     }
 

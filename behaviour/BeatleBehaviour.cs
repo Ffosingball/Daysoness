@@ -16,10 +16,13 @@ public class BeatleBehaviour : MonoBehaviour
     //from start to the end and again from start to end of the array (true)
     //or from start to end then from end to start and again (false)
     [SerializeField] private bool positionsInCircle=false;
+    [SerializeField] private EnemyAnimation enemyAnimation;
+
     //Current choosed route position
     private int goToTarget=0;
     //Flag which whether the beetle should go forward or backwards in the array of route positions
     private bool goForward=true;
+    private bool poisonedPlayer=false;
 
 
 
@@ -74,10 +77,21 @@ public class BeatleBehaviour : MonoBehaviour
         }
 
         //If beetle started attack then poison player and die
-        if(commonEnemyBehaviour.IsAttacking())
+        if(commonEnemyBehaviour.IsAttacking() && !poisonedPlayer)
         {
             playerComponent.StartPoisonEffect(poisonDuration,poisonDMGPeriod,poisonDMG,PoisonTypes.Beetle);
-            commonEnemyBehaviour.Die();
+            commonEnemyBehaviour.setDoNotCancelAttack(true);
+            poisonedPlayer=true;
+            StartCoroutine(waitToDie(enemyAnimation.getFlipTime()*enemyAnimation.getNumOfAttackSprites()));
         }
     } 
+
+
+
+    private IEnumerator waitToDie(float time)
+    {
+        yield return new WaitForSeconds(time);
+
+        commonEnemyBehaviour.Die();
+    }
 }

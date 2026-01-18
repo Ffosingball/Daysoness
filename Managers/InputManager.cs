@@ -10,6 +10,8 @@ public class InputManager : MonoBehaviour
     [SerializeField] private  CameraMovement cameraMovement;
     //Epsilon for float equality comparisons
     [SerializeField] private float epsilon=0.001f;
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip buttonClickClip;
 
 
 
@@ -142,6 +144,8 @@ public class InputManager : MonoBehaviour
     //Checks whether game is paused or not and then 
     public void PauseResume()
     {
+        audioSource.PlayOneShot(buttonClickClip);
+        
         if(Time.timeScale<epsilon)
         {
             //Continue game and stops movement or fire if still works

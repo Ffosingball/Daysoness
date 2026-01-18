@@ -62,6 +62,16 @@ public class EnemyAnimation : MonoBehaviour
             currentSprite=0;
     }
 
+    public float getFlipTime()
+    {
+        return flipTime;
+    }
+
+    public float getNumOfAttackSprites()
+    {
+        return attackHorizontalSprites.Length;
+    }
+
 
 
     void Start()

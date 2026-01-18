@@ -22,6 +22,8 @@ public class PlayerComponent : MonoBehaviour
     [SerializeField] private SpriteRenderer spriteRenderer;
     [SerializeField] private float damageBlinkPeriod=0.15f;
     [SerializeField] private float damageBlinkTransparency=0.6f;
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip[] damageClips;
 
     private float currentHP=0;
     private int currentShieldLevel=0;
@@ -175,6 +177,7 @@ public class PlayerComponent : MonoBehaviour
             TakeDamage(dmgInPeriod);
             timePassed+=damagePeriod;
 
+            //Debug.Log("Deadly poison?");
             yield return new WaitForSeconds(damagePeriod); 
         }
 
@@ -231,6 +234,10 @@ public class PlayerComponent : MonoBehaviour
         uiManager.ChangeHPBar(currentHP, maxHP);
         if(currentHP<=0)//Die if health is less then 0
            Die();
+
+        audioSource.Stop();
+        audioSource.clip = damageClips[UnityEngine.Random.Range(0,damageClips.Length)];
+        audioSource.Play();
 
         //Debug.Log("HP: "+currentHP);
     }
