@@ -61,6 +61,8 @@ public class UIManager : MonoBehaviour
     [SerializeField] private AudioClip heartBeating;
     [SerializeField] private Volume volume;
     private Vignette vignette;
+    [SerializeField] private float heartLowVolume=0.25f;
+    [SerializeField] private float heartHighVolume=0.5f;
 
     //weaponReloading stores Catridge reloading timer
     //firstAidReloading stores firstAidReloading timer
@@ -288,14 +290,14 @@ public class UIManager : MonoBehaviour
                 {
                     currentColor.g = Mathf.Lerp(1f, veryLowHPBlink,timePassed/blinkPeriod);
                     currentColor.b = Mathf.Lerp(1f, veryLowHPBlink,timePassed/blinkPeriod);
-                    heartSource.volume=1f;
+                    heartSource.volume=heartHighVolume;
                     vignette.intensity.value = Mathf.Clamp01(vigneteIntensityHigh);
                 }
                 else
                 {
                     currentColor.g = Mathf.Lerp(1f, lowHPBlink,timePassed/blinkPeriod);
                     currentColor.b = Mathf.Lerp(1f, lowHPBlink,timePassed/blinkPeriod);
-                    heartSource.volume=0.5f;
+                    heartSource.volume=heartLowVolume;
                     vignette.intensity.value = Mathf.Clamp01(vigneteIntensityLow);
                 }
 
@@ -316,14 +318,14 @@ public class UIManager : MonoBehaviour
                 {
                     currentColor.g = Mathf.Lerp(veryLowHPBlink,1f,timePassed/blinkPeriod);
                     currentColor.b = Mathf.Lerp(veryLowHPBlink,1f,timePassed/blinkPeriod);
-                    heartSource.volume=1f;
+                    heartSource.volume=heartHighVolume;
                     vignette.intensity.value = Mathf.Clamp01(vigneteIntensityHigh);
                 }
                 else
                 {
                     currentColor.g = Mathf.Lerp(lowHPBlink,1f,timePassed/blinkPeriod);
                     currentColor.b = Mathf.Lerp(lowHPBlink,1f,timePassed/blinkPeriod);
-                    heartSource.volume=0.5f;
+                    heartSource.volume=heartLowVolume;
                     vignette.intensity.value = Mathf.Clamp01(vigneteIntensityLow);
                 }
 

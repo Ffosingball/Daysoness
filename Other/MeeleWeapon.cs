@@ -13,6 +13,8 @@ public class MeeleWeapon : MonoBehaviour
     [SerializeField] private EnemiesHittedByMeeleWeapon enemiesChecker;
     //Stores swing coroutine
     private Coroutine swinging;
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip[] swingClips;
 
 
 
@@ -77,10 +79,14 @@ public class MeeleWeapon : MonoBehaviour
     //that
     private IEnumerator SwingProcess()
     {
+        audioSource.PlayOneShot(swingClips[UnityEngine.Random.Range(0,swingClips.Length)]);
         yield return new WaitForSeconds(swingPeriod/4f);
 
         enemiesChecker.DealDamageToCollectedEnemies(dmgPerFirstSwing);
-        yield return new WaitForSeconds(swingPeriod/2f);
+        yield return new WaitForSeconds(swingPeriod/4f);
+
+        audioSource.PlayOneShot(swingClips[UnityEngine.Random.Range(0,swingClips.Length)]);
+        yield return new WaitForSeconds(swingPeriod/4f);
 
         enemiesChecker.DealDamageToCollectedEnemies(dmgPerSecondSwing);
         yield return new WaitForSeconds(swingPeriod/4f);

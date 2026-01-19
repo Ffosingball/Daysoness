@@ -24,6 +24,7 @@ public class PlayerComponent : MonoBehaviour
     [SerializeField] private float damageBlinkTransparency=0.6f;
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip[] damageClips;
+    [SerializeField] private float epsilon = 0.001f;
 
     private float currentHP=0;
     private int currentShieldLevel=0;
@@ -34,6 +35,7 @@ public class PlayerComponent : MonoBehaviour
 
     private Coroutine[] activePoisons;
     private PoisonTypes[] activePoisonsTypes;
+    private float previousHP;
 
 
     //Getters and setters
@@ -77,6 +79,7 @@ public class PlayerComponent : MonoBehaviour
     {
         activePoisons = new Coroutine[maxPoisonLevel];
         activePoisonsTypes = new PoisonTypes[maxPoisonLevel];
+        previousHP=currentHP;
 
         for(int i=0; i<activePoisonsTypes.Length; i++)
         {
@@ -104,6 +107,7 @@ public class PlayerComponent : MonoBehaviour
         //Recover player
         currentHP = maxHP;
         dead=false;
+        previousHP=currentHP;
 
         //Remove one level of the shield
         if(currentShieldLevel>0)
@@ -223,23 +227,25 @@ public class PlayerComponent : MonoBehaviour
                 break;
         }
 
-        if(damageB!=null)
+        if((previousHP-currentHP)>epsilon)
         {
-            StopCoroutine(damageB);
-            damageB=null;
-        }
+            if(damageB!=null)
+            {
+                StopCoroutine(damageB);
+                damageB=null;
+            }
+            damageB=StartCoroutine(DamageBlink());
 
-        damageB=StartCoroutine(DamageBlink());
+            audioSource.Stop();
+            audioSource.clip = damageClips[UnityEngine.Random.Range(0,damageClips.Length)];
+            audioSource.Play();
+        }
 
         uiManager.ChangeHPBar(currentHP, maxHP);
         if(currentHP<=0)//Die if health is less then 0
            Die();
 
-        audioSource.Stop();
-        audioSource.clip = damageClips[UnityEngine.Random.Range(0,damageClips.Length)];
-        audioSource.Play();
-
-        //Debug.Log("HP: "+currentHP);
+        previousHP=currentHP;
     }
 
 

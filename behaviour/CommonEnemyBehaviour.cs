@@ -39,6 +39,8 @@ public class CommonEnemyBehaviour : MonoBehaviour
     [SerializeField] private Color blinkColor;
     [SerializeField] private float damageBlinkTransparency=0.6f;
     [SerializeField] private float disappearenceTime=2f;
+    [SerializeField] private float frictionWhileAlive=1f;
+    [SerializeField] private float frictionAfterDeath=30f;
 
     private PlayerComponent playerComponent;
     private Transform playerTransform;
@@ -145,6 +147,7 @@ public class CommonEnemyBehaviour : MonoBehaviour
         material = spriteRenderer.material;
         material.SetFloat("_BlinkAmount", 0f);
         rigidbody2d = GetComponent<Rigidbody2D>();
+        rigidbody2d.linearDamping = frictionWhileAlive;
         collider2d = GetComponent<BoxCollider2D>();
         playerTransform = GameObject.FindGameObjectWithTag("player").transform;
         playerComponent = GameObject.FindGameObjectWithTag("player").GetComponent<PlayerComponent>();
@@ -541,6 +544,7 @@ public class CommonEnemyBehaviour : MonoBehaviour
         deadCountdown = StartCoroutine(countdown());
         move=false;
         enemyAnimation.setCurrentAnimation(AnimationStates.Dead);
+        rigidbody2d.linearDamping = frictionAfterDeath;
     }
 
 
@@ -550,6 +554,7 @@ public class CommonEnemyBehaviour : MonoBehaviour
         dead = false;
         currentHP = maxHP;
         StopCoroutine(deadCountdown);
+        rigidbody2d.linearDamping = frictionWhileAlive;
     }
 
 
