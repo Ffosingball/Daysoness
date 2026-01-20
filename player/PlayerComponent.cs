@@ -236,9 +236,7 @@ public class PlayerComponent : MonoBehaviour
             }
             damageB=StartCoroutine(DamageBlink());
 
-            audioSource.Stop();
-            audioSource.clip = damageClips[UnityEngine.Random.Range(0,damageClips.Length)];
-            audioSource.Play();
+            audioSource.PlayOneShot(damageClips[UnityEngine.Random.Range(0,damageClips.Length)]);
         }
 
         uiManager.ChangeHPBar(currentHP, maxHP);

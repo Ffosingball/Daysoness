@@ -17,6 +17,7 @@ public class RobotBehaviour : MonoBehaviour
         EventsManager.OnRobotsActivate += activateRobot;
         EventsManager.OnDamageTaken += checkWhoIsDamaged;
         EventsManager.OnAllRobotsDeactivate += deactivateRobot;
+        EventsManager.OnGameObjectDelete += unsubscribeRobot;
     }
 
 
@@ -54,6 +55,19 @@ public class RobotBehaviour : MonoBehaviour
         commonEnemyBehaviour.setIsActive(false);
         commonEnemyBehaviour.StopAttack();
         commonEnemyBehaviour.StopPursuit();
+    }
+
+
+
+    private void unsubscribeRobot(GameObject _gameObject)
+    {
+        if(gameObject==_gameObject)
+        {
+            EventsManager.OnRobotsActivate -= activateRobot;
+            EventsManager.OnDamageTaken -= checkWhoIsDamaged;
+            EventsManager.OnAllRobotsDeactivate -= deactivateRobot;
+            EventsManager.OnGameObjectDelete -= unsubscribeRobot;
+        }
     }
 
 

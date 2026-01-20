@@ -41,6 +41,15 @@ public class CommonEnemyBehaviour : MonoBehaviour
     [SerializeField] private float disappearenceTime=2f;
     [SerializeField] private float frictionWhileAlive=1f;
     [SerializeField] private float frictionAfterDeath=30f;
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip[] attackClips;
+    [SerializeField] private AudioClip[] deathClips;
+    [SerializeField] private AudioClip[] enemySoundClips;
+    [SerializeField] private AudioClip runningClip;
+    [SerializeField] private AudioClip endRunningClip;
+    [SerializeField] private AudioClip activationSound;
+    [SerializeField] private bool hasMovingSound=false;
+    [SerializeField] private Vector2 waitTimeBetweenEnemySounds;
 
     private PlayerComponent playerComponent;
     private Transform playerTransform;
@@ -75,6 +84,8 @@ public class CommonEnemyBehaviour : MonoBehaviour
     private BoxCollider2D collider2d;
     private Material material;
     private bool doNotCancelAttack=false;
+    private float soundTime=0f;
+    private float timeForNextSoundToWait=0f;
 
 
     //Setters and getters
@@ -116,6 +127,12 @@ public class CommonEnemyBehaviour : MonoBehaviour
 
     public void setIsActive(bool _isActive)
     {
+        if(_isActive && isActive!=_isActive && !dead)
+        {
+            //Debug.Log("Activated!");
+            audioSource.PlayOneShot(activationSound);
+        }
+
         isActive = _isActive;
         //Debug.Log("Changed activity");
     }
@@ -162,6 +179,20 @@ public class CommonEnemyBehaviour : MonoBehaviour
     {
         //Increase counter
         timePassedSinceLastAttack+=Time.deltaTime;
+
+        if(attacking==null)
+            soundTime+=Time.deltaTime;
+
+        if(!dead && isActive)
+        {
+            if(soundTime>timeForNextSoundToWait && enemySoundClips.Length>0)
+            {
+                //Debug.Log("Play sound!");
+                timeForNextSoundToWait = UnityEngine.Random.Range(waitTimeBetweenEnemySounds.x,waitTimeBetweenEnemySounds.y);
+                audioSource.PlayOneShot(enemySoundClips[UnityEngine.Random.Range(0,enemySoundClips.Length)]);
+                soundTime=0f;
+            }
+        }
     }
 
 
@@ -219,6 +250,13 @@ public class CommonEnemyBehaviour : MonoBehaviour
                     timeStuck=0f;
 
                 enemyAnimation.setCurrentAnimation(AnimationStates.Moving);
+
+                if(audioSource.clip!=runningClip && hasMovingSound)
+                {
+                    audioSource.clip=runningClip;
+                    audioSource.loop=true;
+                    audioSource.Play();
+                }
             }
             else
             {
@@ -545,6 +583,14 @@ public class CommonEnemyBehaviour : MonoBehaviour
         move=false;
         enemyAnimation.setCurrentAnimation(AnimationStates.Dead);
         rigidbody2d.linearDamping = frictionAfterDeath;
+
+        if(audioSource.clip!=null && hasMovingSound)
+        {
+            audioSource.clip=endRunningClip;
+            audioSource.loop=false;
+            audioSource.Play();
+        }
+        audioSource.PlayOneShot(deathClips[UnityEngine.Random.Range(0,deathClips.Length)]);
     }
 
 
@@ -576,6 +622,7 @@ public class CommonEnemyBehaviour : MonoBehaviour
             yield return null;
         }
 
+        EventsManager.CallOnGameObjectDelete(gameObject);
         Destroy(gameObject);
     }
 
@@ -611,6 +658,13 @@ public class CommonEnemyBehaviour : MonoBehaviour
         atTargetDestination=false;
         attacking = StartCoroutine(attackLoop());
         enemyAnimation.setCurrentAnimation(AnimationStates.IdleAttacking);
+
+        if(audioSource.clip!=null && hasMovingSound)
+        {
+            audioSource.clip=endRunningClip;
+            audioSource.loop=false;
+            audioSource.Play();
+        }
     }
 
 
@@ -639,6 +693,7 @@ public class CommonEnemyBehaviour : MonoBehaviour
             //Debug.Log(gameObject.name+": TimePassed: "+timePassedSinceLastAttack);
             timePassedSinceLastAttack=0f;
             playerComponent.TakeDamage(attackDMG);
+            audioSource.PlayOneShot(attackClips[UnityEngine.Random.Range(0,attackClips.Length)]);
 
             if(playerComponent.isDead() || dead)
                 StopAttack();

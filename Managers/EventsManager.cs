@@ -14,6 +14,7 @@ public static class EventsManager
     public static event Action OnFireBullet;
     public static event Action OnStopFire;
     public static event Action OnNewWeaponAcquired;
+    public static event Action<GameObject> OnGameObjectDelete;
 
     //Event calls
     public static void CallOnRobotsActivate(Vector2 callerPosition)
@@ -54,5 +55,10 @@ public static class EventsManager
     public static void CallOnNewWeaponAcquired()
     {
         OnNewWeaponAcquired?.Invoke();
+    }
+
+    public static void CallOnGameObjectDelete(GameObject gameObject)
+    {
+        OnGameObjectDelete?.Invoke(gameObject);
     }
 }

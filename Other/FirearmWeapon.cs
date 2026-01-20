@@ -36,6 +36,12 @@ public class FirearmWeapon : MonoBehaviour
     [SerializeField] private float bulletRange = 300f;
     //Reference to animation component of its weapon
     private FirearmWeaponAnimation firearmWeaponAnimation;
+    [SerializeField] private AudioSource shootingSource;
+    [SerializeField] private AudioSource reloadSource;
+    [SerializeField] private AudioClip[] shotClips;
+    [SerializeField] private AudioClip automaticShootingClip;
+    [SerializeField] private AudioClip endShootingClip;
+    [SerializeField] private AudioClip reloadingClip;
 
 
     //Getters and setters
@@ -122,6 +128,17 @@ public class FirearmWeapon : MonoBehaviour
             StopCoroutine(fireBullets);
             fireBullets=null;
         }
+
+        if(automatic)
+        {
+            if(shootingSource.clip==automaticShootingClip)
+            {
+                shootingSource.Stop();
+                shootingSource.clip = endShootingClip;
+                shootingSource.loop=false;
+                shootingSource.Play();
+            }
+        }
     }
 
 
@@ -136,6 +153,24 @@ public class FirearmWeapon : MonoBehaviour
             rechargeWait = StartCoroutine(RealoadWait());
             uiManager.StartCatridgeReloadAnimation(realoadTime);
         }
+    }
+
+
+
+    private void OnDisable()
+    {
+        if(automatic)
+        {
+            if(shootingSource.clip==automaticShootingClip)
+            {
+                shootingSource.Stop();
+                shootingSource.clip = endShootingClip;
+                shootingSource.loop=false;
+                shootingSource.Play();
+            }
+        }
+
+        reloadSource.Stop();
     }
 
 
@@ -155,6 +190,8 @@ public class FirearmWeapon : MonoBehaviour
             StopCoroutine(fireBullets);
             fireBullets=null;
         }
+
+        reloadSource.Stop();
     }
 
 
@@ -220,6 +257,10 @@ public class FirearmWeapon : MonoBehaviour
             //Check that there are still some bullets and magazines left
             while(currentNumOfBullets>0 || currentNumOfCatridges>0)
             {
+                shootingSource.Stop();
+                shootingSource.clip = automaticShootingClip;
+                shootingSource.loop=true;
+                shootingSource.Play();
                 //If there are some bullets then fire them
                 while (currentNumOfBullets>0)
                 {
@@ -231,6 +272,10 @@ public class FirearmWeapon : MonoBehaviour
                     CreateABullet();
                 }
 
+                shootingSource.Stop();
+                shootingSource.clip = endShootingClip;
+                shootingSource.loop=false;
+                shootingSource.Play();
                 //If bullets finished then reload weapon if possible
                 Recharge();
                 while(currentNumOfBullets<=0)
@@ -249,7 +294,11 @@ public class FirearmWeapon : MonoBehaviour
 
             //Fire bullet if can
             if(currentNumOfBullets>0)
+            {
+                shootingSource.PlayOneShot(shotClips[Random.Range(0,shotClips.Length)]);
+                shootingSource.loop=false;
                 CreateABullet();
+            }
             else
             {
                 //Reload if can
@@ -260,6 +309,8 @@ public class FirearmWeapon : MonoBehaviour
                     yield return null;
                 }
 
+                shootingSource.PlayOneShot(shotClips[Random.Range(0,shotClips.Length)]);
+                shootingSource.loop=false;
                 CreateABullet();
             }
         }
@@ -276,6 +327,10 @@ public class FirearmWeapon : MonoBehaviour
         //If there some spare magazines then start reloading weapon
         if(currentNumOfCatridges>0)
         {
+            reloadSource.Stop();
+            reloadSource.clip = reloadingClip;
+            reloadSource.Play();
+
             float timePassed=0f;
 
             while(timePassed<realoadTime)
