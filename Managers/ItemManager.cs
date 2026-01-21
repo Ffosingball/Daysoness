@@ -31,6 +31,8 @@ public class ItemManager : MonoBehaviour
     [SerializeField] private Movement movement;
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip pickUpItemClip;
+    [SerializeField] private AudioClip[] switchingClips;
+    [SerializeField] private AudioClip firstAidClip;
 
     //Current amount of first aids which player has
     private int numOfFirstAids=0;
@@ -281,6 +283,7 @@ public class ItemManager : MonoBehaviour
         if(weaponNumber>=weaponsList.Length)
             weaponNumber=0;
 
+        audioSource.PlayOneShot(switchingClips[UnityEngine.Random.Range(0,switchingClips.Length)]);
         weaponsList[weaponNumber].SetActive(true);
     }
 
@@ -294,6 +297,7 @@ public class ItemManager : MonoBehaviour
         uiManager.CancelCatridgeReloadAnimation();
         weaponNumber=weaponToSet;
         weaponsList[weaponNumber].SetActive(true);
+        audioSource.PlayOneShot(switchingClips[UnityEngine.Random.Range(0,switchingClips.Length)]);
     }
 
 
@@ -309,6 +313,7 @@ public class ItemManager : MonoBehaviour
         if(weaponNumber<=0)
             weaponNumber=weaponsList.Length-1;
 
+        audioSource.PlayOneShot(switchingClips[UnityEngine.Random.Range(0,switchingClips.Length)]);
         weaponsList[weaponNumber].SetActive(true);
     }
 
@@ -345,6 +350,7 @@ public class ItemManager : MonoBehaviour
             uiManager.StartFirstAidAnimation(firstAidAnimationTime);
             usingFirstAid = true;
             timePassed=0f;
+            audioSource.PlayOneShot(firstAidClip);
         }
     }
 

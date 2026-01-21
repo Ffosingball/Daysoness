@@ -59,6 +59,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private AudioClip diedClip;
     [SerializeField] private AudioClip buttonClickClip;
     [SerializeField] private AudioClip heartBeating;
+    [SerializeField] private AudioClip ressurectedClip;
     [SerializeField] private Volume volume;
     private Vignette vignette;
     [SerializeField] private float heartLowVolume=0.25f;
@@ -472,5 +473,7 @@ public class UIManager : MonoBehaviour
 
         if(Time.timeScale<epsilon)
             Time.timeScale = 1f;
+
+        uiSource.PlayOneShot(ressurectedClip);
     }
 }

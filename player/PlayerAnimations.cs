@@ -1,6 +1,8 @@
 using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System.Collections;
+using System.Collections.Generic;
 
 public class PlayerAnimations : MonoBehaviour
 {
@@ -32,6 +34,9 @@ public class PlayerAnimations : MonoBehaviour
     [SerializeField] private Transform shadow;
     //Time after which player will exit the attack state
     [SerializeField] private float timeToCancelFireSprites=1f;
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip[] longWaitSoundClips;
+    [SerializeField] private Vector2 timeBetweenSounds;
 
     //Curent index of the sprite in the array
     private int currentSprite=0;
@@ -59,6 +64,7 @@ public class PlayerAnimations : MonoBehaviour
     private Directions previousDirection;
     //Current angle between main character, mouse and x-axis
     private float currentAngle;
+    private Coroutine longWaitSoundsCoroutine;
 
 
     //Getters and setters
@@ -97,6 +103,7 @@ public class PlayerAnimations : MonoBehaviour
         usualShadowPosition = shadow.localPosition;
         spriteRenderer.sprite = longIdleDownSprites[0];
         animationPicker = LongWaitAnimation;
+        longWaitSoundsCoroutine=StartCoroutine(longWaitSounds());
         longWaitAnimation=true;
         timePassedForLongIdleAnimation=timeToWaitUntilLongIdleAnimation+1f;
         timePassedSinceFireStoped+=timeToCancelFireSprites;
@@ -121,6 +128,12 @@ public class PlayerAnimations : MonoBehaviour
         if(movement.getIfCharacterMoves())
         {
             longWaitAnimation=false;
+            if(longWaitSoundsCoroutine!=null)
+            {
+                StopCoroutine(longWaitSoundsCoroutine);
+                longWaitSoundsCoroutine=null;
+                audioSource.Stop();
+            }
 
             if(isAttackingAnimation())
                 animationPicker=FireMovementAnimation;
@@ -150,6 +163,28 @@ public class PlayerAnimations : MonoBehaviour
         timePassedForLongIdleAnimation=0f;
         longWaitAnimation=false;
         attacking=true;
+
+        if(longWaitSoundsCoroutine!=null)
+        {
+            StopCoroutine(longWaitSoundsCoroutine);
+            longWaitSoundsCoroutine=null;
+            audioSource.Stop();
+        }
+    }
+
+
+
+    public void CancelLongWaitAnimation()
+    {
+        timePassedForLongIdleAnimation=0f;
+        longWaitAnimation=false;
+
+        if(longWaitSoundsCoroutine!=null)
+        {
+            StopCoroutine(longWaitSoundsCoroutine);
+            longWaitSoundsCoroutine=null;
+            audioSource.Stop();
+        }
     }
 
 
@@ -313,6 +348,7 @@ public class PlayerAnimations : MonoBehaviour
             longWaitAnimation=true;
             timePassed+=idleFlipTime;
             animationPicker=LongWaitAnimation;
+            longWaitSoundsCoroutine=StartCoroutine(longWaitSounds());
         }
     }
 
@@ -404,6 +440,22 @@ public class PlayerAnimations : MonoBehaviour
 
                 spriteRenderer.sprite = left[left.Length-currentSprite-1];
                 break;
+        }
+    }
+
+
+
+    private IEnumerator longWaitSounds()
+    {
+        while(true)
+        {
+            yield return new WaitForSeconds(UnityEngine.Random.Range(timeBetweenSounds.x,timeBetweenSounds.y));
+
+            audioSource.Stop();
+            audioSource.clip = longWaitSoundClips[UnityEngine.Random.Range(0,longWaitSoundClips.Length)];
+            audioSource.Play();
+
+            yield return new WaitForSeconds(audioSource.clip.length);
         }
     }
 }

@@ -50,3 +50,11 @@ public enum AnimationStates
     LongIdle,
     Dead
 }
+
+//Locations
+public enum Location
+{
+    Forest,
+    Desert,
+    Base,
+}

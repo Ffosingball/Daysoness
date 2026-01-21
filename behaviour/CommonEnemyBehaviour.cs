@@ -50,6 +50,7 @@ public class CommonEnemyBehaviour : MonoBehaviour
     [SerializeField] private AudioClip activationSound;
     [SerializeField] private bool hasMovingSound=false;
     [SerializeField] private Vector2 waitTimeBetweenEnemySounds;
+    [SerializeField] private float waitForSoundToStop=0.2f;
 
     private PlayerComponent playerComponent;
     private Transform playerTransform;
@@ -86,6 +87,7 @@ public class CommonEnemyBehaviour : MonoBehaviour
     private bool doNotCancelAttack=false;
     private float soundTime=0f;
     private float timeForNextSoundToWait=0f;
+    private float stopRunningSoundTimer=0f;
 
 
     //Setters and getters
@@ -131,6 +133,15 @@ public class CommonEnemyBehaviour : MonoBehaviour
         {
             //Debug.Log("Activated!");
             audioSource.PlayOneShot(activationSound);
+        }
+        else if(!_isActive && isActive!=_isActive && !dead)
+        {
+            if(audioSource.clip!=endRunningClip && hasMovingSound)
+            {
+                audioSource.clip=endRunningClip;
+                audioSource.loop=false;
+                audioSource.Play();
+            }
         }
 
         isActive = _isActive;
@@ -179,6 +190,7 @@ public class CommonEnemyBehaviour : MonoBehaviour
     {
         //Increase counter
         timePassedSinceLastAttack+=Time.deltaTime;
+        stopRunningSoundTimer+=Time.deltaTime;
 
         if(attacking==null)
             soundTime+=Time.deltaTime;
@@ -256,6 +268,7 @@ public class CommonEnemyBehaviour : MonoBehaviour
                     audioSource.clip=runningClip;
                     audioSource.loop=true;
                     audioSource.Play();
+                    //Debug.Log("Moves");
                 }
             }
             else
@@ -659,11 +672,12 @@ public class CommonEnemyBehaviour : MonoBehaviour
         attacking = StartCoroutine(attackLoop());
         enemyAnimation.setCurrentAnimation(AnimationStates.IdleAttacking);
 
-        if(audioSource.clip!=null && hasMovingSound)
+        if(audioSource.clip!=null && hasMovingSound && stopRunningSoundTimer>waitForSoundToStop)
         {
             audioSource.clip=endRunningClip;
             audioSource.loop=false;
             audioSource.Play();
+            stopRunningSoundTimer=0f;
         }
     }
 
@@ -687,6 +701,14 @@ public class CommonEnemyBehaviour : MonoBehaviour
         {
             while(timePassedSinceLastAttack<attackPeriod)
             {
+                if(audioSource.clip!=endRunningClip && hasMovingSound && stopRunningSoundTimer>waitForSoundToStop)
+                {
+                    audioSource.clip=endRunningClip;
+                    audioSource.loop=false;
+                    audioSource.Play();
+                    stopRunningSoundTimer=0f;
+                }
+
                 yield return null;
             }
 
@@ -698,5 +720,12 @@ public class CommonEnemyBehaviour : MonoBehaviour
             if(playerComponent.isDead() || dead)
                 StopAttack();
         }
+    }
+
+
+
+    public void playBiteSound()
+    {
+        audioSource.PlayOneShot(attackClips[UnityEngine.Random.Range(0,attackClips.Length)]);
     }
 }

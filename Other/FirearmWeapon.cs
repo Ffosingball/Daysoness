@@ -123,6 +123,7 @@ public class FirearmWeapon : MonoBehaviour
     //Stops fire bullet coroutine
     public void StopFire()
     {
+        //Debug.Log("Fire stopped");
         if(fireBullets!=null)
         {
             StopCoroutine(fireBullets);

@@ -25,6 +25,7 @@ public class PlayerComponent : MonoBehaviour
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip[] damageClips;
     [SerializeField] private float epsilon = 0.001f;
+    [SerializeField] private PlayerAnimations playerAnimations;
 
     private float currentHP=0;
     private int currentShieldLevel=0;
@@ -237,6 +238,7 @@ public class PlayerComponent : MonoBehaviour
             damageB=StartCoroutine(DamageBlink());
 
             audioSource.PlayOneShot(damageClips[UnityEngine.Random.Range(0,damageClips.Length)]);
+            playerAnimations.CancelLongWaitAnimation();
         }
 
         uiManager.ChangeHPBar(currentHP, maxHP);
@@ -312,6 +314,13 @@ public class PlayerComponent : MonoBehaviour
         itemManager.CancelRechargeWeapon();
         itemManager.CancelUsingFirstAid();
         EventsManager.CallOnAllRobotsDeactivate();
+        
+        GameObject currentWeapon = itemManager.getCurrentWeapon();
+
+        if(currentWeapon.TryGetComponent<FirearmWeapon>(out FirearmWeapon firearmWeapon))
+        {
+            firearmWeapon.StopFire();
+        }
 
         if(damageB!=null)
         {
