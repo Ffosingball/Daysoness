@@ -1,7 +1,6 @@
 using UnityEngine;
 using System.Collections;
 using UnityEngine.InputSystem;
-using System.Runtime.CompilerServices;
 
 public class FirearmWeapon : MonoBehaviour
 {

@@ -8,8 +8,7 @@ using UnityEngine.Rendering.Universal;
 
 public class UIManager : MonoBehaviour
 {
-    //Cursor textures
-    [SerializeField] private Texture2D targetCursor, menuCursor;
+    [SerializeField] private MouseComponent mouseComponent;
     //References to ui screens
     [SerializeField] private GameObject pauseScreen;
     [SerializeField] private GameObject gameScreen;
@@ -74,9 +73,9 @@ public class UIManager : MonoBehaviour
     //Initialize UI
     private void Start()
     {
-        Cursor.SetCursor(targetCursor, Vector2.zero, CursorMode.ForceSoftware);
         gameScreen.SetActive(true);
         RemoveAllPoisonIcons();
+        mouseComponent.SetTargetCursor();
 
         weaponReloadImage.fillAmount=0f;
         firstAidReloadImage.fillAmount=0f;
@@ -397,7 +396,7 @@ public class UIManager : MonoBehaviour
     //Pauses the game
     public void Pause()
     {
-        Cursor.SetCursor(menuCursor, Vector2.zero, CursorMode.ForceSoftware);
+        mouseComponent.SetMenuCursor();
         Time.timeScale = 0f;
         pauseScreen.SetActive(true);
         gameScreen.SetActive(false);
@@ -408,7 +407,7 @@ public class UIManager : MonoBehaviour
     //Resumes the game
     public void Continue()
     {
-        Cursor.SetCursor(targetCursor, Vector2.zero, CursorMode.ForceSoftware);
+        mouseComponent.SetTargetCursor();
         Time.timeScale = 1f;
         pauseScreen.SetActive(false);
         gameScreen.SetActive(true);
@@ -454,7 +453,7 @@ public class UIManager : MonoBehaviour
     //Show dead screen
     public void SetDeadScreen()
     {
-        Cursor.SetCursor(menuCursor, Vector2.zero, CursorMode.ForceSoftware);
+        mouseComponent.SetMenuCursor();
         gameScreen.SetActive(false);
         deadScreen.SetActive(true);
         Time.timeScale = 0f;
@@ -467,7 +466,7 @@ public class UIManager : MonoBehaviour
     //Hide dead screen
     public void RemoveDeadScreen()
     {
-        Cursor.SetCursor(targetCursor, Vector2.zero, CursorMode.ForceSoftware);
+        mouseComponent.SetTargetCursor();
         gameScreen.SetActive(true);
         deadScreen.SetActive(false);
 
