@@ -31,6 +31,11 @@ public class ZenzeleyskBehaviour : MonoBehaviour
     [SerializeField] private Vector2 smallBodySize;
     [SerializeField] private Vector2 smallBodyOffset;
     [SerializeField] private GameObject shadow;
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip[] biteClips;
+    [SerializeField] private AudioClip[] appearClips;
+    [SerializeField] private AudioClip[] idleClips;
+    [SerializeField] private Vector2 timeBetweenIdleClips;
 
     private SpriteRenderer spriteRenderer;
     private Transform bodyTransform;
@@ -43,6 +48,8 @@ public class ZenzeleyskBehaviour : MonoBehaviour
     private float timeToWaitToAttackPlayer;
     private float timeUntilAttackCounter=0f;
     private Coroutine attackLoop;
+    private float idleSoundCounter=0f;
+    private float waitTimeForNextIdleSound;
 
 
     private void Start() 
@@ -61,6 +68,7 @@ public class ZenzeleyskBehaviour : MonoBehaviour
         mainBoxCollider.enabled=false;
         shadow.SetActive(false);
         
+        waitTimeForNextIdleSound = Random.Range(timeBetweenIdleClips.x,timeBetweenIdleClips.y);
         centralPosition = transform.position;
         timeToWaitToAttackPlayer = Random.Range(timeToWaitToAttackPlayerRange.x,timeToWaitToAttackPlayerRange.y);
     }
@@ -72,6 +80,7 @@ public class ZenzeleyskBehaviour : MonoBehaviour
         if(!commonEnemyBehaviour.IsDead())
         {
             timeUntilAttackCounter+=Time.deltaTime;
+            idleSoundCounter+=Time.deltaTime;
 
             float distanceToPlayer = Vector2.Distance(centralPosition, playerTransform.position);
             if(distanceToPlayer<=commonEnemyBehaviour.getDetectionRange())
@@ -88,6 +97,13 @@ public class ZenzeleyskBehaviour : MonoBehaviour
             }
             else
                 StopAttack();
+
+            if(idleSoundCounter>waitTimeForNextIdleSound)
+            {
+                waitTimeForNextIdleSound = Random.Range(timeBetweenIdleClips.x,timeBetweenIdleClips.y);
+                idleSoundCounter=0f;
+                audioSource.PlayOneShot(idleClips[Random.Range(0,idleClips.Length)]);
+            }
         }
         else
         {
@@ -126,6 +142,8 @@ public class ZenzeleyskBehaviour : MonoBehaviour
             bodyBoxCollider.enabled=false;
             mainBoxCollider.enabled=false;
             shadow.SetActive(false);
+
+            idleSoundCounter=0f;
         }
     }
 
@@ -135,6 +153,7 @@ public class ZenzeleyskBehaviour : MonoBehaviour
     {
         while(true)
         {
+            audioSource.PlayOneShot(appearClips[Random.Range(0,appearClips.Length)]);
             movement.setCannotMoveFor(stunPlayerForSeconds);
 
             spriteRenderer.enabled=true;
@@ -217,6 +236,7 @@ public class ZenzeleyskBehaviour : MonoBehaviour
     private IEnumerator biteAnimation(Sprite[] sprites)
     {
         playerComponent.TakeDamage(biteDamage);
+        audioSource.PlayOneShot(biteClips[Random.Range(0,biteClips.Length)]);
 
         for(int i=0; i<sprites.Length; i++)
         {
