@@ -10,7 +10,7 @@ public class CheckEnemyAttacks : MonoBehaviour
         if(collision.gameObject.tag=="Enemy" && collision.gameObject.layer==8)
         {
             CommonEnemyBehaviour commonEnemyBehaviour = collision.gameObject.GetComponent<CommonEnemyBehaviour>();
-            if(!commonEnemyBehaviour.IsDead())
+            if(!commonEnemyBehaviour.IsDead() && commonEnemyBehaviour.IsActive())
             {
                 commonEnemyBehaviour.StopPursuit();
                 commonEnemyBehaviour.StartAttack();
@@ -25,7 +25,7 @@ public class CheckEnemyAttacks : MonoBehaviour
         if(collision.gameObject.tag=="Enemy" && collision.gameObject.layer==8)
         {
             CommonEnemyBehaviour commonEnemyBehaviour = collision.gameObject.GetComponent<CommonEnemyBehaviour>();
-            if(!commonEnemyBehaviour.IsDead())
+            if(!commonEnemyBehaviour.IsDead() && commonEnemyBehaviour.IsActive())
             {
                 commonEnemyBehaviour.StopAttack();
                 commonEnemyBehaviour.StartPursuit();

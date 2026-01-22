@@ -21,6 +21,7 @@ public class Movement : MonoBehaviour
     //canMove sets weather player can move or not
     private bool characterMoves=false, canMove=true;
     private Coroutine stepsSound;
+    private Coroutine cannotMove;
 
 
     //Setters and getters
@@ -47,6 +48,26 @@ public class Movement : MonoBehaviour
     public float getAttackingSpeed()
     {
         return attackingSpeed;
+    }
+
+    public void setCannotMoveFor(float seconds)
+    {
+        canMove=false;
+        if(cannotMove!=null)
+            StopCoroutine(cannotMove);
+        
+        cannotMove = StartCoroutine(CannotMoveFor(seconds));
+    }
+
+    public void cancelCannotMove()
+    {
+        if(cannotMove!=null)
+        {
+            StopCoroutine(cannotMove);
+            cannotMove=null;
+        }
+
+        canMove=true;
     }
 
 
@@ -115,5 +136,14 @@ public class Movement : MonoBehaviour
 
             yield return new WaitForSeconds(stepClips[selectedClip].length+gapBetweenStepClips);
         }
+    }
+
+
+
+    private IEnumerator CannotMoveFor(float seconds)
+    {
+        yield return new WaitForSeconds(seconds);
+        canMove=true;
+        cannotMove=null;
     }
 }

@@ -25,6 +25,7 @@ public class PlayerComponent : MonoBehaviour
     [SerializeField] private AudioClip[] damageClips;
     [SerializeField] private float epsilon = 0.001f;
     [SerializeField] private PlayerAnimations playerAnimations;
+    [SerializeField] private Movement movement;
 
     private float currentHP=0;
     private int currentShieldLevel=0;
@@ -131,6 +132,7 @@ public class PlayerComponent : MonoBehaviour
         itemManager.Recalculation();
 
         transform.position = new Vector3(spawnpoint.x,spawnpoint.y,0);
+        movement.cancelCannotMove();
 
         uiManager.RemoveDeadScreen();
     }

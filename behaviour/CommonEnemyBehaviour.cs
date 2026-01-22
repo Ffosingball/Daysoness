@@ -148,6 +148,11 @@ public class CommonEnemyBehaviour : MonoBehaviour
         //Debug.Log("Changed activity");
     }
 
+    public bool IsActive()
+    {
+        return isActive;
+    }
+
     public bool getAtTargetDestination()
     {
         return atTargetDestination;
@@ -161,6 +166,16 @@ public class CommonEnemyBehaviour : MonoBehaviour
     public void setDoNotCancelAttack(bool _doNotCancelAttack)
     {
         doNotCancelAttack=_doNotCancelAttack;
+    }
+
+    public float getCurrentHP()
+    {
+        return currentHP;
+    }
+
+    public float getMaxHP()
+    {
+        return maxHP;
     }
 
 
@@ -276,7 +291,7 @@ public class CommonEnemyBehaviour : MonoBehaviour
                 rigidbody2d.linearVelocity = movementDirection * 0f;
             }
         }
-        else if(!dead)
+        else if(!dead && enemyAnimation!=null)
             enemyAnimation.setCurrentAnimation(AnimationStates.LongIdle);
 
         previousPosition = rigidbody2d.position;
@@ -594,7 +609,10 @@ public class CommonEnemyBehaviour : MonoBehaviour
         StopPursuit();
         deadCountdown = StartCoroutine(countdown());
         move=false;
-        enemyAnimation.setCurrentAnimation(AnimationStates.Dead);
+
+        if(enemyAnimation!=null)
+            enemyAnimation.setCurrentAnimation(AnimationStates.Dead);
+
         rigidbody2d.linearDamping = frictionAfterDeath;
 
         if(audioSource.clip!=null && hasMovingSound)
@@ -603,6 +621,7 @@ public class CommonEnemyBehaviour : MonoBehaviour
             audioSource.loop=false;
             audioSource.Play();
         }
+
         audioSource.PlayOneShot(deathClips[UnityEngine.Random.Range(0,deathClips.Length)]);
     }
 
