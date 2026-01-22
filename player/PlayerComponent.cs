@@ -130,6 +130,7 @@ public class PlayerComponent : MonoBehaviour
         uiManager.ChangeShieldBar(currentShieldLevel);
         uiManager.RemoveAllPoisonIcons();
         itemManager.Recalculation();
+        uiManager.StopHPBarBlink();
 
         transform.position = new Vector3(spawnpoint.x,spawnpoint.y,0);
         movement.cancelCannotMove();

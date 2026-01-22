@@ -82,6 +82,9 @@ public class UIManager : MonoBehaviour
 
         volume.profile.TryGet(out vignette);
         vignette.intensity.value = Mathf.Clamp01(0f);
+
+        heartSource.Stop();
+        heartSource.clip=null;
     }
 
 
@@ -258,9 +261,11 @@ public class UIManager : MonoBehaviour
         {
             StopCoroutine(hpBarBlink);
             hpBarBlink=null;
-            heartSource.Stop();
             vignette.intensity.value = Mathf.Clamp01(0f);
         }
+
+        heartSource.Stop();
+        heartSource.clip=null;
 
         Color currentColor = new Color(1f,1f,1f);
         foreach(Image im in hpBarParts)
