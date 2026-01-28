@@ -58,3 +58,11 @@ public enum Location
     Desert,
     Base,
 }
+
+//Item rareness
+public enum LevelsOfRareness
+{
+    Common,
+    Rare,
+    Epic,
+}

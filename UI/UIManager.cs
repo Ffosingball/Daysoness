@@ -480,4 +480,11 @@ public class UIManager : MonoBehaviour
 
         uiSource.PlayOneShot(ressurectedClip);
     }
+
+
+
+    public void ExitGame()
+    {
+        Application.Quit();
+    }
 }
