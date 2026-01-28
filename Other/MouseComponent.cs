@@ -31,7 +31,7 @@ public class MouseComponent : MonoBehaviour
         mousePosition.z=mouseZPosition;
         transform.position = mousePosition;
 
-        if((mainCamera.orthographicSize-initialOrthographicSize)>epsilon)
+        if(Mathf.Abs(mainCamera.orthographicSize-initialOrthographicSize)>epsilon)
         {
             transform.localScale = initialScale * (mainCamera.orthographicSize/initialOrthographicSize);
         }
