@@ -207,6 +207,7 @@ public class PlayerComponent : MonoBehaviour
     //Calculates which damage should receive a player
     public void TakeDamage(float rawDMG)
     {
+        //Debug.Log(caller+" dealt dmg: "+rawDMG);
         //Deal damage depending on the shield level
         switch(currentShieldLevel)
         {
@@ -311,6 +312,7 @@ public class PlayerComponent : MonoBehaviour
     //Player dies when this is called
     public void Die()
     {
+        Debug.Log("--DIED--");
         dead=true;
         uiManager.SetDeadScreen();
         itemManager.CancelRechargeWeapon();

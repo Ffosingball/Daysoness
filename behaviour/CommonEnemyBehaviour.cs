@@ -220,6 +220,9 @@ public class CommonEnemyBehaviour : MonoBehaviour
                 soundTime=0f;
             }
         }
+
+        if(attacking!=null && (playerComponent.isDead() || dead))
+            StopAttack();
     }
 
 
@@ -735,9 +738,6 @@ public class CommonEnemyBehaviour : MonoBehaviour
             timePassedSinceLastAttack=0f;
             playerComponent.TakeDamage(attackDMG);
             audioSource.PlayOneShot(attackClips[UnityEngine.Random.Range(0,attackClips.Length)]);
-
-            if(playerComponent.isDead() || dead)
-                StopAttack();
         }
     }
 

@@ -92,6 +92,7 @@ public class BeatleBehaviour : MonoBehaviour
     {
         yield return new WaitForSeconds(time);
 
+        commonEnemyBehaviour.setDoNotCancelAttack(false);
         commonEnemyBehaviour.Die();
         commonEnemyBehaviour.playBiteSound();
     }
