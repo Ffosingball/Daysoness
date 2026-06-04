@@ -6,19 +6,6 @@ using System.Collections.Generic;
 
 public class PlayerAnimations : MonoBehaviour
 {
-    //Animation sprites
-    [SerializeField] private Sprite[] moveLeftSprites;
-    [SerializeField] private Sprite[] moveRightSprites;
-    [SerializeField] private Sprite[] moveUpSprites;
-    [SerializeField] private Sprite[] moveDownSprites;
-    [SerializeField] private Sprite[] idleLeftSprites;
-    [SerializeField] private Sprite[] idleRightSprites;
-    [SerializeField] private Sprite[] idleUpSprites;
-    [SerializeField] private Sprite[] idleDownSprites;
-    [SerializeField] private Sprite[] longIdleLeftSprites;
-    [SerializeField] private Sprite[] longIdleRightSprites;
-    [SerializeField] private Sprite[] longIdleUpSprites;
-    [SerializeField] private Sprite[] longIdleDownSprites;
     //Time after which moving sprites should be changed
     [SerializeField] private float moveFlipTime=0.2f;
     //Time after which idle sprites should be changed
@@ -37,16 +24,15 @@ public class PlayerAnimations : MonoBehaviour
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip[] longWaitSoundClips;
     [SerializeField] private Vector2 timeBetweenSounds;
+    [SerializeField] private Animator animator;
 
-    //Curent index of the sprite in the array
-    private int currentSprite=0;
     //References to other components
     private Movement movement;
     private SpriteRenderer spriteRenderer;
     //Direction in which player now moves
     private Directions currentDirection;
     //Time counter to flip sprites
-    private float timePassed=0f;
+    //private float timePassed=0f;
     //Time counter to enter long wait animation state
     private float timePassedForLongIdleAnimation;
     //Time counter to exit sttack state
@@ -101,7 +87,6 @@ public class PlayerAnimations : MonoBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>();
         currentDirection=Directions.Down;
         usualShadowPosition = shadow.localPosition;
-        spriteRenderer.sprite = longIdleDownSprites[0];
         animationPicker = LongWaitAnimation;
         longWaitSoundsCoroutine=StartCoroutine(longWaitSounds());
         longWaitAnimation=true;
@@ -117,12 +102,63 @@ public class PlayerAnimations : MonoBehaviour
     void Update()
     {
         //Increase counters
-        timePassed+=Time.deltaTime;
         timePassedForLongIdleAnimation+=Time.deltaTime;
         timePassedSinceFireStoped+=Time.deltaTime;
 
         //Calculate angle
         GetAngleToMouse();
+
+        //Get direction
+        Vector2 direction = movement.getMovementDirection();
+        movingAnimation=true;
+        shadow.localPosition = usualShadowPosition;
+        timePassedForLongIdleAnimation=0f;
+
+        if(isAttackingAnimation())
+        {
+            //Get mouse direction
+            Directions mouseDirection = GetMouseDirection();
+
+            //Get direction for the player movement
+            switch(mouseDirection)
+            {
+                case Directions.Up:
+                    if(direction.y<-0.7)
+                        currentDirection=Directions.BackwardsDown;
+                    else
+                        currentDirection=Directions.Up;
+                    break;
+                case Directions.Down:
+                    if(direction.y>0.7)
+                        currentDirection=Directions.BackwardsUp;
+                    else
+                        currentDirection=Directions.Down;
+                    break;
+                case Directions.Left:
+                    if(direction.x>0.7)
+                        currentDirection=Directions.BackwardsRight;
+                    else
+                        currentDirection=Directions.Left;
+                    break;
+                case Directions.Right:
+                    if(direction.x<-0.7)
+                        currentDirection=Directions.BackwardsLeft;
+                    else
+                        currentDirection=Directions.Right;
+                    break;
+            }
+        }
+        else
+        {
+            if(direction.y>0.7)
+                currentDirection=Directions.Up;
+            else if(direction.y<-0.7)
+                currentDirection=Directions.Down;
+            else if(direction.x>0.7)
+                currentDirection=Directions.Right;
+            else if(direction.x<-0.7)
+                currentDirection=Directions.Left;
+        }
 
         //Select which animation to show
         if(movement.getIfCharacterMoves())
@@ -150,9 +186,6 @@ public class PlayerAnimations : MonoBehaviour
         
         //Show animation
         animationPicker();
-
-        if(timePassed<0)
-            timePassed=0f;
     }
 
 
@@ -204,24 +237,7 @@ public class PlayerAnimations : MonoBehaviour
     {
         //If time passed then flip sprite
         if(timePassed>moveFlipTime || !movingAnimation)
-        {
-            timePassed-=moveFlipTime;
-            currentSprite++;
-            //Get current direction
-            Vector2 direction = movement.getMovementDirection();
-            movingAnimation=true;
-            shadow.localPosition = usualShadowPosition;
-
-            //Get current direction
-            if(direction.y>0.7)
-                currentDirection=Directions.Up;
-            else if(direction.y<-0.7)
-                currentDirection=Directions.Down;
-            else if(direction.x>0.7)
-                currentDirection=Directions.Right;
-            else if(direction.x<-0.7)
-                currentDirection=Directions.Left;
-            
+        {   
             SetNewSprite(moveUpSprites, moveDownSprites, moveLeftSprites, moveRightSprites);
 
             timePassedForLongIdleAnimation=0f;
@@ -264,45 +280,6 @@ public class PlayerAnimations : MonoBehaviour
         //Check if time to change sprite
         if(timePassed>(moveFlipTime*(movement.getUsualSpeed()/movement.getAttackingSpeed())) || !movingAnimation)
         {
-            timePassed-=moveFlipTime;
-            currentSprite++;
-            Vector2 direction = movement.getMovementDirection();
-            movingAnimation=true;
-            shadow.localPosition = usualShadowPosition;
-            timePassedForLongIdleAnimation=0f;
-
-            //Get mouse direction
-            Directions mouseDirection = GetMouseDirection();
-
-            //Get direction for the player movement
-            switch(mouseDirection)
-            {
-                case Directions.Up:
-                    if(direction.y<-0.7)
-                        currentDirection=Directions.BackwardsDown;
-                    else
-                        currentDirection=Directions.Up;
-                    break;
-                case Directions.Down:
-                    if(direction.y>0.7)
-                        currentDirection=Directions.BackwardsUp;
-                    else
-                        currentDirection=Directions.Down;
-                    break;
-                case Directions.Left:
-                    if(direction.x>0.7)
-                        currentDirection=Directions.BackwardsRight;
-                    else
-                        currentDirection=Directions.Left;
-                    break;
-                case Directions.Right:
-                    if(direction.x<-0.7)
-                        currentDirection=Directions.BackwardsLeft;
-                    else
-                        currentDirection=Directions.Right;
-                    break;
-            }
-
             SetNewSprite(moveUpSprites, moveDownSprites, moveLeftSprites, moveRightSprites);
         }
     }
@@ -317,8 +294,6 @@ public class PlayerAnimations : MonoBehaviour
         //Check if time to change sprite
         if(timePassed>idleFlipTime || movingAnimation || currentDirection!=previousDirection)
         {
-            timePassed-=idleFlipTime;
-            currentSprite++;
             movingAnimation=false;
 
             SetNewSprite(idleUpSprites, idleDownSprites, idleLeftSprites, idleRightSprites);
@@ -335,8 +310,6 @@ public class PlayerAnimations : MonoBehaviour
         //Check if time to change sprite
         if(timePassed>idleFlipTime || movingAnimation)
         {
-            timePassed-=idleFlipTime;
-            currentSprite++;
             movingAnimation=false;
 
             SetNewSprite(idleUpSprites, idleDownSprites, idleLeftSprites, idleRightSprites);
@@ -346,7 +319,6 @@ public class PlayerAnimations : MonoBehaviour
         if(timePassedForLongIdleAnimation>timeToWaitUntilLongIdleAnimation)
         {
             longWaitAnimation=true;
-            timePassed+=idleFlipTime;
             animationPicker=LongWaitAnimation;
             longWaitSoundsCoroutine=StartCoroutine(longWaitSounds());
         }
@@ -360,9 +332,6 @@ public class PlayerAnimations : MonoBehaviour
         //Check if time to change sprite
         if(timePassed>idleFlipTime)
         {
-            timePassed-=idleFlipTime;
-            currentSprite++;
-
             SetNewSprite(longIdleUpSprites, longIdleDownSprites, longIdleLeftSprites, longIdleRightSprites);
 
             //Set correct shadow position
@@ -381,65 +350,6 @@ public class PlayerAnimations : MonoBehaviour
                     shadow.localPosition = usualShadowPosition+longAnimationRightOffset;
                     break;
             }
-        }
-    }
-
-
-
-    //This method sets new sprite depending on the current direction 
-    //in which character is looking
-    private void SetNewSprite(Sprite[] up, Sprite[] down, Sprite[] left, Sprite[] right)
-    {
-        switch(currentDirection)
-        {
-            case Directions.Up:
-                if(currentSprite>=up.Length)
-                    currentSprite=0;
-
-                spriteRenderer.sprite = up[currentSprite];
-                break;
-            case Directions.Down:
-                if(currentSprite>=down.Length)
-                    currentSprite=0;
-
-                spriteRenderer.sprite = down[currentSprite];
-                break;
-            case Directions.Left:
-                if(currentSprite>=left.Length)
-                    currentSprite=0;
-
-                spriteRenderer.sprite = left[currentSprite];
-                break;
-            case Directions.Right:
-                if(currentSprite>=right.Length)
-                    currentSprite=0;
-
-                spriteRenderer.sprite = right[currentSprite];
-                break;
-            case Directions.BackwardsUp:
-                if(currentSprite>=down.Length)
-                    currentSprite=0;
-
-                spriteRenderer.sprite = down[down.Length-currentSprite-1];
-                break;
-            case Directions.BackwardsDown:
-                if(currentSprite>=up.Length)
-                    currentSprite=0;
-
-                spriteRenderer.sprite = up[up.Length-currentSprite-1];
-                break;
-            case Directions.BackwardsLeft:
-                if(currentSprite>=right.Length)
-                    currentSprite=0;
-
-                spriteRenderer.sprite = right[right.Length-currentSprite-1];
-                break;
-            case Directions.BackwardsRight:
-                if(currentSprite>=left.Length)
-                    currentSprite=0;
-
-                spriteRenderer.sprite = left[left.Length-currentSprite-1];
-                break;
         }
     }
 
