@@ -77,7 +77,7 @@ public class MeeleWeaponAnimation : MonoBehaviour
             SwingingAnimation();
         else
         {
-            if(playerAnimation.getAnimationState()==AnimationState.AttackIdle)
+            if(playerAnimation.getAnimationState()==AnimationState.LongIdle)
                 IdleLongAnimation();
             else
                 IdleAnimation();

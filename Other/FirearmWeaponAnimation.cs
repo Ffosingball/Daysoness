@@ -189,12 +189,12 @@ public class FirearmWeaponAnimation : MonoBehaviour
 
                 transform.localPosition = weaponDownPosition;
                 break;
-            case Directions.Right:
+            case Directions.Left:
                 spriteRenderer.flipY=true;
                 transform.rotation = Quaternion.Euler(0f,0f,180f);
                 transform.localPosition = weaponLeftPosition;
                 break;
-            case Directions.Left:
+            case Directions.Right:
                 spriteRenderer.flipY=false;
                 transform.rotation = Quaternion.Euler(0f,0f,0f);
                 transform.localPosition = weaponRightPosition;
@@ -270,7 +270,7 @@ public class FirearmWeaponAnimation : MonoBehaviour
                         spriteRenderer.sprite=horizontalWithMagazine;
 
                     break;
-                case Directions.Right:
+                case Directions.Left:
                     transform.localPosition = weaponLongLeftPosition;
 
                     currentScale.x = initScale*scaleDecreaseToVertical;
@@ -283,7 +283,7 @@ public class FirearmWeaponAnimation : MonoBehaviour
                         spriteRenderer.sprite=verticalWithMagazine;
 
                     break;
-                case Directions.Left:
+                case Directions.Right:
                     transform.localPosition = weaponLongRightPosition;
 
                     currentScale.x = initScale*scaleDecreaseToVertical;

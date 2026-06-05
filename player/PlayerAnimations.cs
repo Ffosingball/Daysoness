@@ -115,9 +115,9 @@ public class PlayerAnimations : MonoBehaviour
             else if(direction.y<-0.7)
                 currentDirection=Directions.Down;
             else if(direction.x>0.7)
-                currentDirection=Directions.Left;
-            else if(direction.x<-0.7)
                 currentDirection=Directions.Right;
+            else if(direction.x<-0.7)
+                currentDirection=Directions.Left;
         }
         
         //Show animation
@@ -139,11 +139,11 @@ public class PlayerAnimations : MonoBehaviour
                     animator.Play("IdleDown");
                     break;
                 case (AnimationState.AttackIdle,Directions.Right):
-                case (AnimationState.Idle,Directions.Left):
+                case (AnimationState.Idle,Directions.Right):
                     animator.Play("IdleLeft");
                     break;
                 case (AnimationState.AttackIdle,Directions.Left):
-                case (AnimationState.Idle,Directions.Right):
+                case (AnimationState.Idle,Directions.Left):
                     animator.Play("IdleRight");
                     break;
                 case (AnimationState.Moving,Directions.Up):
@@ -154,11 +154,11 @@ public class PlayerAnimations : MonoBehaviour
                 case (AnimationState.AttackMoving,Directions.Down):
                     animator.Play("WalkDown");
                     break;
-                case (AnimationState.Moving,Directions.Left):
+                case (AnimationState.Moving,Directions.Right):
                 case (AnimationState.AttackMoving,Directions.Right):
                     animator.Play("WalkLeft");
                     break;
-                case (AnimationState.Moving,Directions.Right):
+                case (AnimationState.Moving,Directions.Left):
                 case (AnimationState.AttackMoving,Directions.Left):
                     animator.Play("WalkRight");
                     break;
@@ -181,10 +181,10 @@ public class PlayerAnimations : MonoBehaviour
                     animator.Play("LongIdleUp");
                     break;
                 case (AnimationState.LongIdle,Directions.Left):
-                    animator.Play("LongIdleRight");
+                    animator.Play("LongIdleLeft");
                     break;
                 case (AnimationState.LongIdle,Directions.Right):
-                    animator.Play("LongIdleLeft");
+                    animator.Play("LongIdleRight");
                     break;
             }
         }
@@ -199,7 +199,7 @@ public class PlayerAnimations : MonoBehaviour
     //Starts attack animation
     private void StartAttackAnimation()
     {
-        if(currentAnimationState==AnimationState.Idle || currentAnimationState==AnimationState.LongIdle)
+        if(currentAnimationState==AnimationState.Idle || currentAnimationState==AnimationState.LongIdle || currentAnimationState==AnimationState.AttackIdle)
             currentAnimationState = AnimationState.AttackIdle;
         else
             currentAnimationState = AnimationState.AttackMoving;
