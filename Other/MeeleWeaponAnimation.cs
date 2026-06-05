@@ -73,11 +73,11 @@ public class MeeleWeaponAnimation : MonoBehaviour
     {
         swiningPassed+=Time.deltaTime;
 
-        if(playerAnimation.isAttackingAnimation())
+        if(playerAnimation.getAnimationState()==AnimationState.AttackIdle || playerAnimation.getAnimationState()==AnimationState.AttackMoving)
             SwingingAnimation();
         else
         {
-            if(playerAnimation.isLongWaitAnimation())
+            if(playerAnimation.getAnimationState()==AnimationState.AttackIdle)
                 IdleLongAnimation();
             else
                 IdleAnimation();

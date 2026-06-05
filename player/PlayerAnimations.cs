@@ -6,62 +6,34 @@ using System.Collections.Generic;
 
 public class PlayerAnimations : MonoBehaviour
 {
-    //Time after which moving sprites should be changed
-    [SerializeField] private float moveFlipTime=0.2f;
-    //Time after which idle sprites should be changed
-    [SerializeField] private float idleFlipTime=0.4f;
     //Time after which character will go into long wait animation state
     //(Currently after that time main character will sit down and wait)
     [SerializeField] private float timeToWaitUntilLongIdleAnimation=10f;
     //Offset for the shadow
-    [SerializeField] private Vector3 longAnimationUpOffset;
-    [SerializeField] private Vector3 longAnimationDownOffset;
-    [SerializeField] private Vector3 longAnimationLeftOffset;
-    [SerializeField] private Vector3 longAnimationRightOffset;
-    [SerializeField] private Transform shadow;
     //Time after which player will exit the attack state
     [SerializeField] private float timeToCancelFireSprites=1f;
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip[] longWaitSoundClips;
     [SerializeField] private Vector2 timeBetweenSounds;
     [SerializeField] private Animator animator;
+    [SerializeField] private float animationSlowingDuringAttack=0.2f;
 
     //References to other components
     private Movement movement;
-    private SpriteRenderer spriteRenderer;
     //Direction in which player now moves
     private Directions currentDirection;
-    //Time counter to flip sprites
-    //private float timePassed=0f;
-    //Time counter to enter long wait animation state
-    private float timePassedForLongIdleAnimation;
-    //Time counter to exit sttack state
-    private float timePassedSinceFireStoped=0f;
-    //Flag which tells whether player is moving state or not
-    private bool movingAnimation=true;
-    //Stores initial shadow position
-    private Vector3 usualShadowPosition;
-    //Flag which tells whether player is long wait animation state or not
-    private bool longWaitAnimation=false;
-    //Stores which animation to use
-    private Action animationPicker;
-    //Is player attacking now
-    private bool attacking=false;
     private Directions previousDirection;
     //Current angle between main character, mouse and x-axis
     private float currentAngle;
-    private Coroutine longWaitSoundsCoroutine;
+    private Coroutine longWaitSoundsCoroutine, fireStopCoroutine, longIdleWaitCoroutine;
+    private AnimationState currentAnimationState;
+    private AnimationState previousAnimationState;
 
 
     //Getters and setters
     public Directions getDirection()
     {
         return currentDirection;
-    }
-
-    public bool isLongWaitAnimation()
-    {
-        return longWaitAnimation;
     }
 
     public float getCurrentAngle()
@@ -74,9 +46,9 @@ public class PlayerAnimations : MonoBehaviour
         return timeToCancelFireSprites;
     }
 
-    public bool isAttackingAnimation()
+    public AnimationState getAnimationState()
     {
-        return attacking || timePassedSinceFireStoped<timeToCancelFireSprites;
+        return currentAnimationState;
     }
 
 
@@ -84,14 +56,9 @@ public class PlayerAnimations : MonoBehaviour
     void Start()
     {
         movement = transform.parent.gameObject.GetComponent<Movement>();
-        spriteRenderer = GetComponent<SpriteRenderer>();
         currentDirection=Directions.Down;
-        usualShadowPosition = shadow.localPosition;
-        animationPicker = LongWaitAnimation;
+        currentAnimationState = AnimationState.LongIdle;
         longWaitSoundsCoroutine=StartCoroutine(longWaitSounds());
-        longWaitAnimation=true;
-        timePassedForLongIdleAnimation=timeToWaitUntilLongIdleAnimation+1f;
-        timePassedSinceFireStoped+=timeToCancelFireSprites;
 
         EventsManager.OnStopFire+=StopAttackAnimation;
         EventsManager.OnStartFire+=StartAttackAnimation;
@@ -101,20 +68,13 @@ public class PlayerAnimations : MonoBehaviour
 
     void Update()
     {
-        //Increase counters
-        timePassedForLongIdleAnimation+=Time.deltaTime;
-        timePassedSinceFireStoped+=Time.deltaTime;
-
         //Calculate angle
         GetAngleToMouse();
 
         //Get direction
         Vector2 direction = movement.getMovementDirection();
-        movingAnimation=true;
-        shadow.localPosition = usualShadowPosition;
-        timePassedForLongIdleAnimation=0f;
 
-        if(isAttackingAnimation())
+        if(previousAnimationState==AnimationState.AttackIdle || previousAnimationState==AnimationState.AttackMoving)
         {
             //Get mouse direction
             Directions mouseDirection = GetMouseDirection();
@@ -155,37 +115,83 @@ public class PlayerAnimations : MonoBehaviour
             else if(direction.y<-0.7)
                 currentDirection=Directions.Down;
             else if(direction.x>0.7)
-                currentDirection=Directions.Right;
-            else if(direction.x<-0.7)
                 currentDirection=Directions.Left;
-        }
-
-        //Select which animation to show
-        if(movement.getIfCharacterMoves())
-        {
-            longWaitAnimation=false;
-            if(longWaitSoundsCoroutine!=null)
-            {
-                StopCoroutine(longWaitSoundsCoroutine);
-                longWaitSoundsCoroutine=null;
-                audioSource.Stop();
-            }
-
-            if(isAttackingAnimation())
-                animationPicker=FireMovementAnimation;
-            else
-                animationPicker=UsualMovementAnimation;
-        }
-        else if(!longWaitAnimation)
-        {
-            if(isAttackingAnimation())
-                animationPicker=FireWaitAnimation;
-            else
-                animationPicker=ShortWaitAnimation;
+            else if(direction.x<-0.7)
+                currentDirection=Directions.Right;
         }
         
         //Show animation
-        animationPicker();
+        if(previousAnimationState!=currentAnimationState || previousDirection!=currentDirection)
+        {
+            if(currentAnimationState==AnimationState.AttackIdle || currentAnimationState==AnimationState.AttackMoving)
+                animator.speed = 1f-animationSlowingDuringAttack;
+            else
+                animator.speed = 1f;
+            
+            switch(currentAnimationState,currentDirection)
+            {
+                case (AnimationState.AttackIdle,Directions.Up):
+                case (AnimationState.Idle,Directions.Up):
+                    animator.Play("IdleUp");
+                    break;
+                case (AnimationState.AttackIdle,Directions.Down):
+                case (AnimationState.Idle,Directions.Down):
+                    animator.Play("IdleDown");
+                    break;
+                case (AnimationState.AttackIdle,Directions.Right):
+                case (AnimationState.Idle,Directions.Left):
+                    animator.Play("IdleLeft");
+                    break;
+                case (AnimationState.AttackIdle,Directions.Left):
+                case (AnimationState.Idle,Directions.Right):
+                    animator.Play("IdleRight");
+                    break;
+                case (AnimationState.Moving,Directions.Up):
+                case (AnimationState.AttackMoving,Directions.Up):
+                    animator.Play("WalkUp");
+                    break;
+                case (AnimationState.Moving,Directions.Down):
+                case (AnimationState.AttackMoving,Directions.Down):
+                    animator.Play("WalkDown");
+                    break;
+                case (AnimationState.Moving,Directions.Left):
+                case (AnimationState.AttackMoving,Directions.Right):
+                    animator.Play("WalkLeft");
+                    break;
+                case (AnimationState.Moving,Directions.Right):
+                case (AnimationState.AttackMoving,Directions.Left):
+                    animator.Play("WalkRight");
+                    break;
+                case (AnimationState.AttackMoving,Directions.BackwardsUp):
+                    animator.Play("WalkDownBackwards");
+                    break;
+                case (AnimationState.AttackMoving,Directions.BackwardsDown):
+                    animator.Play("WalkUpBackwards");
+                    break;
+                case (AnimationState.AttackMoving,Directions.BackwardsLeft):
+                    animator.Play("WalkRightBackwards");
+                    break;
+                case (AnimationState.AttackMoving,Directions.BackwardsRight):
+                    animator.Play("WalkLeftBackwards");
+                    break;
+                case (AnimationState.LongIdle,Directions.Up):
+                    animator.Play("LongIdleDown");
+                    break;
+                case (AnimationState.LongIdle,Directions.Down):
+                    animator.Play("LongIdleUp");
+                    break;
+                case (AnimationState.LongIdle,Directions.Left):
+                    animator.Play("LongIdleRight");
+                    break;
+                case (AnimationState.LongIdle,Directions.Right):
+                    animator.Play("LongIdleLeft");
+                    break;
+            }
+        }
+
+
+        previousDirection = currentDirection;
+        previousAnimationState = currentAnimationState;
     }
 
 
@@ -193,9 +199,11 @@ public class PlayerAnimations : MonoBehaviour
     //Starts attack animation
     private void StartAttackAnimation()
     {
-        timePassedForLongIdleAnimation=0f;
-        longWaitAnimation=false;
-        attacking=true;
+        if(currentAnimationState==AnimationState.Idle || currentAnimationState==AnimationState.LongIdle)
+            currentAnimationState = AnimationState.AttackIdle;
+        else
+            currentAnimationState = AnimationState.AttackMoving;
+
 
         if(longWaitSoundsCoroutine!=null)
         {
@@ -203,14 +211,51 @@ public class PlayerAnimations : MonoBehaviour
             longWaitSoundsCoroutine=null;
             audioSource.Stop();
         }
+
+        if(fireStopCoroutine!=null)
+        {
+            StopCoroutine(fireStopCoroutine);
+            fireStopCoroutine=null;
+        }
+
+        if(longIdleWaitCoroutine!=null)
+        {
+            StopCoroutine(longIdleWaitCoroutine);
+            longIdleWaitCoroutine=null;
+        }
+    }
+
+
+
+    //Starts moving animation
+    public void StartMovingAnimation()
+    {
+        if(currentAnimationState==AnimationState.Idle || currentAnimationState==AnimationState.LongIdle)
+            currentAnimationState = AnimationState.Moving;
+        else
+            currentAnimationState = AnimationState.AttackMoving;
+
+
+        if(longWaitSoundsCoroutine!=null)
+        {
+            StopCoroutine(longWaitSoundsCoroutine);
+            longWaitSoundsCoroutine=null;
+            audioSource.Stop();
+        }
+
+        if(longIdleWaitCoroutine!=null)
+        {
+            StopCoroutine(longIdleWaitCoroutine);
+            longIdleWaitCoroutine=null;
+        }
     }
 
 
 
     public void CancelLongWaitAnimation()
     {
-        timePassedForLongIdleAnimation=0f;
-        longWaitAnimation=false;
+        if(currentAnimationState==AnimationState.LongIdle)
+            currentAnimationState = AnimationState.Idle;
 
         if(longWaitSoundsCoroutine!=null)
         {
@@ -225,22 +270,29 @@ public class PlayerAnimations : MonoBehaviour
     //Stops attack animation
     private void StopAttackAnimation()
     {
-        timePassedForLongIdleAnimation=0f;
-        timePassedSinceFireStoped=0f;
-        attacking=false;
+        Action action = () => { 
+            if(currentAnimationState==AnimationState.AttackMoving)
+                currentAnimationState = AnimationState.Moving;
+            else
+            {
+                currentAnimationState = AnimationState.Idle;
+                Action action = () => {currentAnimationState=AnimationState.LongIdle;};
+                longIdleWaitCoroutine = StartCoroutine(timedEvent(timeToWaitUntilLongIdleAnimation,action));
+            }};
+        fireStopCoroutine = StartCoroutine(timedEvent(timeToCancelFireSprites,action));
     }
 
 
-
-    //This method shows movement animation
-    private void UsualMovementAnimation()
+    //Stops moving animation
+    public void StopMovingAnimation()
     {
-        //If time passed then flip sprite
-        if(timePassed>moveFlipTime || !movingAnimation)
-        {   
-            SetNewSprite(moveUpSprites, moveDownSprites, moveLeftSprites, moveRightSprites);
-
-            timePassedForLongIdleAnimation=0f;
+        if(currentAnimationState==AnimationState.AttackMoving)
+            currentAnimationState = AnimationState.AttackIdle;
+        else
+        {
+            currentAnimationState = AnimationState.Idle;
+            Action action = () => {currentAnimationState=AnimationState.LongIdle;};
+            longIdleWaitCoroutine = StartCoroutine(timedEvent(timeToWaitUntilLongIdleAnimation,action));
         }
     }
 
@@ -274,87 +326,6 @@ public class PlayerAnimations : MonoBehaviour
 
 
 
-    //This method shows movement animation while attacking
-    private void FireMovementAnimation()
-    {
-        //Check if time to change sprite
-        if(timePassed>(moveFlipTime*(movement.getUsualSpeed()/movement.getAttackingSpeed())) || !movingAnimation)
-        {
-            SetNewSprite(moveUpSprites, moveDownSprites, moveLeftSprites, moveRightSprites);
-        }
-    }
-
-
-
-    //This method shows movement animation while standing on a place
-    private void FireWaitAnimation()
-    {
-        currentDirection = GetMouseDirection();
-
-        //Check if time to change sprite
-        if(timePassed>idleFlipTime || movingAnimation || currentDirection!=previousDirection)
-        {
-            movingAnimation=false;
-
-            SetNewSprite(idleUpSprites, idleDownSprites, idleLeftSprites, idleRightSprites);
-
-            previousDirection = currentDirection;
-        }
-    }
-
-
-
-    //This method shows wait animation just after movement
-    private void ShortWaitAnimation()
-    {
-        //Check if time to change sprite
-        if(timePassed>idleFlipTime || movingAnimation)
-        {
-            movingAnimation=false;
-
-            SetNewSprite(idleUpSprites, idleDownSprites, idleLeftSprites, idleRightSprites);
-        }
-
-        //Check if time to enter long wait animation state
-        if(timePassedForLongIdleAnimation>timeToWaitUntilLongIdleAnimation)
-        {
-            longWaitAnimation=true;
-            animationPicker=LongWaitAnimation;
-            longWaitSoundsCoroutine=StartCoroutine(longWaitSounds());
-        }
-    }
-
-
-
-    //This method shows long wait animation
-    private void LongWaitAnimation()
-    {
-        //Check if time to change sprite
-        if(timePassed>idleFlipTime)
-        {
-            SetNewSprite(longIdleUpSprites, longIdleDownSprites, longIdleLeftSprites, longIdleRightSprites);
-
-            //Set correct shadow position
-            switch(currentDirection)
-            {
-                case Directions.Up:
-                    shadow.localPosition = usualShadowPosition+longAnimationUpOffset;
-                    break;
-                case Directions.Down:
-                    shadow.localPosition = usualShadowPosition+longAnimationDownOffset;
-                    break;
-                case Directions.Left:
-                    shadow.localPosition = usualShadowPosition+longAnimationLeftOffset;
-                    break;
-                case Directions.Right:
-                    shadow.localPosition = usualShadowPosition+longAnimationRightOffset;
-                    break;
-            }
-        }
-    }
-
-
-
     private IEnumerator longWaitSounds()
     {
         while(true)
@@ -367,5 +338,13 @@ public class PlayerAnimations : MonoBehaviour
 
             yield return new WaitForSeconds(audioSource.clip.length);
         }
+    }
+
+
+
+    private IEnumerator timedEvent(float waitForSec, Action action)
+    {
+        yield return new WaitForSeconds(waitForSec);
+        action();
     }
 }

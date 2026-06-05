@@ -19,7 +19,7 @@ public class Movement : MonoBehaviour
     private Rigidbody2D playerRigid;
     //characterMoves tells whether player is moving now or not
     //canMove sets weather player can move or not
-    private bool characterMoves=false, canMove=true;
+    private bool characterMoves=false, canMove=true, previousCharacterMoves;
     private Coroutine stepsSound;
     private Coroutine cannotMove;
 
@@ -84,7 +84,7 @@ public class Movement : MonoBehaviour
         //Check if player can move then move
         if(canMove)
         {
-            if(playerAnimation.isAttackingAnimation())
+            if(playerAnimation.getAnimationState()==AnimationState.AttackIdle || playerAnimation.getAnimationState()==AnimationState.AttackMoving)
                 playerRigid.linearVelocity = movementDirection * attackingSpeed;
             else
                 playerRigid.linearVelocity = movementDirection * usualSpeed;
@@ -92,14 +92,22 @@ public class Movement : MonoBehaviour
             if(movementDirection.x==0 && movementDirection.y==0)
             {
                 characterMoves=false;
+                if(previousCharacterMoves!=characterMoves)
+                    playerAnimation.StopMovingAnimation();
+
                 StopStepsSound();
             }
             else
             {
                 characterMoves=true;
+                if(previousCharacterMoves!=characterMoves)
+                    playerAnimation.StartMovingAnimation();
+
                 StartStepsSound();
             }
         }
+
+        previousCharacterMoves = characterMoves;
     }
 
 
