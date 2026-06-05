@@ -68,6 +68,17 @@ public class PlayerAnimations : MonoBehaviour
 
     void Update()
     {
+        CalculateDirection();
+        SelectAnimation();
+
+        previousDirection = currentDirection;
+        previousAnimationState = currentAnimationState;
+    }
+
+
+
+    private void CalculateDirection()
+    {
         //Calculate angle
         GetAngleToMouse();
 
@@ -119,8 +130,12 @@ public class PlayerAnimations : MonoBehaviour
             else if(direction.x<-0.7)
                 currentDirection=Directions.Left;
         }
-        
-        //Show animation
+    }
+
+
+
+    private void SelectAnimation()
+    {
         if(previousAnimationState!=currentAnimationState || previousDirection!=currentDirection)
         {
             if(currentAnimationState==AnimationState.AttackIdle || currentAnimationState==AnimationState.AttackMoving)
@@ -188,10 +203,6 @@ public class PlayerAnimations : MonoBehaviour
                     break;
             }
         }
-
-
-        previousDirection = currentDirection;
-        previousAnimationState = currentAnimationState;
     }
 
 

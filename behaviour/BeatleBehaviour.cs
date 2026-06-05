@@ -17,6 +17,7 @@ public class BeatleBehaviour : MonoBehaviour
     //or from start to end then from end to start and again (false)
     [SerializeField] private bool positionsInCircle=false;
     [SerializeField] private EnemyAnimation enemyAnimation;
+    [SerializeField] private float timeToWaitToDie = 0.4f;
 
     //Current choosed route position
     private int goToTarget=0;
@@ -82,7 +83,7 @@ public class BeatleBehaviour : MonoBehaviour
             playerComponent.StartPoisonEffect(poisonDuration,poisonDMGPeriod,poisonDMG,PoisonTypes.Beetle);
             commonEnemyBehaviour.setDoNotCancelAttack(true);
             poisonedPlayer=true;
-            StartCoroutine(waitToDie(enemyAnimation.getFlipTime()*enemyAnimation.getNumOfAttackSprites()));
+            StartCoroutine(waitToDie(timeToWaitToDie));
         }
     } 
 

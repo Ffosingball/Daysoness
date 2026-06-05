@@ -48,16 +48,6 @@ public enum AnimationState
     Idle,
     AttackIdle,
     AttackMoving,
-    LongIdle
-}
-
-//Possible direction for all animations
-public enum AnimationStates
-{
-    Idle,
-    Moving,
-    MovingAttacking,
-    IdleAttacking,
     LongIdle,
     Dead
 }

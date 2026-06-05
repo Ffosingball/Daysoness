@@ -253,7 +253,7 @@ public class CommonEnemyBehaviour : MonoBehaviour
                     }
                 }
 
-                enemyAnimation.setCurrentAnimation(AnimationStates.Idle);
+                enemyAnimation.setCurrentAnimationState(AnimationState.Idle);
             }
 
             //If can move than move
@@ -279,7 +279,7 @@ public class CommonEnemyBehaviour : MonoBehaviour
                 else
                     timeStuck=0f;
 
-                enemyAnimation.setCurrentAnimation(AnimationStates.Moving);
+                enemyAnimation.setCurrentAnimationState(AnimationState.Moving);
 
                 if(audioSource.clip!=runningClip && hasMovingSound)
                 {
@@ -295,7 +295,7 @@ public class CommonEnemyBehaviour : MonoBehaviour
             }
         }
         else if(!dead && enemyAnimation!=null)
-            enemyAnimation.setCurrentAnimation(AnimationStates.LongIdle);
+            enemyAnimation.setCurrentAnimationState(AnimationState.LongIdle);
 
         previousPosition = rigidbody2d.position;
     }
@@ -614,7 +614,7 @@ public class CommonEnemyBehaviour : MonoBehaviour
         move=false;
 
         if(enemyAnimation!=null)
-            enemyAnimation.setCurrentAnimation(AnimationStates.Dead);
+            enemyAnimation.setCurrentAnimationState(AnimationState.Dead);
 
         rigidbody2d.linearDamping = frictionAfterDeath;
 
@@ -692,7 +692,7 @@ public class CommonEnemyBehaviour : MonoBehaviour
     {
         atTargetDestination=false;
         attacking = StartCoroutine(attackLoop());
-        enemyAnimation.setCurrentAnimation(AnimationStates.IdleAttacking);
+        enemyAnimation.setCurrentAnimationState(AnimationState.AttackIdle);
 
         if(audioSource.clip!=null && hasMovingSound && stopRunningSoundTimer>waitForSoundToStop)
         {
